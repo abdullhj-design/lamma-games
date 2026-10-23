@@ -1,0 +1,96 @@
+[
+ {
+  "id": "2026-10-23-songs",
+  "title": "مقاطع جولة «أكمل الأغنية»",
+  "desc": "يضيف ١٦ مقطع لفعالية تحديات سعودية: مقطع قصير مع كل سؤال، وتكملة الأغنية مع الإجابة.",
+  "ops": [
+   {
+    "op": "eventMedia",
+    "event": "تحديات سعودية",
+    "round": "أكمل الأغنية",
+    "items": [
+     {
+      "qm": {
+       "url": "media/song1q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song1a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song2q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song2a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song3q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song3a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song4q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song4a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song5q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song5a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song6q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song6a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song7q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song7a.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/song8q.mp4",
+       "kind": "video"
+      },
+      "am": {
+       "url": "media/song8a.mp4",
+       "kind": "video"
+      }
+     }
+    ]
+   }
+  ]
+ }
+]

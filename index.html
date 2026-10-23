@@ -180,6 +180,7 @@ img.media{background:transparent}
 .admin{display:flex;flex-direction:column;gap:16px}
 .admin .panel{margin-top:0;display:flex;flex-direction:column;gap:12px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
+.panel.upd{border-color:var(--green);background:var(--green-soft)}
 .tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .field{display:flex;flex-direction:column;gap:6px;min-width:0}
 .field label,.lbl{font-weight:600;font-size:.95rem}
@@ -283,6 +284,7 @@ function normalize(j){
   const qz=Array.isArray(j.quiz)?j.quiz.filter(q=>Array.isArray(q)).map(q=>[clean(q[0],200),clean(q[1],100)]).filter(q=>q[0]&&q[1]):[];
   o.quiz=qz.length?qz:d.quiz;
   o.events=Array.isArray(j.events)?j.events.slice(0,20).map(normEvent):[];
+  o.applied=Array.isArray(j.applied)?j.applied.map(x=>clean(x,60)).filter(Boolean).slice(-200):[];
   o.hostPin=/^[0-9a-f]{64}$/.test(String(j.hostPin||''))?j.hostPin:'';
   o.playerPin=/^[0-9a-f]{64}$/.test(String(j.playerPin||''))?j.playerPin:'';
   o.judgePin=/^[0-9a-f]{64}$/.test(String(j.judgePin||''))?j.judgePin:'';
@@ -689,7 +691,13 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',judgePin:C.judgePin,jpinNew:'',judgeCount:String(C.judgeCount),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',judgeCount:String(C.judgeCount),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
+function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
+  if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
+  else if(op.op==='addEvent'&&op.event&&!D.events.find(x=>x.title===op.event.title)){D.events.push(op.event);n++}
+  else if(op.op==='replaceEvent'&&op.event){const i=D.events.findIndex(x=>x.title===op.event.title);if(i>=0)D.events[i]=op.event;else D.events.push(op.event);n++}}
+  return n}
 async function loadAssets(){if(assetsNS||!window.claude||!window.claude.use)return;try{assetsNS=await window.claude.use('assets')}catch(e){assetsNS=null}if(S.view==='admin')render()}
 const lines=t=>String(t||'').split(/\n|،|,/).map(s=>s.trim()).filter(Boolean);
 function fromDraft(){
@@ -697,7 +705,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -720,7 +728,9 @@ function problems(n){
 }
 function adminView(){
   const n=fromDraft(),pr=problems(n);
-  const tabs=`<div class="tabs" role="tablist"><button role="tab" class="${S.tab==='games'?'on':''}" data-act="tab" data-v="games">الألعاب</button><button role="tab" class="${S.tab==='events'?'on':''}" data-act="tab" data-v="events">الفعاليات (${D.events.length})</button></div>`;
+  const pend=(S.updates||[]).filter(u=>u&&u.id&&!D.applied.includes(u.id));
+  const updPanel=pend.length?`<div class="panel upd"><h3>تحديثات جاهزة للمحتوى</h3>${pend.map(u=>`<div class="row" style="justify-content:space-between"><div style="min-width:0;flex:1"><b>${esc(clean(u.title,80))}</b><div class="hint">${esc(clean(u.desc,200))}</div></div><button class="btn-green" data-act="updApply" data-id="${esc(u.id)}">طبّق</button></div>`).join('')}</div>`:'';
+  const tabs=updPanel+`<div class="tabs" role="tablist"><button role="tab" class="${S.tab==='games'?'on':''}" data-act="tab" data-v="games">الألعاب</button><button role="tab" class="${S.tab==='events'?'on':''}" data-act="tab" data-v="events">الفعاليات (${D.events.length})</button></div>`;
   return `<div class="top"><div class="brand">إدارة الموقع<small>التعديلات تنحفظ للكل لما تضغط «احفظ»</small></div><button data-act="adminClose">→ رجوع بدون حفظ</button></div>
   <div class="admin">${tabs}${S.tab==='games'?adminGames(n):adminEvents()}
     <div class="savebar">
@@ -957,6 +967,7 @@ $app.addEventListener('click',e=>{
     case 'adminOut':if(window.lamma)lamma.adminSignOut();break;
     case 'adminClose':D=null;S.view='home';emitState();render();break;
     case 'adminSave':saveAdmin();break;
+    case 'updApply':{const u=(S.updates||[]).find(x=>x.id===b.dataset.id);if(!u)break;const n=applyUpdate(u);D.applied.push(u.id);S.saveOk=true;S.saveMsg=n?`انطبق «${clean(u.title,60)}» ✓ اضغط «احفظ» عشان يثبت.`:'ما لقيت المكان اللي ينطبق عليه التحديث.';render();break}
     case 'tab':S.tab=b.dataset.v;render();break;
     case 'jgOpen':S.jgFrom=S.view==='judging'?S.jgFrom:S.view;
       if(!S.jg||(!Object.keys(S.jg.votes).length&&!S.jg.revealed&&JSON.stringify([S.jg.comms,S.jg.crit])!==JSON.stringify([C.comms,C.crit])))newJg();
