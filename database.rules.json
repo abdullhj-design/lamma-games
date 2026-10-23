@@ -2,11 +2,11 @@
   "rules": {
     "content": {
       ".read": "auth != null",
-      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'"
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'"
     },
     "secrets": {
       ".read": false,
-      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'"
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'"
     },
     "hosts": {
       "$uid": {
@@ -25,7 +25,7 @@
       },
       "events": {
         "$topic": {
-          ".write": "auth != null && (root.child('hosts/' + auth.uid).exists() || !root.child('secrets/hostPin').exists() || (auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'))"
+          ".write": "auth != null && (root.child('hosts/' + auth.uid).exists() || !root.child('secrets/hostPin').exists() || (auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'))"
         }
       }
     }
