@@ -1,0 +1,33 @@
+{
+  "rules": {
+    "content": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'"
+    },
+    "secrets": {
+      ".read": false,
+      ".write": "auth != null && auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'"
+    },
+    "hosts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid",
+        ".validate": "newData.isString() && (!root.child('secrets/hostPin').exists() || newData.val() == root.child('secrets/hostPin').val())"
+      }
+    },
+    "room": {
+      ".read": "auth != null",
+      "presence": {
+        "$sid": {
+          ".write": "auth != null && (!data.exists() || data.child('by').val() == auth.uid) && (!newData.exists() || newData.child('by').val() == auth.uid)",
+          ".validate": "newData.hasChildren(['by'])"
+        }
+      },
+      "events": {
+        "$topic": {
+          ".write": "auth != null && (root.child('hosts/' + auth.uid).exists() || !root.child('secrets/hostPin').exists() || (auth.token.email_verified == true && auth.token.email == 'PUT_ADMIN_GMAIL_HERE'))"
+        }
+      }
+    }
+  }
+}
