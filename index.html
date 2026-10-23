@@ -386,7 +386,7 @@ function judgingView(){
     return head+`<div class="stage"><h2 class="huge" style="font-size:clamp(2.4rem,7vw,4.6rem)">🏆 أفضل لجنة في طلعة المزرعة</h2>
       <div class="mid">${ncTxt}.. والتميّز له عنوان!</div>
       <p style="margin:0;max-width:60ch;font-size:1.15rem">كل لجنة لها بصمتها، وكل جهد يستحق التقدير.. تابعوا معنا نتائج المنافسة واكتشفوا اللجنة الفائزة بالجائزة المالية!</p>
-      ${names.length?`<span class="eyebrow">${done>=C.judgeCount?'اكتمل التصويت ✓':'بانتظار اكتمال التصويت'}</span><div class="chips" style="justify-content:center">${names.map(x=>`<span class="chip" style="padding-left:12px;${x.on?'':'opacity:.6'}">${x.done?'✓':'…'} ${esc(x.name)}</span>`).join('')}</div>`
+      ${names.length?`<span class="eyebrow">${done>=C.judgeCount?'اكتمل التصويت ✓':'بانتظار اكتمال التصويت'}</span>`
         :`<span class="eyebrow">بانتظار اكتمال التصويت</span>`}
       </div>`}
   return head+winnerCard(g.res.win.map(r=>({n:r.name,m:r.mem})),true);
