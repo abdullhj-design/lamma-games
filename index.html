@@ -134,6 +134,7 @@ img.media{background:transparent}
 .jsend{position:sticky;bottom:0;width:100%;background:var(--surface);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
 .wincard{position:relative;overflow:hidden}
 .wincard .huge{color:var(--ochre)}
+.thanks{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding-block:10px}
 .prize{margin:6px 0 0;max-width:52ch;font-size:clamp(1.05rem,2.6vw,1.4rem);line-height:1.7}
 .members{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:680px}
 .members span{padding:6px 14px;border-radius:99px;font-size:1.1rem;background:color-mix(in srgb,var(--on-nat) 14%,transparent)}
@@ -305,7 +306,7 @@ function hostState(){
   if(S.view==='buzz'||S.view==='bell'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){st.buzz={r:S.bz.r,open:S.bz.open}}
   if(S.view==='charades'){st.ch={team:S.ch.team,stage:S.ch.stage}}
   if(S.view==='event'&&S.ev){const e=C.events[S.ev.ei],r=S.ev.ri>=0?e.rounds[S.ev.ri]:null;st.ev={title:e.title,round:r?r.title:''}}
-  if(S.jg)st.jg={k:S.jg.k,comms:S.jg.comms,crit:S.jg.crit,open:!S.jg.revealed,res:S.jg.revealed?S.jg.res.win.map(r=>({n:r.name,m:r.mem})):null};
+  if(S.jg)st.jg={k:S.jg.k,comms:S.jg.comms,crit:S.jg.crit,open:!S.jg.revealed,res:null};
   if(S.view==='judging')st.mode='home';
   return st;
 }
@@ -401,6 +402,11 @@ function winnerCard(win,big){
     ${C.prizeNote?`<p class="prize">${esc(C.prizeNote)}</p>`:''}
   </div>`;
 }
+function judgeThanks(canEdit){return `<div class="thanks"><div class="huge" style="font-size:clamp(2.6rem,12vw,4rem)">🤍</div>
+    <p class="mid" style="margin:0">شكراً على تقييمك، وننتظر تقييم بقية أعضاء اللجنة 🤍</p>
+    <p style="margin:6px 0 0;font-size:1.15rem">شكراً من القلب</p>
+    <p style="margin:0;font-family:var(--display);font-size:1.5rem">عبدالله الحربي 🤍</p>
+    ${canEdit?'<button class="link" data-act="jEdit" style="margin-top:10px">غيّر اختياري</button>':''}</div>`}
 function judgeHello(){const n=C.judgeNames;return n.length?'مرحبا '+n.join(' و'):'مرحبا بلجنة التقييم'}
 function judgeView(){
   const head=`<div class="top"><div class="brand">لجنة التقييم</div><button class="link" data-act="role" data-v="">تغيير الدور</button></div>`;
@@ -415,14 +421,15 @@ function judgeView(){
     <button class="btn-ink btn-big" type="submit" style="width:100%" ${wait?'disabled':''}>دخول</button></form>`;
   const g=(P.host||{}).jg;let body;
   if(!roomOk)body='<p class="muted" style="margin:0">جاري الاتصال…</p>';
-  else if(g&&Array.isArray(g.res))return head+`<div class="phone">${winnerCard(g.res.slice(0,15),false)}</div>`;
+  else if(g&&!g.open)body=judgeThanks(false);
   else if(g&&g.open&&Array.isArray(g.comms)&&Array.isArray(g.crit)){
-    if(J.k!==g.k){J.k=g.k;J.c=null;J.sent=false}
+    if(J.k!==g.k){J.k=g.k;J.c=null;J.sent=false;J.editing=false}
+    if(J.sent&&!J.editing)body=judgeThanks(true);else{
     const ok=Number.isInteger(J.c)&&J.c<g.comms.length;
     body=`<span class="eyebrow">من فضلكم قيّموا اللجنة الأكثر تميزاً</span><div class="picks" role="radiogroup" aria-label="أفضل لجنة">
     ${g.comms.map((c,i)=>`<button role="radio" aria-checked="${J.c===i}" data-act="jPick" data-c="${i}" class="${J.c===i?'sel':''}">${esc(clean(c,40))}</button>`).join('')}</div>
     <div class="jsend"><button class="btn-ink btn-big" data-act="jSend" style="width:100%" ${ok?'':'disabled'}>${ok?(J.sent?'حدّث اختياري':'أرسل اختياري'):'اختر لجنة'}</button>
-    ${J.sent?'<p class="msg ok" style="margin:6px 0 0">انرسل ✓ تقدر تغيّر اختيارك لين تنعرض النتيجة.</p>':''}</div>`}
+    </div>`}}
   else body=`<h2 class="big">${esc(judgeHello())}</h2><p class="muted" style="margin:0">بانتظار المقدّم يفتح تقييم اللجان.</p>`;
   return head+`<div class="phone stage">${body}</div>`;
 }
@@ -914,8 +921,9 @@ $app.addEventListener('click',e=>{
     case 'tryFanfare':fanfare();break;
     case 'sndDel':D.winSound=null;S.saveOk=true;S.saveMsg='انشال الصوت من المسودة — اضغط «احفظ» لتثبيته.';render();break;
     case 'jgWipe':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ اضغط مرة ثانية';break}S.jg=null;LS.set('jg',null);S.saveOk=true;S.saveMsg='انمسحت النتيجة. التصويت الجاي يبدأ من الصفر.';emitState();render();break;
+    case 'jEdit':J.editing=true;render();break;
     case 'jPick':J.c=+b.dataset.c;render();break;
-    case 'jSend':{const g=P.host&&P.host.jg;if(!g||!g.open||!Number.isInteger(J.c))break;J.sent=true;sendJudge({k:g.k,c:J.c});try{navigator.vibrate&&navigator.vibrate(60)}catch(_){}render();window.scrollTo({top:0});break}
+    case 'jSend':{const g=P.host&&P.host.jg;if(!g||!g.open||!Number.isInteger(J.c))break;J.sent=true;J.editing=false;sendJudge({k:g.k,c:J.c});try{navigator.vibrate&&navigator.vibrate(60)}catch(_){}render();window.scrollTo({top:0});break}
     case 'jpinOff':D.judgePin='';D.jpinNew='';S.saveOk=true;S.saveMsg='انشال رمز اللجنة من المسودة — اضغط «احفظ» لتثبيته.';render();break;
     case 'ppinOff':D.playerPin='';D.ppinNew='';S.saveOk=true;S.saveMsg='انشال رمز اللاعبين من المسودة — اضغط «احفظ» لتثبيته.';render();break;
     case 'pinOff':D.hostPin='';D.pinNew='';S.saveOk=true;S.saveMsg='انشال الرقم من المسودة — اضغط «احفظ» لتثبيته.';render();break;
