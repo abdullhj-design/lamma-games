@@ -522,7 +522,7 @@ function topBar(){
   const n=phonePlayers().length,nj=judgeList().length;
   const jgBtn=S.view!=='judging'&&(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg)?`<button class="link strong" data-act="jgOpen">${S.jg&&S.jg.ready?'نتائج تقييم اللجان جاهزة ●':'تقييم اللجان'}</button>`:'';
   const st=jgBtn+(room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`);
-  return `<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}${S.canEdit?'<button class="link strong" data-act="admin">إدارة الموقع</button>':''}<button class="link" data-act="resetScores">تصفير النقاط</button><button class="link" data-act="role" data-v="">تغيير الدور</button></div></div>`;
+  return `<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}${S.view!=='draw'?(()=>{const un=phonePlayers().filter(p=>p.team===null).length;return `<button class="link strong" data-act="go" data-v="draw">القرعة 🎲${un?` (${un})`:''}</button>`})():''}${S.canEdit?'<button class="link strong" data-act="admin">إدارة الموقع</button>':''}<button class="link" data-act="resetScores">تصفير النقاط</button><button class="link" data-act="role" data-v="">تغيير الدور</button></div></div>`;
 }
 function hostView(){
   if(S.view==='admin')return adminView();
@@ -554,9 +554,7 @@ function drawStep(){
 function homeView(){
   const ph=phonePlayers(),g=C.games;
   const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">فعالية · ${e.rounds.length} جولة</span><h2>${esc(e.title)}</h2><p>${esc(e.subtitle||'جولات بالترتيب، سؤال ثم إجابة، والنقاط للفريقين.')}</p><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
-  const un=ph.filter(p=>p.team===null).length;
-  const drawTile=`<div class="game"><span class="tag">${ph.length} لاعب منضم${un?` · ${un} بدون فريق`:''}</span><h2>القرعة 🎲</h2><p>توزيع اللاعبين على الفريقين بالتساوي، والكل يشوف فريقه في جواله.</p><button class="btn-ink btn-big" data-act="go" data-v="draw">${un?'ابدأ':'افتح'}</button></div>`;
-  const tiles=[drawTile,...evTiles,
+  const tiles=[...evTiles,
     g.spy&&`<div class="game"><span class="tag">3 لاعبين وأكثر · ${C.spyMin} دقائق</span><h2>برا السالفة</h2><p>الكل يعرف الكلمة إلا واحد. اسألوا بعض واكتشفوه قبل ما يعرف السالفة.</p><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
     g.charades&&`<div class="game"><span class="tag">فريقين · ${C.chDur} ثانية للجولة</span><h2>مثّلها</h2><p>واحد يمثّل الكلمة بدون كلام وفريقه يخمّن. كل كلمة صح بنقطة.</p><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
     g.bell&&`<div class="game"><span class="tag">من الجوالات · أي أسئلة</span><h2>فقرة الجرس 🔔</h2><p>أنت تسأل بصوتك، وأول لاعب يضغط الجرس في جواله يطلع اسمه على الشاشة ويجاوب.</p><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
