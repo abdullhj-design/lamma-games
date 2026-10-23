@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1D4A2F">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>ديوانية الألعاب</title>
+<title>لَمّة سمول ڤاميلي</title>
+<meta name="description" content="لمّتنا أحلى.. يلا نلعب ونتحدى! 🎉">
+<meta property="og:title" content="لَمّة سمول ڤاميلي">
+<meta property="og:description" content="لمّتنا أحلى.. يلا نلعب ونتحدى! 🎉">
+<meta property="og:image" content="https://abdullhj-design.github.io/lamma-games/icon-512.png">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@400;600&display=swap">
 <style>
@@ -133,6 +140,20 @@ img.media{background:transparent}
 .jname{font-family:var(--display);font-size:1.4rem;line-height:1.2}
 .jsend{position:sticky;bottom:0;width:100%;background:var(--surface);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
 .wincard{position:relative;overflow:hidden}
+.drawcols{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
+.drawcol{border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.drawcol.t0{background:var(--red-soft)} .drawcol.t1{background:var(--green-soft)}
+.drawcol .dh{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.drawcol .dh b{font-family:var(--display);font-weight:400;font-size:1.8rem}
+.drawcol.t0 .dh b{color:var(--red)} .drawcol.t1 .dh b{color:var(--green)}
+.dl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.dn{padding:8px 14px;border-radius:99px;font-size:1.1rem;font-weight:600}
+.dn.new{animation:pop .5s ease-out;border-color:var(--ochre);box-shadow:0 0 0 3px color-mix(in srgb,var(--ochre) 45%,transparent)}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.myteam{width:100%;border-radius:20px;padding:22px;font-size:1.15rem;display:flex;flex-direction:column;gap:4px}
+.myteam b{font-family:var(--display);font-weight:400;font-size:clamp(2rem,9vw,2.8rem);line-height:1.2}
+.myteam.t0{background:var(--red);color:var(--on-accent)} .myteam.t1{background:var(--green);color:var(--on-accent)}
+@media (max-width:520px){.drawcols{grid-template-columns:1fr}}
 .wincard .huge{color:var(--ochre)}
 .thanks{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding-block:10px}
 .prize{margin:6px 0 0;max-width:52ch;font-size:clamp(1.05rem,2.6vw,1.4rem);line-height:1.7}
@@ -197,7 +218,7 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 <script src="lamma-firebase.js"></script>
 <script type="application/json" id="defaults">
 {
- "title": "ديوانية الألعاب",
+ "title": "لَمّة سمول ڤاميلي",
  "games": {"spy": true, "charades": true, "buzz": true, "bell": true},
  "spyMin": 3,
  "chDur": 60,
@@ -293,15 +314,18 @@ const S={view:'home',teams:LS.get('teams',[{name:'الفريق الأحمر',sco
 function applyContent(){S.ch.dur=C.chDur;S.ch.pool=[];S.bz.qs=shuffle(C.quiz.map((_,i)=>i));S.bz.qi=-1;if(S.spyCat!=='عشوائي'&&!catNames().includes(S.spyCat))S.spyCat='عشوائي';if(S.ev&&!C.events[S.ev.ei]){S.ev=null;if(S.view==='event')S.view='home'}}
 applyContent();
 {const g=LS.get('jg',null);if(g&&typeof g==='object'&&typeof g.k==='string'&&Array.isArray(g.comms)&&Array.isArray(g.crit)&&g.votes&&typeof g.votes==='object'&&Object.values(g.votes).every(v=>v&&Number.isInteger(v.c))&&(!g.revealed||(g.res&&Array.isArray(g.res.win))))S.jg=g;else S.jg=null}
-const P={name:LS.get('pname',''),team:LS.get('pteam',0),joined:false,host:null,revealed:false,lastSpyR:-1,buzzedR:-1};
+const P={name:LS.get('pname',''),team:null,joined:false,host:null,revealed:false,lastSpyR:-1,buzzedR:-1};
 let room=null,roomOk=false,roomTried=false,myPeer=null,assetsNS=null;
 const saveTeams=()=>LS.set('teams',S.teams);
 let D=null; // admin draft
 
 /* ---------- room (phones) ---------- */
-function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)).map(p=>({peer:p.peer,name:clean(p.presence.name),team:p.presence.team===1?1:0}))}
+S.draw=(()=>{const d=LS.get('draw',null);return d&&d.assign&&typeof d.assign==='object'?d:{assign:{}}})();S.drawQ=[];S.drawLast=null;let myBy=null;
+const pKey=p=>p.by||p.peer;
+const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
+function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)).map(p=>({peer:p.peer,key:pKey(p),name:clean(p.presence.name),team:teamOfKey(pKey(p))}))}
 function hostState(){
-  const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score}))};
+  const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:S.draw.assign};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
   if(S.view==='buzz'||S.view==='bell'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){st.buzz={r:S.bz.r,open:S.bz.open}}
   if(S.view==='charades'){st.ch={team:S.ch.team,stage:S.ch.stage}}
@@ -318,7 +342,7 @@ function onHostPeers(ch){
     for(const p of [...ch.joined,...ch.updated]){
       const b=p.presence&&p.presence.buzz;
       if(b&&b.r===S.bz.r&&p.presence.role==='player'&&!S.bz.order.find(o=>o.peer===p.peer)){
-        S.bz.order.push({peer:p.peer,name:clean(p.presence.name)||'لاعب',team:p.presence.team===1?1:0,at:performance.now()});
+        S.bz.order.push({peer:p.peer,name:clean(p.presence.name)||'لاعب',team:teamOfKey(pKey(p))??(p.presence.team===1?1:0),at:performance.now()});
         if(S.bz.order.length===1){if(S.view==='bell')ding();else beep(880,.35)}changed=true;
       }
     }
@@ -333,8 +357,8 @@ async function initRoom(){
   roomTried=true;
   if(!room){render();return}
   room.onConnection(c=>{roomOk=c;if(c){emitState();if(role==='player'&&P.joined)sendPresence();if(role==='judge'&&J.joined)sendJudge(J.sent&&J.k?{k:J.k,s:J.s}:null)}if(S.view!=='admin')render()},()=>{roomOk=false;room=null;render()});
-  room.onPeers(ch=>{const me=ch.peers.find(p=>p.sameTab);if(me)myPeer=me.peer;if(role==='host')onHostPeers(ch);else if(role==='player'||role==='judge')render()},()=>{});
-  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;P.host=d;if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
+  room.onPeers(ch=>{const me=ch.peers.find(p=>p.sameTab);if(me){myPeer=me.peer;myBy=pKey(me)}if(role==='host')onHostPeers(ch);else if(role==='player'||role==='judge')render()},()=>{});
+  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;P.host=d;if(role==='player'&&P.joined){const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
   render();
 }
 async function initUser(){
@@ -503,14 +527,36 @@ function topBar(){
 function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
-  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();
+  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();
   if(S.view==='judging')return topBar()+body;
   return topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body;
+}
+function drawView(){
+  const ph=phonePlayers(),cols=[0,1].map(t=>ph.filter(p=>p.team===t)),un=ph.filter(p=>p.team===null),busy=S.drawQ.length>0;
+  return `<div class="stage"><span class="eyebrow">القرعة</span><div class="huge" style="font-size:clamp(2.6rem,8vw,4.5rem)">${busy?'جاري القرعة…':'🎲'}</div>
+    <div class="drawcols">${cols.map((c,t)=>`<div class="drawcol t${t}"><div class="dh"><span>${esc(S.teams[t].name)}</span><b>${c.length}</b></div>
+      <div class="dl">${c.map(p=>`<button class="dn ${p.key===S.drawLast?'new':''}" data-act="drawSwap" data-k="${esc(p.key)}" ${busy?'disabled':''} title="انقله للفريق الثاني">${esc(p.name)}</button>`).join('')||'<span class="muted small">—</span>'}</div></div>`).join('')}</div>
+    ${un.length?`<div><div class="lbl">بانتظار القرعة (${un.length})</div><div class="chips" style="justify-content:center">${un.map(p=>`<span class="chip" style="padding-left:12px">${esc(p.name)}</span>`).join('')}</div></div>`:''}
+    ${!ph.length?'<p class="muted" style="margin:0">ما انضم أحد بعد. اللاعبين يدخلون من جوالاتهم باختيار «أنا لاعب».</p>':''}
+    <div class="row" style="justify-content:center">${un.length&&!busy?`<button class="btn-red btn-big" data-act="drawStart">ابدأ القرعة 🎲</button>`:''}
+      ${!un.length&&ph.length&&!busy?'<button data-act="drawRedo">أعد القرعة للكل</button>':''}</div>
+    ${ph.length&&!busy?'<p class="muted small" style="margin:0">اضغط اسم أي لاعب عشان تنقله للفريق الثاني. واللي ينضم بعد القرعة يطلع تحت «بانتظار القرعة».</p>':''}</div>`;
+}
+function saveDraw(){LS.set('draw',S.draw)}
+function drawStep(){
+  if(!S.drawQ.length){S.drawLast=null;emitState();render();toast('خلصت القرعة 🎉');return}
+  const k=S.drawQ.shift();const all=phonePlayers().map(p=>p.key);
+  const c=[0,1].map(t=>all.filter(x=>S.draw.assign[x]===t).length);
+  const t=c[0]<c[1]?0:c[1]<c[0]?1:(Math.random()<.5?0:1);
+  S.draw.assign[k]=t;S.drawLast=k;saveDraw();beep(t?660:520,.18);emitState();render();
+  setTimeout(drawStep,900);
 }
 function homeView(){
   const ph=phonePlayers(),g=C.games;
   const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">فعالية · ${e.rounds.length} جولة</span><h2>${esc(e.title)}</h2><p>${esc(e.subtitle||'جولات بالترتيب، سؤال ثم إجابة، والنقاط للفريقين.')}</p><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
-  const tiles=[...evTiles,
+  const un=ph.filter(p=>p.team===null).length;
+  const drawTile=`<div class="game"><span class="tag">${ph.length} لاعب منضم${un?` · ${un} بدون فريق`:''}</span><h2>القرعة 🎲</h2><p>توزيع اللاعبين على الفريقين بالتساوي، والكل يشوف فريقه في جواله.</p><button class="btn-ink btn-big" data-act="go" data-v="draw">${un?'ابدأ':'افتح'}</button></div>`;
+  const tiles=[drawTile,...evTiles,
     g.spy&&`<div class="game"><span class="tag">3 لاعبين وأكثر · ${C.spyMin} دقائق</span><h2>برا السالفة</h2><p>الكل يعرف الكلمة إلا واحد. اسألوا بعض واكتشفوه قبل ما يعرف السالفة.</p><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
     g.charades&&`<div class="game"><span class="tag">فريقين · ${C.chDur} ثانية للجولة</span><h2>مثّلها</h2><p>واحد يمثّل الكلمة بدون كلام وفريقه يخمّن. كل كلمة صح بنقطة.</p><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
     g.bell&&`<div class="game"><span class="tag">من الجوالات · أي أسئلة</span><h2>فقرة الجرس 🔔</h2><p>أنت تسأل بصوتك، وأول لاعب يضغط الجرس في جواله يطلع اسمه على الشاشة ويجاوب.</p><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
@@ -641,7 +687,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
     <ol class="order">${b.order.map((o,i)=>`<li><button data-act="bzAward" data-i="${i}" ${b.awarded?'disabled':''}><span class="n">${i+1}</span><span class="dot t${o.team}"></span><span style="flex:1">${esc(o.name)}</span><span class="muted small">${i?'+'+((o.at-b.order[0].at)/1000).toFixed(2)+' ث':'الأول'}</span></button></li>`).join('')}</ol>
     ${b.order.length&&!b.awarded?'<p class="muted small" style="margin:0">جاوب صح؟ اضغط اسمه وتنحسب النقطة لفريقه.</p>':''}
     ${!b.order.length&&b.open?'<p class="muted" style="margin:0">بانتظار أول ضغطة…</p>':''}
-    <div class="row" style="justify-content:center"><button class="btn-big" data-act="bzToggle">${b.open?'اقفل الجرس':'افتح الجرس من جديد'}</button><button class="btn-ink btn-big" data-act="bzNext">السؤال التالي</button></div></div>`;
+    <div class="row" style="justify-content:center"><button class="btn-big" data-act="bzToggle">${b.open?'اقفل الجرس':'افتح الجرس'}</button><button class="btn-ink btn-big" data-act="bzNext">السؤال التالي</button></div></div>`;
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
@@ -831,7 +877,6 @@ function playerView(){
     <input id="pname" placeholder="اسمك" maxlength="20" value="${esc(P.name)}" autocomplete="off" style="width:100%;font-size:1.2rem" aria-label="اسمك">
     ${needPin?`<input id="ppinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز الدخول" aria-label="رمز الدخول" style="width:100%;font-size:1.2rem;text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`:''}
     ${S.pinMsg?`<p class="msg err" role="alert" style="margin:0">${esc(S.pinMsg)}</p>`:''}
-    <div class="teampick">${[0,1].map(i=>`<button type="button" data-act="pteam" data-t="${i}" class="${P.team===i?'sel t'+i:''}">${tn(i)}</button>`).join('')}</div>
     <button class="btn-ink btn-big" type="submit" style="width:100%">انضم</button></form>`;
   const h=P.host||{},mode=h.mode;let body='';
   const buzzer=()=>{const done=P.buzzedR===h.buzz.r;return `<button class="buzzer" data-act="buzz" ${!h.buzz.open||done?'disabled':''}>${done?'ضغطت!':'🔔'}</button><p class="muted" style="margin:0">${done?'شوف الشاشة الكبيرة.':h.buzz.open?'اضغط أول ما تعرف الجواب':'استنى السؤال'}</p>`};
@@ -846,9 +891,9 @@ function playerView(){
   else if(mode==='bell')body=`<h2 class="big">فقرة الجرس 🔔</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`;
   else if(mode==='event'&&h.ev)body=`<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
-  else body=`<h2 class="big">أنت جاهز</h2><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
+  else body=P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
   const sc=h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
-  return head+`<div class="phone stage"><span class="eyebrow"><span class="dot t${P.team}"></span> ${esc(P.name)} · ${tn(P.team)}</span>${body}${sc}</div>`;
+  return head+`<div class="phone stage"><span class="eyebrow">${P.team===null?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
 
 /* ---------- timers ---------- */
@@ -902,6 +947,9 @@ $app.addEventListener('click',e=>{
     /* buzz */
     case 'bzNext':S.bz.qi++;S.bz.r++;S.bz.open=true;S.bz.order=[];S.bz.showA=false;S.bz.awarded=false;emitState();render();break;
     case 'bzAns':S.bz.showA=true;render();break;
+    case 'drawStart':{if(S.drawQ.length)break;const un=phonePlayers().filter(p=>p.team===null).map(p=>p.key);S.drawQ=shuffle(un);drawStep();break}
+    case 'drawRedo':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.draw.assign={};saveDraw();emitState();render();break;
+    case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'bellOpen':S.bz.r++;S.bz.open=true;S.bz.order=[];S.bz.awarded=false;emitState();render();break;
     case 'bzToggle':S.bz.open=!S.bz.open;if(S.bz.open){S.bz.r++;S.bz.order=[]}emitState();render();break;
     case 'bzAward':{const o=S.bz.order[+b.dataset.i];S.teams[o.team].score++;S.bz.awarded=true;S.bz.open=false;saveTeams();emitState();toast('نقطة لـ '+S.teams[o.team].name);render();break}
