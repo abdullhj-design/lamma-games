@@ -424,7 +424,7 @@ function judgeView(){
   else if(g&&!g.open)body=judgeThanks(false);
   else if(g&&g.open&&Array.isArray(g.comms)&&Array.isArray(g.crit)){
     if(J.k!==g.k){J.k=g.k;J.c=null;J.sent=false;J.editing=false}
-    if(J.sent&&!J.editing)body=judgeThanks(true);else{
+    if(J.sent)body=judgeThanks(false);else{
     const ok=Number.isInteger(J.c)&&J.c<g.comms.length;
     body=`<span class="eyebrow">من فضلكم قيّموا اللجنة الأكثر تميزاً</span><div class="picks" role="radiogroup" aria-label="أفضل لجنة">
     ${g.comms.map((c,i)=>`<button role="radio" aria-checked="${J.c===i}" data-act="jPick" data-c="${i}" class="${J.c===i?'sel':''}">${esc(clean(c,40))}</button>`).join('')}</div>
