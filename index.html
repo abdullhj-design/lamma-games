@@ -333,12 +333,16 @@ function normalize(j){
    const cm=Array.isArray(j.commMem)?j.commMem:[];
    (Array.isArray(j.comms)?j.comms:[]).forEach((c,idx)=>{const n=clean(typeof c==='string'?c:c&&c.n,40);if(!n||seen.has(n)||o.comms.length>=15)return;seen.add(n);o.comms.push(n);
      o.commMem.push(uniq(c&&typeof c==='object'?c.m:cm[idx],30,30))})}
+  o.girls=uniq(j.girls,20,300);
   o.crit=uniq(j.crit,30,5);if(!o.crit.length)o.crit=['التقييم العام'];
   return o;
 }
 let C=normalize(DEFAULTS);
 const catNames=()=>C.cats.map(c=>c.name);
 const catWords=n=>(C.cats.find(c=>c.name===n)||C.cats[0]).words;
+const normName=n=>String(n||'').replace(/[\u064B-\u065F\u0640\s]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
+const isGirl=n=>{const x=normName(n);return !!x&&C.girls.some(g=>normName(g)===x)};
+const gx=(n,m,f)=>isGirl(n)?f:m;
 const blob=m=>m?(m.url||'/_blob/'+m.id):'';
 
 /* ---------- state ---------- */
@@ -590,11 +594,11 @@ function sirenSync(){const on=role==='host'&&S.alerts.some(a=>a.ph==='wait');try
 function alarmView(){
   if(!S.alerts.length||S.view==='admin'||role!=='host'||!S.loaded||!hostAllowed())return '';
   return `<div class="alarm" role="alertdialog" aria-live="assertive"><div class="acards">${S.alerts.map(a=>{const k=esc(a.k);
-    if(a.ph==='wait')return `<div class="acard wait"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} طلع من الموقع</div>
-      <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">إذا ما رجع ينطرد تلقائي</p>
-      <button class="btn-red btn-big" data-act="alKick" data-k="${k}">اطرده</button></div>`;
-    if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} رجع</div></div>`;
-    const u=a.u||{};const sub=u.n>=2?'طرد نهائي من الفعالية 🚫':S.mode==='solo'||u.team===null?'طرد من السؤال + سحب كل نقاطه':`طرد من السؤال + سحب ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`;
+    if(a.ph==='wait')return `<div class="acard wait"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} ${gx(a.name,'طلع','طلعت')} من الموقع</div>
+      <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">${gx(a.name,'إذا ما رجع ينطرد تلقائي','إذا ما رجعت تنطرد تلقائي')}</p>
+      <button class="btn-red btn-big" data-act="alKick" data-k="${k}">${gx(a.name,'اطرده','اطردها')}</button></div>`;
+    if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} ${gx(a.name,'رجع','رجعت')}</div></div>`;
+    const u=a.u||{};const sub=u.n>=2?'طرد نهائي من الفعالية 🚫':S.mode==='solo'||u.team===null?'طرد من السؤال + سحب كل '+gx(a.name,'نقاطه','نقاطها'):`طرد من السؤال + سحب ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`;
     return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
@@ -617,8 +621,8 @@ window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
-  <p>نورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩</p>
-  <p><b>بس تذكّر 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
+  <p>${gx(P.name,'نورت الفعالية، وحضورك','نورتِ الفعالية، وحضوركِ')} هو اللي يكمل الحماس 🤩</p>
+  <p><b>${gx(P.name,'بس تذكّر','بس تذكّري')} 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
   <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
   <button class="btn-ink btn-big" style="width:100%">تمام</button></div>`;
   el.addEventListener('click',e=>{if(e.target.closest('button')||e.target===el)hideWelcome()});
@@ -838,7 +842,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
@@ -853,7 +857,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,cheatPenalty:parseInt(D.cheatPenalty,10),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -907,6 +911,10 @@ function adminGames(n){
       <div class="row"><div class="field" style="max-width:260px"><label for="a_ppin">${D.playerPin?'غيّر الرمز':'حدد رمز'} <span class="hint">— 4 إلى 8 أرقام</span></label><input id="a_ppin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" data-d="ppinNew" value="${esc(D.ppinNew)}" placeholder="••••"></div>
       ${D.playerPin?'<button class="link danger" data-act="ppinOff" style="align-self:flex-end">شيل الرمز</button>':''}</div>
       <p class="hint" style="margin:0">قفل بسيط للجَمعات، مو حماية بنكية. لو غيّرت الرمز، كل اللاعبين لازم يكتبونه من جديد.</p>
+    </div>
+    <div class="panel"><h3>أسماء البنات 👧</h3>
+      <p class="muted small" style="margin:0">اللي تكتب اسمها وهو من هالقائمة تجيها النصوص بصيغة البنت (الترحيب والطرد والتنبيه). أي اسم ثاني يجيه بصيغة الولد. ما يفرق «أ» و«ا» ولا «ة» و«ه».</p>
+      <div class="field"><label for="a_girls">الأسماء <span class="hint">— مفصولة بفاصلة</span></label><textarea id="a_girls" data-d="girls" style="min-height:70px" placeholder="افنان، حصة، غدير">${esc(D.girls)}</textarea></div>
     </div>
     <div class="panel"><h3>منع الغش 🚨</h3>
       <p class="muted small" style="margin:0">إذا لاعب طلع من الموقع وقت اللعب ولا رجع خلال 10 ثواني: أول مرة ينطرد من السؤال وتنسحب نقاطه، وثاني مرة ينطرد من الفعالية.</p>
@@ -1042,8 +1050,8 @@ function playerView(){
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
-  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">تم طردك من الفعالية</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز اللي أخذتها</p></div>`;
-  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">ياغشاش 😤</div><p>تم طردك من الجولة وإلغاء كافة نقاطك السابقة</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">لا تغش ياصديقي الجميع فايز 🤍</p></div><p class="muted small" style="margin:0">ترجع تلعب مع السؤال الجاي.</p></div>`;
+  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من الفعالية</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
+  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">${gx(P.name,'ياغشاش','ياغشاشة')} 😤</div><p>${gx(P.name,'تم طردك من الجولة وإلغاء كافة نقاطك السابقة','تم طردكِ من الجولة وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي','لا تغشين ياخالتي')} الجميع فايز 🤍</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
   const buzzer=()=>{const done=P.buzzedR===h.buzz.r;return `<button class="buzzer" data-act="buzz" ${!h.buzz.open||done?'disabled':''}>${done?'ضغطت!':'🔔'}</button><p class="muted" style="margin:0">${done?'شوف الشاشة الكبيرة.':h.buzz.open?'اضغط أول ما تعرف الجواب':'استنى السؤال'}</p>`};
   if(!roomOk)body='<p class="muted">جاري الاتصال…</p>';
   else if(mode==='spy'&&h.spy){const mine=h.spy.assign&&myPeer?h.spy.assign[myPeer]:undefined;
