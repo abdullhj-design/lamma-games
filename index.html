@@ -469,7 +469,7 @@ function jgReveal(){
   const nJ=vs.length,nC=g.crit.length;
   const rows=g.comms.map((name,i)=>({name,mem:(g.mem&&g.mem[i])||[],total:vs.filter(v=>v.c===i).length}));
   const best=Math.max(...rows.map(r=>r.total));
-  g.res={win:rows.filter(r=>r.total===best),n:nJ};g.revealed=true;g.ready=false;saveJg();playWin();emitState();render();
+  g.res={win:rows.filter(r=>r.total===best),n:nJ};g.revealed=true;g.revealedAt=Date.now();g.ready=false;saveJg();playWin();emitState();render();
 }
 const fmt1=x=>(Math.round(x*10)/10).toFixed(1);
 function rankOf(rows,i){let r=1;for(let k=0;k<i;k++)if(rows[k].total>rows[i].total)r++;return r}
@@ -486,8 +486,14 @@ function judgingView(){
       ${names.length?`<span class="eyebrow">${done>=C.judgeCount?'اكتمل التصويت ✓':'بانتظار اكتمال التصويت'}</span>`
         :`<span class="eyebrow">بانتظار اكتمال التصويت</span>`}
       </div>`}
+  if(g.revealedAt&&Date.now()-g.revealedAt>=20000)return head+closingCard();
   return head+winnerCard(g.res.win.map(r=>({n:r.name,m:r.mem})),true);
 }
+function closingCard(){return `<div class="stage evstage closing"><div class="huge" style="font-size:clamp(2.6rem,8vw,5rem)">شكراً من القلب 🤍</div>
+  <p class="mid" style="margin:0;max-width:34ch">شكراً لكل اللجان على جهودهم، ولكل اللي حضر وشارك وخلّى الطلعة أحلى.</p>
+  <p class="mid" style="margin:0;max-width:34ch">واعذرونا إذا حصل أي تقصير في الفعاليات 🙏</p>
+  <p class="mid" style="margin:0">نشوفكم على خير في لمّة جاية ✨</p>
+  <div class="big" dir="ltr" style="letter-spacing:.06em">SMALL FAMILY 🤍</div></div>`}
 function winnerCard(win,big,eyebrow='أفضل لجنة بالطلعة',note=C.prizeNote){
   const conf=Array.from({length:48},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
   return `<div class="stage evstage wincard"><div class="confetti" aria-hidden="true">${conf}</div>
@@ -510,8 +516,8 @@ function judgeView(){
   if(!C.judgePin&&!S.canEdit)return head+`<div class="phone stage"><h2 class="big">اللجنة مقفلة</h2><p class="muted" style="margin:0">صاحب الموقع ما حدد رمز للجنة بعد.</p></div>`;
   if(!room&&roomTried)return head+`<div class="phone stage"><h2 class="big">الجوال ما قدر يتصل</h2><p class="muted" style="margin:0">افتح الرابط وأنت مسجل دخول.</p></div>`;
   const wait=S.pinLockUntil>Date.now();
-  if(!J.joined)return head+`<form class="phone stage" data-form="judge"><h2 class="big">${esc(judgeHello())}</h2>
-    <p style="margin:0;font-size:1.15rem">من فضلكم قيّموا اللجنة الأكثر تميزاً</p>
+  if(!J.joined&&judgeAllowed()){J.name='عضو لجنة التقييم';J.joined=true;S.pinMsg='';setTimeout(()=>sendJudge(),0)}
+  if(!J.joined)return head+`<form class="phone stage" data-form="judge"><h2 class="big">رمز لجنة التقييم</h2>
     ${judgeAllowed()?'':`<input id="jpinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز اللجنة" aria-label="رمز اللجنة" style="width:100%;font-size:1.2rem;text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`}
     ${S.pinMsg?`<p class="msg err" role="alert" style="margin:0">${esc(S.pinMsg)}</p>`:''}
     <button class="btn-ink btn-big" type="submit" style="width:100%" ${wait?'disabled':''}>دخول</button></form>`;
@@ -522,11 +528,11 @@ function judgeView(){
     if(J.k!==g.k){J.k=g.k;J.c=null;J.sent=false;J.editing=false}
     if(J.sent)body=judgeThanks(false);else{
     const ok=Number.isInteger(J.c)&&J.c<g.comms.length;
-    body=`<span class="eyebrow">من فضلكم قيّموا اللجنة الأكثر تميزاً</span><div class="picks" role="radiogroup" aria-label="أفضل لجنة">
+    body=`<h2 class="big">${esc(judgeHello())} 🤍</h2><p style="margin:0;font-size:1.15rem">من فضلكم قيّموا اللجنة الأكثر تميزاً</p><div class="picks" role="radiogroup" aria-label="أفضل لجنة">
     ${g.comms.map((c,i)=>`<button role="radio" aria-checked="${J.c===i}" data-act="jPick" data-c="${i}" class="${J.c===i?'sel':''}">${esc(clean(c,40))}</button>`).join('')}</div>
     <div class="jsend"><button class="btn-ink btn-big" data-act="jSend" style="width:100%" ${ok?'':'disabled'}>${ok?(J.sent?'حدّث اختياري':'أرسل اختياري'):'اختر لجنة'}</button>
     </div>`}}
-  else body=`<h2 class="big">${esc(judgeHello())}</h2><p class="muted" style="margin:0">بانتظار المقدّم يفتح تقييم اللجان.</p>`;
+  else body=`<h2 class="big">${esc(judgeHello())} 🤍</h2><p style="margin:0;font-size:1.15rem">من فضلكم قيّموا اللجنة الأكثر تميزاً</p><p class="muted" style="margin:0">بانتظار المقدّم يفتح تقييم اللجان.</p>`;
   return head+`<div class="phone stage">${body}</div>`;
 }
 async function joinJudge(pin){
@@ -544,7 +550,7 @@ function pinView(){
   const wait=S.pinLockUntil>Date.now();
   return `<div class="top"><div class="brand">${esc(C.title)}</div><button class="link" data-act="role" data-v="">رجوع</button></div>
   <form class="phone stage" data-form="pin"><h2 class="big">الرقم السري للمقدّم</h2>
-    <p class="muted" style="margin:0">اطلبه من صاحب الموقع.</p>
+    <p class="muted" style="margin:0">اطلبه من عبود.</p>
     <input id="pinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" style="width:100%;font-size:1.6rem;text-align:center;letter-spacing:.3em" ${wait?'disabled':''}>
     ${S.pinMsg?`<p class="msg err" role="alert" style="margin:0">${esc(S.pinMsg)}</p>`:''}
     <button class="btn-ink btn-big" type="submit" style="width:100%" ${wait?'disabled':''}>دخول</button></form>`;
@@ -1104,6 +1110,7 @@ function tick(){
     for(const a of S.alerts.slice()){if(now<a.end)continue;if(a.ph==='wait'){alertKick(a);ch=false}else{S.alerts=S.alerts.filter(x=>x!==a);ch=true}}
     if(ch){sirenSync();render()}
     document.querySelectorAll('[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))})}
+  if(role==='host'&&S.view==='judging'&&S.jg&&S.jg.revealedAt&&!S.jg.closed&&now-S.jg.revealedAt>=20000){S.jg.closed=true;saveJg();render()}
   if(role==='host'&&S.view==='charades'&&S.ch.stage==='play'&&now>=S.ch.end){S.ch.stage='done';S.teams[S.ch.team].score+=S.ch.got.length;saveTeams();beep(440,.8);emitState();render()}
   if(role==='host'&&S.view==='spy'&&S.spy&&S.spy.stage==='play'&&S.spy.end&&now>=S.spy.end&&!S.spy.beeped){S.spy.beeped=true;beep(440,.8)}
   if(role==='host'&&S.view==='event'&&S.ev&&S.ev.end&&now>=S.ev.end&&!S.ev.beeped){S.ev.beeped=true;beep(440,.8)}
