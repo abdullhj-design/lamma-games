@@ -575,7 +575,7 @@ function watchAway(){
   for(const p of room.peers()){if(p.sameTab||!p.presence||p.presence.role!=='player'||!clean(p.presence.name))continue;const k=pKey(p);if(isBanned(k))continue;
     const ok=!p.presence.away;now.set(k,{name:clean(p.presence.name),ok:ok||!!(now.get(k)||{}).ok})}
   const armed=ARMED.includes(S.view);
-  for(const[k,v] of S.pstat){const n=now.get(k);if(v.ok&&!(n&&n.ok)&&armed&&!S.alerts.find(a=>a.k===k&&a.ph==='wait')){S.alerts=S.alerts.filter(a=>a.k!==k);S.alerts.push({k,name:v.name,ph:'wait',end:Date.now()+10000});S.marks[k]=1;ch=true}}
+  for(const[k,v] of S.pstat){const n=now.get(k);if(v.ok&&!(n&&n.ok)&&armed&&!S.alerts.find(a=>a.k===k&&a.ph==='wait')){S.alerts=S.alerts.filter(a=>a.k!==k);S.alerts.push({k,name:v.name,ph:'wait',end:Date.now()+5000});S.marks[k]=1;ch=true}}
   for(const[k,n] of now)if(n.ok){const a=S.alerts.find(a=>a.k===k&&a.ph==='wait');if(a){a.ph='back';a.end=Date.now()+2500;ch=true}}
   const next=new Map();for(const[k,v] of S.pstat)next.set(k,{name:v.name,ok:false});for(const[k,n] of now)next.set(k,n);S.pstat=next;
   if(ch)sirenSync();
@@ -586,7 +586,7 @@ function strike(k,name,perm){
   c.strikes[k]=n;
   if(n>=2){c.banned[k]=name;delete c.qban[k]}else c.qban[k]=c.qn;
   const sc=S.solo.scores[k];if(sc&&sc.score>0){u.solo=sc.score;sc.score=0;saveSolo()}
-  const t=teamOfKey(k);if(t!==null&&S.mode==='teams'){const d=Math.min(C.cheatPenalty,S.teams[t].score);S.teams[t].score-=d;u.team=t;u.ded=d;saveTeams()}
+  const t=teamOfKey(k);if(t!==null){const d=Math.min(C.cheatPenalty,S.teams[t].score);S.teams[t].score-=d;u.team=t;u.ded=d;saveTeams()}
   const b=S.bz,o=b.order.find(o=>o.key===k);if(o&&!b.awarded&&!(b.fail||[]).includes(o.peer)){b.fail=(b.fail||[]).concat(o.peer)}
   saveCheat();emitState();return u;
 }
@@ -610,7 +610,7 @@ function alarmView(){
       <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">${gx(a.name,'إذا ما رجع ينطرد تلقائي','إذا ما رجعت تنطرد تلقائي')}</p>
       <button class="btn-red btn-big" data-act="alKick" data-k="${k}">${gx(a.name,'اطرده','اطردها')}</button></div>`;
     if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} ${gx(a.name,'رجع','رجعت')}</div></div>`;
-    const u=a.u||{};const sub=u.n>=2?'طرد نهائي من الفعالية 🚫':S.mode==='solo'||u.team===null?'طرد من السؤال + سحب كل '+gx(a.name,'نقاطه','نقاطها'):`طرد من السؤال + سحب ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`;
+    const u=a.u||{};const pre=u.n>=2?'طرد نهائي من الفعالية 🚫':'طرد من السؤال';const sub=pre+' + سحب كل '+gx(a.name,'نقاطه','نقاطها')+(u.team!==null&&u.ded?` + ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`:'');
     return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
@@ -695,7 +695,7 @@ function rankingView(){
   return `<div class="stage"><span class="eyebrow">النظام الفردي</span><h2 class="big">الترتيب</h2>
     ${l.length?`<ol class="order rank">${l.map((x,i)=>`<li class="ob"><span class="n">${rankOfScore(l,i)}</span><span style="flex:1">${esc(x.name)}${markOf(x.key)}</span>${kickBtn(x.key,x.name)}
       <button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts" style="min-width:2ch;text-align:center">${x.score}</span><button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="1" aria-label="أضف نقطة">+</button></li>`).join('')}</ol>`
-      :'<p class="muted" style="margin:0">ما فيه لاعبين. اللاعبين يدخلون من جوالاتهم، أو أضف أسماء من «برا السالفة».</p>'}
+      :''}
     ${l.some(x=>x.score>0)?'<button class="btn-ink btn-big" data-act="soloWin">🏆 أعلن الفايز</button>':''}${bannedList()}</div>`;
 }
 function soloAwardRow(disabledKeys,first){const l=soloPlayers();if(!l.length)return '<p class="muted small" style="margin:0">ما فيه لاعبين منضمين لتوزيع النقاط.</p>';
@@ -942,8 +942,8 @@ function adminGames(n){
       <div class="field"><label for="a_girls">الأسماء <span class="hint">— مفصولة بفاصلة</span></label><textarea id="a_girls" data-d="girls" style="min-height:70px" placeholder="افنان، حصة، غدير">${esc(D.girls)}</textarea></div>
     </div>
     <div class="panel"><h3>منع الغش 🚨</h3>
-      <p class="muted small" style="margin:0">إذا لاعب طلع من الموقع وقت اللعب ولا رجع خلال 10 ثواني: أول مرة ينطرد من السؤال وتنسحب نقاطه، وثاني مرة ينطرد من الفعالية.</p>
-      <div class="field" style="max-width:260px"><label for="a_cpen">نقاط تنسحب من فريقه <span class="hint">— في لعب الفرق. في الفردي تنسحب كل نقاطه</span></label><input id="a_cpen" type="number" inputmode="numeric" min="0" max="50" data-d="cheatPenalty" value="${esc(D.cheatPenalty)}" placeholder="3"></div>
+      <p class="muted small" style="margin:0">إذا لاعب طلع من الموقع وقت اللعب ولا رجع خلال 5 ثواني: أول مرة ينطرد من السؤال وتنسحب كل نقاطه الفردية ونقاط من فريقه، وثاني مرة ينطرد من الفعالية. كله تلقائي.</p>
+      <div class="field" style="max-width:260px"><label for="a_cpen">نقاط تنسحب من فريقه <span class="hint">— ونقاطه الفردية تنسحب كلها</span></label><input id="a_cpen" type="number" inputmode="numeric" min="0" max="50" data-d="cheatPenalty" value="${esc(D.cheatPenalty)}" placeholder="3"></div>
     </div>
     <div class="panel"><h3>لجنة التقييم — أفضل لجنة بالطلعة</h3>
       <p class="muted small" style="margin:0">منفصلة عن الألعاب ونقاط الفريقين. كل عضو في لجنة التقييم يختار أفضل لجنة من جواله، واللي تجيب أكثر أصوات تفوز.</p>
