@@ -620,7 +620,7 @@ document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
-  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
+  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${gx(P.name,'','خالتي ')}${esc(P.name)} 🤍</div>
   <p>${gx(P.name,'نورت الفعالية، وحضورك','نورتِ الفعالية، وحضوركِ')} هو اللي يكمل الحماس 🤩</p>
   <p><b>${gx(P.name,'بس تذكّر','بس تذكّري')} 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
   <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
