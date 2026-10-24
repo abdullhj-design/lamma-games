@@ -695,6 +695,7 @@ function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPi
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
+  else if(op.op==='setAnswers'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.answers||[]).forEach((t,j)=>{const it=rd.items[j];if(it&&typeof t==='string'){it.a=t;n++}})}
   else if(op.op==='addEvent'&&op.event&&!D.events.find(x=>x.title===op.event.title)){D.events.push(op.event);n++}
   else if(op.op==='replaceEvent'&&op.event){const i=D.events.findIndex(x=>x.title===op.event.title);if(i>=0)D.events[i]=op.event;else D.events.push(op.event);n++}}
   return n}
