@@ -92,5 +92,49 @@
     ]
    }
   ]
+ },
+ {
+  "id": "2026-10-24-reactions",
+  "title": "مقاطع جولة «قلد الرياكشن»",
+  "desc": "يضيف ٥ مقاطع رياكشن لفعالية تحديات سعودية، مقطع مع كل سؤال.",
+  "ops": [
+   {
+    "op": "eventMedia",
+    "event": "تحديات سعودية",
+    "round": "قلد الرياكشن",
+    "items": [
+     {
+      "qm": {
+       "url": "media/react1.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/react2.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/react3.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/react4.mp4",
+       "kind": "video"
+      }
+     },
+     {
+      "qm": {
+       "url": "media/react5.mp4",
+       "kind": "video"
+      }
+     }
+    ]
+   }
+  ]
  }
 ]
