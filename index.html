@@ -234,6 +234,7 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .wel{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,#000 45%,transparent)}
 .wcard{background:var(--surface);border:2px solid var(--line);border-radius:26px;padding:28px 22px;width:min(420px,100%);text-align:center;display:flex;flex-direction:column;gap:12px;animation:pop .45s ease-out;font-size:1.15rem;line-height:1.7}
 .wcard p{margin:0}
+.still,.still *{animation:none!important}
 .wcard .wsig{font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .cheat{width:100%;border:3px solid var(--red);border-radius:22px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;font-size:1.15rem;line-height:1.7}
 .cheat p{margin:0}
@@ -589,13 +590,14 @@ function sirenSync(){const on=role==='host'&&S.alerts.some(a=>a.ph==='wait');try
   if(!on&&siren.o){siren.o.stop();siren.l.stop();siren.o=null}}catch(e){siren.o=null}}
 function alarmView(){
   if(!S.alerts.length||S.view==='admin')return '';
-  return `<div class="alarm" role="alertdialog" aria-live="assertive"><div class="acards">${S.alerts.map(a=>{const k=esc(a.k);
-    if(a.ph==='wait')return `<div class="acard wait"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} طلع من الموقع</div>
+  const now=Date.now();
+  return `<div class="alarm" role="alertdialog" aria-live="assertive"><div class="acards">${S.alerts.map(a=>{const k=esc(a.k),st=a.ph!==a.seenPh?(a.seenPh=a.ph,a.seenAt=now,''):now-a.seenAt>1500?' still':'';
+    if(a.ph==='wait')return `<div class="acard wait${st}"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} طلع من الموقع</div>
       <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">إذا ما رجع ينطرد تلقائي</p>
       <button class="btn-red btn-big" data-act="alKick" data-k="${k}">اطرده</button></div>`;
-    if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} رجع</div></div>`;
+    if(a.ph==='back')return `<div class="acard back${st}"><div class="aicon">✓</div><div class="big">${esc(a.name)} رجع</div></div>`;
     const u=a.u||{};const sub=u.n>=2?'طرد نهائي من الفعالية 🚫':S.mode==='solo'||u.team===null?'طرد من السؤال + سحب كل نقاطه':`طرد من السؤال + سحب ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`;
-    return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
+    return `<div class="acard${st}"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
 function bannedList(){const b=Object.entries(S.cheat.banned);if(!b.length)return '';
@@ -606,7 +608,7 @@ const markOf=k=>S.marks[k]?'<span class="mark" title="طلع من الموقع">
 function reportAway(){if(role==='player'&&P.joined&&room)room.presence({away:document.hidden?true:null}).catch(()=>{})}
 document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
-function welcomeCard(){return `<div class="wel" data-act="wClose"><div class="wcard"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
+function welcomeCard(){const st=Date.now()-(P.welcome-6000)>700?' still':'';return `<div class="wel${st}" data-act="wClose"><div class="wcard"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
   <p>نورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩</p>
   <p><b>بس تذكّر 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
   <div class="wsig">SMALL FAMILY 🤍</div></div></div>`}
