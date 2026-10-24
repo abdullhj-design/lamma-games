@@ -140,6 +140,19 @@ img.media{background:transparent}
 .jname{font-family:var(--display);font-size:1.4rem;line-height:1.2}
 .jsend{position:sticky;bottom:0;width:100%;background:var(--surface);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
 .wincard{position:relative;overflow:hidden}
+.solobar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-block:10px 22px}
+.solobar .sb{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;background:var(--surface);border:1.5px solid var(--line);font-weight:600}
+.solobar .sb b{font-family:var(--display);font-weight:400;color:var(--muted)}
+.solobar .sb .ts{font-family:var(--display);font-size:1.4rem;color:var(--ochre)}
+.solobar .sb.r1{border-color:var(--ochre)}
+.solobar .btn-ink{margin-inline-start:auto}
+.modebtn{padding:6px 12px;border-radius:99px;font-weight:600;font-size:.9rem}
+.awardp{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:720px}
+.awardp button{padding:10px 16px;font-weight:600}
+.order.rank .ob{gap:10px}
+.order.rank button{width:auto;padding:4px 12px;font-size:1.1rem}
+.myrank{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:14px;border-radius:18px;background:var(--bg);border:1.5px solid var(--line)}
+.myrank b{font-family:var(--display);font-weight:400;font-size:2.4rem;color:var(--ochre);line-height:1.1}
 .drawcols{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%}
 .drawcol{border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .drawcol.t0{background:var(--red-soft)} .drawcol.t1{background:var(--green-soft)}
@@ -322,12 +335,19 @@ const saveTeams=()=>LS.set('teams',S.teams);
 let D=null; // admin draft
 
 /* ---------- room (phones) ---------- */
+S.mode=LS.get('mode','teams')==='solo'?'solo':'teams';
+S.solo=(()=>{const d=LS.get('solo',null);return d&&d.scores&&typeof d.scores==='object'?d:{scores:{}}})();S.soloWin=null;
+const saveSolo=()=>LS.set('solo',S.solo);
+function soloPlayers(){const m=new Map();const ph=phonePlayers();ph.forEach(p=>m.set(p.key,p.name));const taken=new Set(ph.map(p=>p.name));if(!S.localsExample)S.locals.forEach(n=>{if(!taken.has(n))m.set('l:'+n,n)});for(const[k,v] of Object.entries(S.solo.scores))if(!m.has(k)&&v.score>0)m.set(k,v.name);
+  return [...m].map(([key,name])=>({key,name,score:(S.solo.scores[key]||{}).score||0})).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'ar'))}
+function soloAdd(key,name,d){const cur=S.solo.scores[key]||{name,score:0};S.solo.scores[key]={name:clean(name||cur.name,20),score:Math.max(0,cur.score+d)};saveSolo();emitState()}
+const rankOfScore=(list,i)=>1+list.filter(x=>x.score>list[i].score).length;
 S.draw=(()=>{const d=LS.get('draw',null);return d&&d.assign&&typeof d.assign==='object'?d:{assign:{}}})();S.drawQ=[];S.drawLast=null;let myBy=null;
 const pKey=p=>p.by||p.peer;
 const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
 function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)).map(p=>({peer:p.peer,key:pKey(p),name:clean(p.presence.name),team:teamOfKey(pKey(p))}))}
 function hostState(){
-  const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:S.draw.assign};
+  const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:S.draw.assign,mode2:S.mode,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
   if(S.view==='buzz'||S.view==='bell'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){st.buzz={r:S.bz.r,open:S.bz.open}}
   if(S.view==='charades'){st.ch={team:S.ch.team,stage:S.ch.stage}}
@@ -344,7 +364,7 @@ function onHostPeers(ch){
     for(const p of [...ch.joined,...ch.updated]){
       const b=p.presence&&p.presence.buzz;
       if(b&&b.r===S.bz.r&&p.presence.role==='player'&&!S.bz.order.find(o=>o.peer===p.peer)){
-        S.bz.order.push({peer:p.peer,name:clean(p.presence.name)||'لاعب',team:teamOfKey(pKey(p))??(p.presence.team===1?1:0),at:performance.now()});
+        S.bz.order.push({peer:p.peer,key:pKey(p),name:clean(p.presence.name)||'لاعب',team:teamOfKey(pKey(p))??(p.presence.team===1?1:0),at:performance.now()});
         if(S.bz.order.length===1){if(S.view==='bell')ding();else beep(880,.35)}changed=true;
       }
     }
@@ -418,14 +438,14 @@ function judgingView(){
       </div>`}
   return head+winnerCard(g.res.win.map(r=>({n:r.name,m:r.mem})),true);
 }
-function winnerCard(win,big){
+function winnerCard(win,big,eyebrow='أفضل لجنة بالطلعة',note=C.prizeNote){
   const conf=Array.from({length:48},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
   return `<div class="stage evstage wincard"><div class="confetti" aria-hidden="true">${conf}</div>
-    <span class="eyebrow">أفضل لجنة بالطلعة</span>
+    <span class="eyebrow">${esc(eyebrow)}</span>
     <div class="huge">مبروك</div>
     ${win.map(w=>`<div class="${big?'big':'mid'}">${esc(clean(w.n,40))}</div>
       ${Array.isArray(w.m)&&w.m.length?`<div class="members">${w.m.map(x=>`<span>${esc(clean(x,30))}</span>`).join('')}</div>`:''}`).join(win.length>1?'<span class="eyebrow">و</span>':'')}
-    ${C.prizeNote?`<p class="prize">${esc(C.prizeNote)}</p>`:''}
+    ${note?`<p class="prize">${esc(note)}</p>`:''}
   </div>`;
 }
 function judgeThanks(canEdit){return `<div class="thanks"><div class="huge" style="font-size:clamp(2.6rem,12vw,4rem)">🤍</div>
@@ -517,22 +537,35 @@ function chooser(){return `
     ${C.judgePin||S.canEdit?`<button data-act="role" data-v="judge"><b>لجنة التقييم</b><span>مخصصة للقيادة وتتطلب رمز دخول</span></button>`:''}
   </div>
   ${window.lamma?`<p style="text-align:center;margin-top:28px">${S.canEdit?'<button class="link" data-act="adminOut">خروج صاحب الموقع</button>':'<button class="link" data-act="adminIn">دخول صاحب الموقع</button>'}</p>`:''}`}
-function scoreBar(){return `<div class="scores">${S.teams.map((t,i)=>`
+function scoreBar(){if(S.mode==='solo'){const l=soloPlayers();return `<div class="solobar">${l.slice(0,5).map((x,i)=>`<span class="sb r${rankOfScore(l,i)}"><b>${rankOfScore(l,i)}</b> ${esc(x.name)} <span class="ts">${x.score}</span></span>`).join('')||'<span class="muted small">ما فيه لاعبين بعد</span>'}<button class="btn-ink" data-act="go" data-v="ranking">الترتيب والنقاط</button></div>`}
+  return `<div class="scores">${S.teams.map((t,i)=>`
   <div class="team t${i}"><span class="dot t${i}"></span><input class="tn" id="tn${i}" data-team-name="${i}" value="${esc(t.name)}" aria-label="اسم الفريق">
   <button data-act="pt" data-t="${i}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts">${t.score}</span><button data-act="pt" data-t="${i}" data-d="1" aria-label="أضف نقطة">+</button></div>`).join('')}</div>`}
 function topBar(){
   const n=phonePlayers().length,nj=judgeList().length;
   const jgBtn=S.view!=='judging'&&(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg)?`<button class="link strong" data-act="jgOpen">${S.jg&&S.jg.ready?'نتائج تقييم اللجان جاهزة ●':'تقييم اللجان'}</button>`:'';
   const st=jgBtn+(room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`);
-  return `<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}${S.view!=='draw'?(()=>{const un=phonePlayers().filter(p=>p.team===null).length;return `<button class="link strong" data-act="go" data-v="draw">القرعة 🎲${un?` (${un})`:''}</button>`})():''}${S.canEdit?'<button class="link strong" data-act="admin">إدارة الموقع</button>':''}<button class="link" data-act="resetScores">تصفير النقاط</button><button class="link" data-act="role" data-v="">تغيير الدور</button></div></div>`;
+  return `<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}${S.view!=='draw'?(()=>{const un=phonePlayers().filter(p=>p.team===null).length;return `<button class="link strong" data-act="go" data-v="draw">القرعة 🎲${un?` (${un})`:''}</button>`})():''}<button class="modebtn" data-act="modeToggle" title="بدّل نظام النقاط">${S.mode==='solo'?'👤 فردي':'👥 فرق'}</button>${S.canEdit?'<button class="link strong" data-act="admin">إدارة الموقع</button>':''}<button class="link" data-act="resetScores">تصفير النقاط</button><button class="link" data-act="role" data-v="">تغيير الدور</button></div></div>`;
 }
 function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
-  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();
+  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();
   if(S.view==='judging')return topBar()+body;
   return topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body;
 }
+function rankingView(){
+  if(S.soloWin)return winnerCard(S.soloWin.map(x=>({n:x.name,m:[]})),true,'الفايز','')+`<div class="row" style="justify-content:center;margin-top:14px"><button data-act="soloWinClose">رجوع للترتيب</button></div>`;
+  const l=soloPlayers();
+  return `<div class="stage"><span class="eyebrow">النظام الفردي</span><h2 class="big">الترتيب</h2>
+    ${l.length?`<ol class="order rank">${l.map((x,i)=>`<li class="ob"><span class="n">${rankOfScore(l,i)}</span><span style="flex:1">${esc(x.name)}</span>
+      <button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts" style="min-width:2ch;text-align:center">${x.score}</span><button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="1" aria-label="أضف نقطة">+</button></li>`).join('')}</ol>`
+      :'<p class="muted" style="margin:0">ما فيه لاعبين. اللاعبين يدخلون من جوالاتهم، أو أضف أسماء من «برا السالفة».</p>'}
+    ${l.some(x=>x.score>0)?'<button class="btn-ink btn-big" data-act="soloWin">🏆 أعلن الفايز</button>':''}</div>`;
+}
+function soloAwardRow(disabledKeys,first){const l=soloPlayers();if(!l.length)return '<p class="muted small" style="margin:0">ما فيه لاعبين منضمين لتوزيع النقاط.</p>';
+  const ord=first?[...l.filter(x=>x.key===first.key),...l.filter(x=>x.key!==first.key)]:l;
+  return `<div class="awardp">${ord.map(x=>`<button class="${first&&x.key===first.key?'btn-green':''}" data-act="soloAward" data-k="${esc(x.key)}" data-n="${esc(x.name)}" ${disabledKeys.includes(x.key)?'disabled':''}>+1 ${esc(x.name)}</button>`).join('')}</div><p class="muted small" style="margin:0">اضغط اسم كل واحد جاوب صح.</p>`}
 function drawView(){
   const ph=phonePlayers(),cols=[0,1].map(t=>ph.filter(p=>p.team===t)),un=ph.filter(p=>p.team===null),busy=S.drawQ.length>0;
   return `<div class="stage"><span class="eyebrow">القرعة</span><div class="huge" style="font-size:clamp(2.6rem,8vw,4.5rem)">${busy?'جاري القرعة…':'🎲'}</div>
@@ -600,7 +633,7 @@ function evView(){
   const order=S.bz.order.length?`<ol class="order">${S.bz.order.map((o,i)=>`<li class="ob"><span class="n">${i+1}</span><span class="dot t${o.team}"></span><span style="flex:1">${esc(o.name)}</span></li>`).join('')}</ol>`:'';
   const last=v.ii>=r.items.length-1;
   const next=`<button class="btn-ink btn-big" data-act="evNext">${last?'إنهاء الجولة':'السؤال التالي'}</button>`;
-  const award=`<div class="row" style="justify-content:center">${S.teams.map((t,i)=>`<button class="btn-${i?'green':'red'} btn-big" data-act="evAward" data-t="${i}" ${v.awarded?'disabled':''}>+1 ${esc(t.name)}</button>`).join('')}</div>`;
+  const award=S.mode==='solo'?soloAwardRow(v.awardedKeys||[],S.bz.order[0]):`<div class="row" style="justify-content:center">${S.teams.map((t,i)=>`<button class="btn-${i?'green':'red'} btn-big" data-act="evAward" data-t="${i}" ${v.awarded?'disabled':''}>+1 ${esc(t.name)}</button>`).join('')}</div>`;
   const head=`<span class="eyebrow">${esc(r.title)} · ${v.ii+1} من ${r.items.length}</span>${badge}`;
   const link=it.link?`<a class="extlink" href="${esc(it.link)}" target="_blank" rel="noopener">افتح المقطع ↗</a>`:'';
   if(v.phase==='q')return wrap(`${head}${it.q?`<div class="${it.q.length>40?'mid':'big'}">${esc(it.q)}</div>`:''}${evMedia(it.qm,'q'+v.ri+'_'+v.ii)}${link}${timer}${order}
@@ -670,10 +703,10 @@ function bellView(){
   if(!first)return `<div class="stage"><span class="eyebrow">الجرس مفتوح</span><div class="huge">🔔</div><h2 class="big">بانتظار أول ضغطة…</h2>${net}
     <button data-act="bzToggle">اقفل الجرس</button></div>`;
   return `<div class="stage"><span class="eyebrow">أول من ضغط</span>
-    <div class="huge" style="color:var(--${first.team?'green':'red'})">${esc(first.name)}</div>
-    <span class="teambadge t${first.team}">${esc(S.teams[first.team].name)}</span>
+    <div class="huge" style="color:var(--${S.mode==='solo'?'ochre':first.team?'green':'red'})">${esc(first.name)}</div>
+    ${S.mode==='solo'?'':`<span class="teambadge t${first.team}">${esc(S.teams[first.team].name)}</span>`}
     ${b.order.length>1?`<ol class="order">${b.order.slice(1).map((o,i)=>`<li><button data-act="bzAward" data-i="${i+1}" ${b.awarded?'disabled':''}><span class="n">${i+2}</span><span class="dot t${o.team}"></span><span style="flex:1">${esc(o.name)}</span><span class="muted small">+${((o.at-first.at)/1000).toFixed(2)} ث</span></button></li>`).join('')}</ol>`:''}
-    <div class="row" style="justify-content:center"><button class="btn-${first.team?'green':'red'} btn-big" data-act="bzAward" data-i="0" ${b.awarded?'disabled':''}>صح ✓ نقطة لـ${esc(S.teams[first.team].name)}</button>
+    <div class="row" style="justify-content:center"><button class="btn-${first.team?'green':'red'} btn-big" data-act="bzAward" data-i="0" ${b.awarded?'disabled':''}>صح ✓ نقطة لـ${esc(S.mode==='solo'?first.name:S.teams[first.team].name)}</button>
     <button class="btn-ink btn-big" data-act="bellOpen">سؤال جديد 🔔</button></div>
     ${b.order.length>1&&!b.awarded?'<p class="muted small" style="margin:0">لو غلط، اضغط اسم اللي بعده من القائمة لو جاوب صح.</p>':''}</div>`;
 }
@@ -901,7 +934,8 @@ function playerView(){
   else if(mode==='event'&&h.ev)body=`<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
   else body=P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
-  const sc=h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
+  const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myBy):-1;
+  const sc=h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>نقاطك</span><b>${Number(h.solo[mine].s)||0}</b><span>ترتيبك ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
   return head+`<div class="phone stage"><span class="eyebrow">${P.team===null?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
 
@@ -918,7 +952,7 @@ setInterval(tick,250);
 let wake=null;async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){}}
 
 /* ---------- events ---------- */
-function evSetItem(i,phase='q'){const v=S.ev;v.ii=i;v.phase=phase;v.end=0;v.beeped=false;v.awarded=false;closeBuzz();emitState();render();window.scrollTo({top:0})}
+function evSetItem(i,phase='q'){const v=S.ev;v.ii=i;v.phase=phase;v.end=0;v.beeped=false;v.awarded=false;v.awardedKeys=[];closeBuzz();emitState();render();window.scrollTo({top:0})}
 function getD(path){return path.split('.').reduce((o,k)=>o[k],D)}
 $app.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
@@ -926,7 +960,12 @@ $app.addEventListener('click',e=>{
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
     case 'go':S.view=b.dataset.v;closeBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
-    case 'resetScores':S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
+    case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
+    case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
+    case 'soloAward':{soloAdd(b.dataset.k,b.dataset.n,1);if(S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(b.dataset.k)}toast('نقطة لـ '+b.dataset.n);render();break}
+    case 'soloWin':{const l=soloPlayers();const top=l.length?l[0].score:0;S.soloWin=l.filter(x=>x.score===top&&top>0);playWin();render();break}
+    case 'soloWinClose':S.soloWin=null;render();break;
+    case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ تصفير نقاط الكل';break}S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
     case 'rmLocal':S.locals.splice(+b.dataset.i,1);S.localsExample=false;LS.set('locals',S.locals);render();break;
     /* event */
     case 'evOpen':{const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'cover',ri:-1,ii:0,done:{},end:0};S.view='event';closeBuzz();emitState();render();break}
@@ -961,7 +1000,7 @@ $app.addEventListener('click',e=>{
     case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'bellOpen':S.bz.r++;S.bz.open=true;S.bz.order=[];S.bz.awarded=false;emitState();render();break;
     case 'bzToggle':S.bz.open=!S.bz.open;if(S.bz.open){S.bz.r++;S.bz.order=[]}emitState();render();break;
-    case 'bzAward':{const o=S.bz.order[+b.dataset.i];S.teams[o.team].score++;S.bz.awarded=true;S.bz.open=false;saveTeams();emitState();toast('نقطة لـ '+S.teams[o.team].name);render();break}
+    case 'bzAward':{const o=S.bz.order[+b.dataset.i];if(S.mode==='solo'){soloAdd(o.key||o.peer,o.name,1);S.bz.awarded=true;S.bz.open=false;emitState();toast('نقطة لـ '+o.name);render();break}S.teams[o.team].score++;S.bz.awarded=true;S.bz.open=false;saveTeams();emitState();toast('نقطة لـ '+S.teams[o.team].name);render();break}
     /* admin */
     case 'admin':openAdmin();break;
     case 'adminIn':if(window.lamma)lamma.adminSignIn().catch(()=>toast('ما تم الدخول. جرّب مرة ثانية.'));break;
