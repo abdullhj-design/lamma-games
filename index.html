@@ -234,7 +234,6 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .wel{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,#000 45%,transparent)}
 .wcard{background:var(--surface);border:2px solid var(--line);border-radius:26px;padding:28px 22px;width:min(420px,100%);text-align:center;display:flex;flex-direction:column;gap:12px;animation:pop .45s ease-out;font-size:1.15rem;line-height:1.7}
 .wcard p{margin:0}
-.still,.still *{animation:none!important}
 .wcard .wsig{font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .cheat{width:100%;border:3px solid var(--red);border-radius:22px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;font-size:1.15rem;line-height:1.7}
 .cheat p{margin:0}
@@ -536,7 +535,7 @@ function pinView(){
 }
 async function joinWithPin(pin){
   if(S.pinLockUntil>Date.now())return;
-  if((await pinHash(pin,'diwaniya-player:'))===C.playerPin){LS.set('playerOk',C.playerPin);S.pinTries=0;S.pinMsg='';P.joined=true;P.welcome=Date.now()+6000;sendPresence({away:null});render();return}
+  if((await pinHash(pin,'diwaniya-player:'))===C.playerPin){LS.set('playerOk',C.playerPin);S.pinTries=0;S.pinMsg='';P.joined=true;sendPresence({away:null});render();showWelcome();return}
   S.pinTries=(S.pinTries||0)+1;
   if(S.pinTries>=5){S.pinLockUntil=Date.now()+30000;S.pinTries=0;S.pinMsg='محاولات كثيرة. جرّب بعد 30 ثانية.';setTimeout(()=>{S.pinMsg='';render()},30000)}
   else S.pinMsg='الرمز غلط. اطلبه من المقدّم.';
@@ -589,17 +588,24 @@ function sirenSync(){const on=role==='host'&&S.alerts.some(a=>a.ph==='wait');try
     l.connect(lg);lg.connect(o.frequency);g.gain.value=.13;o.connect(g);g.connect(a.destination);o.start();l.start();Object.assign(siren,{o,l})}
   if(!on&&siren.o){siren.o.stop();siren.l.stop();siren.o=null}}catch(e){siren.o=null}}
 function alarmView(){
-  if(!S.alerts.length||S.view==='admin')return '';
-  const now=Date.now();
-  return `<div class="alarm" role="alertdialog" aria-live="assertive"><div class="acards">${S.alerts.map(a=>{const k=esc(a.k),st=a.ph!==a.seenPh?(a.seenPh=a.ph,a.seenAt=now,''):now-a.seenAt>1500?' still':'';
-    if(a.ph==='wait')return `<div class="acard wait${st}"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} طلع من الموقع</div>
+  if(!S.alerts.length||S.view==='admin'||role!=='host'||!S.loaded||!hostAllowed())return '';
+  return `<div class="alarm" role="alertdialog" aria-live="assertive"><div class="acards">${S.alerts.map(a=>{const k=esc(a.k);
+    if(a.ph==='wait')return `<div class="acard wait"><div class="aicon">⚠️</div><div class="big">${esc(a.name)} طلع من الموقع</div>
       <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">إذا ما رجع ينطرد تلقائي</p>
       <button class="btn-red btn-big" data-act="alKick" data-k="${k}">اطرده</button></div>`;
-    if(a.ph==='back')return `<div class="acard back${st}"><div class="aicon">✓</div><div class="big">${esc(a.name)} رجع</div></div>`;
+    if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} رجع</div></div>`;
     const u=a.u||{};const sub=u.n>=2?'طرد نهائي من الفعالية 🚫':S.mode==='solo'||u.team===null?'طرد من السؤال + سحب كل نقاطه':`طرد من السؤال + سحب ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`;
-    return `<div class="acard${st}"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
+    return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
+let alarmSig='';
+function syncAlarm(){const html=alarmView(),sig=html.replace(/data-cd="\d+">\d+</,'');if(sig===alarmSig)return;alarmSig=sig;
+  let el=document.getElementById('alarmRoot');if(!html){if(el)el.remove();return}
+  if(!el){el=document.createElement('div');el.id='alarmRoot';document.body.appendChild(el);
+    el.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const k=b.dataset.k;
+      if(b.dataset.act==='alKick'){const a=S.alerts.find(x=>x.k===k&&x.ph==='wait');if(a)alertKick(a)}
+      if(b.dataset.act==='alClose'){S.alerts=S.alerts.filter(x=>x.k!==k);sirenSync();render()}})}
+  el.innerHTML=html}
 function bannedList(){const b=Object.entries(S.cheat.banned);if(!b.length)return '';
   return `<div class="banlist"><div class="lbl">المطرودين 🚫 (${b.length})</div><div class="chips" style="justify-content:center">${b.map(([k,n])=>`<span class="chip">${esc(n)}<button class="link" data-act="unban" data-k="${esc(k)}">رجّعه</button></span>`).join('')}</div></div>`}
 const kickBtn=(k,n)=>k&&!String(k).startsWith('l:')?`<button class="kickx" data-act="manKick" data-k="${esc(k)}" data-n="${esc(n)}" title="اطرده من الفعالية" aria-label="اطرد ${esc(n)}">🚫</button>`:'';
@@ -608,10 +614,15 @@ const markOf=k=>S.marks[k]?'<span class="mark" title="طلع من الموقع">
 function reportAway(){if(role==='player'&&P.joined&&room)room.presence({away:document.hidden?true:null}).catch(()=>{})}
 document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
-function welcomeCard(){const st=Date.now()-(P.welcome-6000)>700?' still':'';return `<div class="wel${st}" data-act="wClose"><div class="wcard"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
+function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
+function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
+  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${esc(P.name)} 🤍</div>
   <p>نورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩</p>
   <p><b>بس تذكّر 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
-  <div class="wsig">SMALL FAMILY 🤍</div></div></div>`}
+  <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
+  <button class="btn-ink btn-big" style="width:100%">تمام</button></div>`;
+  el.addEventListener('click',e=>{if(e.target.closest('button')||e.target===el)hideWelcome()});
+  document.body.appendChild(el);hideWelcome.t=setTimeout(hideWelcome,6000)}
 
 /* ---------- render ---------- */
 function render(){
@@ -619,10 +630,10 @@ function render(){
   // keep playing videos playing across re-renders
   const playing={};document.querySelectorAll('video[data-key]').forEach(v=>{if(!v.paused||v.currentTime>0)playing[v.dataset.key]={t:v.currentTime,p:!v.paused}});
   const hv=()=>!S.loaded?`<div class="stage" style="margin-top:20px"><p class="muted" style="margin:0">جاري التحميل…</p></div>`:hostAllowed()?hostView():pinView();
-  $app.innerHTML='<div class="sadu"></div>'+(role==='host'?hv()+(S.loaded&&hostAllowed()?alarmView():''):role==='player'?playerView()+(P.welcome>Date.now()&&P.joined?welcomeCard():''):role==='judge'?judgeView():chooser());
+  $app.innerHTML='<div class="sadu"></div>'+(role==='host'?hv():role==='player'?playerView():role==='judge'?judgeView():chooser());
   document.querySelectorAll('video[data-key]').forEach(v=>{const s=playing[v.dataset.key];if(s){v.currentTime=s.t;if(s.p)v.play().catch(()=>{})}});
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
-  tick();
+  syncAlarm();tick();
 }
 function chooser(){return `
   <div class="top"><div class="brand">${esc(C.title)}<small>لمّتنا أحلى.. يلا نلعب ونتحدى! 🎉</small></div></div>
@@ -1030,8 +1041,8 @@ function playerView(){
     <button class="btn-ink btn-big" type="submit" style="width:100%">انضم</button></form>`;
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
-  if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){P.welcome=0;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
-  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">تم طردك من الفعالية</h2><p style="margin:0;font-size:1.15rem">لا تغش ياصديقي الجميع فايز 🤍</p></div>`;
+  if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
+  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">تم طردك من الفعالية</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز اللي أخذتها</p></div>`;
   if(kicked==='q')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">ياغشاش 😤</div><p>تم طردك من الجولة وإلغاء كافة نقاطك السابقة</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">لا تغش ياصديقي الجميع فايز 🤍</p></div><p class="muted small" style="margin:0">ترجع تلعب مع السؤال الجاي.</p></div>`;
   const buzzer=()=>{const done=P.buzzedR===h.buzz.r;return `<button class="buzzer" data-act="buzz" ${!h.buzz.open||done?'disabled':''}>${done?'ضغطت!':'🔔'}</button><p class="muted" style="margin:0">${done?'شوف الشاشة الكبيرة.':h.buzz.open?'اضغط أول ما تعرف الجواب':'استنى السؤال'}</p>`};
   if(!roomOk)body='<p class="muted">جاري الاتصال…</p>';
@@ -1056,7 +1067,6 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
-  if(role==='player'&&P.welcome&&now>=P.welcome){P.welcome=0;render()}
   if(role==='host'&&S.alerts.length){let ch=false;
     for(const a of S.alerts.slice()){if(now<a.end)continue;if(a.ph==='wait'){alertKick(a);ch=false}else{S.alerts=S.alerts.filter(x=>x!==a);ch=true}}
     if(ch){sirenSync();render()}
@@ -1165,7 +1175,6 @@ $app.addEventListener('click',e=>{
     case 'manKick':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='اطرده؟';b.classList.add('btn-red');break}strike(b.dataset.k,b.dataset.n,true);toast('تم طرد '+b.dataset.n+' 🚫');render();break}
     case 'unban':{const k=b.dataset.k,n=S.cheat.banned[k];delete S.cheat.banned[k];delete S.cheat.strikes[k];delete S.cheat.qban[k];delete S.marks[k];saveCheat();emitState();toast('رجع '+(n||'اللاعب'));render();break}
     /* player */
-    case 'wClose':P.welcome=0;render();break;
     case 'pteam':P.team=+b.dataset.t;LS.set('pteam',P.team);if(P.joined)sendPresence();render();break;
     case 'flip':P.revealed=!P.revealed;render();break;
     case 'buzz':if(!P.host||!P.host.buzz)break;P.buzzedR=P.host.buzz.r;sendPresence({buzz:{r:P.host.buzz.r,t:Date.now()}});try{navigator.vibrate&&navigator.vibrate(80)}catch(_){}render();break;
@@ -1188,7 +1197,7 @@ $app.addEventListener('submit',e=>{
   if(f==='pin'){const v=document.getElementById('pinIn').value.trim();if(v)checkPin(v);return}
   if(f==='join'){const n=clean(document.getElementById('pname').value);if(!n){toast('اكتب اسمك');return}P.name=n;LS.set('pname',n);
     if(!playerAllowed()){const pi=document.getElementById('ppinIn');const v=pi?pi.value.trim():'';if(!v){S.pinMsg='اكتب رمز الدخول.';render();return}joinWithPin(v);return}
-    P.joined=true;P.welcome=Date.now()+6000;S.pinMsg='';sendPresence({away:null});render()}
+    P.joined=true;S.pinMsg='';sendPresence({away:null});render();showWelcome()}
 });
 $app.addEventListener('change',e=>{
   const t=e.target;
