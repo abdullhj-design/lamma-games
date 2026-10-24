@@ -237,6 +237,18 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .wcard .wsig{font-weight:700;letter-spacing:.06em;color:var(--muted);margin-top:4px}
 .cheat{width:100%;border:3px solid var(--red);border-radius:22px;padding:22px 18px;display:flex;flex-direction:column;gap:10px;font-size:1.15rem;line-height:1.7}
 .cheat p{margin:0}
+.menubtn{position:relative;font-size:1.6rem;line-height:1;padding:8px 14px}
+.menubtn .mdot{position:absolute;top:6px;inset-inline-end:6px;width:10px;height:10px;border-radius:50%;background:var(--red)}
+.drawer-bg{position:fixed;inset:0;z-index:25;background:color-mix(in srgb,#000 45%,transparent)}
+.drawer{position:fixed;top:0;bottom:0;inset-inline-end:0;z-index:26;width:min(320px,86vw);background:var(--surface);border-inline-start:1.5px solid var(--line);padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;overflow:auto;box-shadow:0 0 40px rgba(0,0,0,.25)}
+.drawer.anim{animation:slidein .25s ease-out}
+.drawer .dhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.drawer .dhead b{font-family:var(--display);font-size:1.5rem;font-weight:400}
+.drawer .ditem{width:100%;text-align:start;font-size:1.1rem;font-weight:600;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.drawer .ditem small{color:var(--muted);font-weight:400}
+.drawer .sep{height:1px;background:var(--line);margin-block:6px}
+.drawer .ditem.danger{color:var(--red)}
+@keyframes slidein{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:20;max-width:90vw}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -652,10 +664,23 @@ function scoreBar(){if(S.mode==='solo'){const l=soloPlayers();return `<div class
   <div class="team t${i}"><span class="dot t${i}"></span><input class="tn" id="tn${i}" data-team-name="${i}" value="${esc(t.name)}" aria-label="اسم الفريق">
   <button data-act="pt" data-t="${i}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts">${t.score}</span><button data-act="pt" data-t="${i}" data-d="1" aria-label="أضف نقطة">+</button></div>`).join('')}</div>`}
 function topBar(){
-  const n=phonePlayers().length,nj=judgeList().length;
-  const jgBtn=S.view!=='judging'&&(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg)?`<button class="link strong" data-act="jgOpen">${S.jg&&S.jg.ready?'نتائج تقييم اللجان جاهزة ●':'تقييم اللجان'}</button>`:'';
-  const st=jgBtn+(room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`);
-  return `<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}${S.view!=='draw'?(()=>{const un=phonePlayers().filter(p=>p.team===null).length;return `<button class="link strong" data-act="go" data-v="draw">القرعة 🎲${un?` (${un})`:''}</button>`})():''}<button class="modebtn" data-act="modeToggle" title="بدّل نظام النقاط">${S.mode==='solo'?'👤 فردي':'👥 فرق'}</button>${S.canEdit?'<button class="link strong" data-act="admin">إدارة الموقع</button>':''}<button class="link" data-act="resetScores">تصفير النقاط</button><button class="link" data-act="role" data-v="">تغيير الدور</button></div></div>`;
+  const n=phonePlayers().length,nj=judgeList().length,un=phonePlayers().filter(p=>p.team===null).length;
+  const jgShow=(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg),jgReady=S.jg&&S.jg.ready;
+  const st=room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`;
+  const bar=`<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}<button class="menubtn" data-act="menu" aria-label="القائمة" aria-expanded="${!!S.menu}">☰${jgReady?'<span class="mdot"></span>':''}</button></div></div>`;
+  if(!S.menu)return bar;
+  const anim=S.menuAnim?' anim':'';S.menuAnim=false;
+  return bar+`<div class="drawer-bg" data-act="menuClose"></div><nav class="drawer${anim}" aria-label="القائمة">
+    <div class="dhead"><b>القائمة</b><button class="link" data-act="menuClose" aria-label="سكّر القائمة" style="font-size:1.4rem;text-decoration:none">✕</button></div>
+    <button class="ditem" data-act="go" data-v="draw"><span>القرعة 🎲</span>${un?`<small>${un} بانتظار</small>`:''}</button>
+    <button class="ditem" data-act="modeToggle"><span>نظام النقاط</span><small>${S.mode==='solo'?'👤 فردي':'👥 فرق'} ← بدّل</small></button>
+    ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button>':''}
+    ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
+    ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
+    <div class="sep"></div>
+    <button class="ditem danger" data-act="resetScores"><span>تصفير النقاط</span></button>
+    <button class="ditem" data-act="role" data-v=""><span>تغيير الدور</span></button>
+  </nav>`;
 }
 function hostView(){
   if(S.view==='admin')return adminView();
@@ -1089,8 +1114,10 @@ let wake=null;async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=
 /* ---------- events ---------- */
 function evSetItem(i,phase='q'){bumpQ();const v=S.ev;v.ii=i;v.phase=phase;v.end=0;v.beeped=false;v.awarded=false;v.awardedKeys=[];closeBuzz();emitState();render();window.scrollTo({top:0})}
 function getD(path){return path.split('.').reduce((o,k)=>o[k],D)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.menu){S.menu=false;render()}});
 $app.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
+  if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
     case 'go':if(S.view!==b.dataset.v)bumpQ();S.view=b.dataset.v;closeBuzz();emitState();render();break;
@@ -1100,7 +1127,7 @@ $app.addEventListener('click',e=>{
     case 'soloAward':{soloAdd(b.dataset.k,b.dataset.n,1);if(S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(b.dataset.k)}toast('نقطة لـ '+b.dataset.n);render();break}
     case 'soloWin':{const l=soloPlayers();const top=l.length?l[0].score:0;S.soloWin=l.filter(x=>x.score===top&&top>0);playWin();render();break}
     case 'soloWinClose':S.soloWin=null;render();break;
-    case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ تصفير نقاط الكل';break}S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
+    case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';(b.querySelector('span')||b).textContent='متأكد؟ تصفير نقاط الكل';break}S.menu=false;S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}if(b.closest('.drawer')&&b.dataset.confirm!=='1'){b.dataset.confirm='1';b.querySelector('span').textContent='متأكد؟ تصفير نقاط الفريقين';break}S.menu=false;S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
     case 'rmLocal':S.locals.splice(+b.dataset.i,1);S.localsExample=false;LS.set('locals',S.locals);render();break;
     /* event */
     case 'evOpen':{bumpQ();const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'cover',ri:-1,ii:0,done:{},end:0};S.view='event';closeBuzz();emitState();render();break}
@@ -1176,6 +1203,8 @@ $app.addEventListener('click',e=>{
     case 'iAdd':{const r=D.events[S.edEv].rounds[+b.dataset.r];const last=r.items[r.items.length-1];r.items.push({team:last?(last.team==='A'?'B':last.team==='B'?'A':last.team):'A',q:'',a:'',qm:null,am:null,link:''});render();break}
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
+    case 'menu':S.menu=!S.menu;S.menuAnim=S.menu;render();break;
+    case 'menuClose':S.menu=false;render();break;
     /* anti-cheat */
     case 'alKick':{const a=S.alerts.find(x=>x.k===b.dataset.k&&x.ph==='wait');if(a)alertKick(a);break}
     case 'alClose':S.alerts=S.alerts.filter(x=>x.k!==b.dataset.k);sirenSync();render();break;
