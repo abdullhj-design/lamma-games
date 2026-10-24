@@ -944,10 +944,10 @@ function playerView(){
   else if(mode==='bell')body=`<h2 class="big">فقرة الجرس 🔔</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`;
   else if(mode==='event'&&h.ev)body=`<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
-  else body=P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
+  else body=h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">اللعب فردي 👤 كل واحد لنفسه</p><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
   const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myBy):-1;
   const sc=h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>نقاطك</span><b>${Number(h.solo[mine].s)||0}</b><span>ترتيبك ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
-  return head+`<div class="phone stage"><span class="eyebrow">${P.team===null?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
+  return head+`<div class="phone stage"><span class="eyebrow">${P.team===null||h.mode2==='solo'?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null||h.mode2==='solo'?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
 
 /* ---------- timers ---------- */
