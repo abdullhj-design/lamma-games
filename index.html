@@ -492,10 +492,10 @@ function judgingView(){
 function closingCard(){const P_=t=>`<p style="margin:0;max-width:40ch;font-size:clamp(1.15rem,2.8vw,1.7rem);line-height:1.7">${t}</p>`;
   return `<div class="stage evstage closing"><div class="huge" style="font-size:clamp(2.2rem,6.5vw,4.2rem)">وبكذا وصلنا لختام فعاليتنا 🤍</div>
   ${P_('شكرًا من القلب لكل من كان جزءًا منها ❤️')}
-  ${P_('<b>ألف مبروك للفائزين 🎉</b><br>وهاردلك للبقية، والقادم أجمل بإذن الله 🫶')}
+  ${P_('<b>ألف مبروك للفائزين 🎉</b><br>وهاردلك للبقية، والقادم أجمل بإذن الله')}
   ${P_('شكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍')}
   ${P_('والجايات أحلى بإذن الله 👏🏻🔥')}
-  <div class="big" dir="ltr" style="letter-spacing:.06em">SMALL FAMILY 🤍🫶</div></div>`}
+  <div class="big" dir="ltr" style="letter-spacing:.06em">SMALL FAMILY 🤍</div></div>`}
 function winnerCard(win,big,eyebrow='أفضل لجنة بالطلعة',note=C.prizeNote){
   const conf=Array.from({length:48},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
   return `<div class="stage evstage wincard"><div class="confetti" aria-hidden="true">${conf}</div>
