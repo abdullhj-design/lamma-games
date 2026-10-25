@@ -165,5 +165,359 @@
     ]
    }
   ]
+ },
+ {
+  "id": "2026-10-25-khamminoo",
+  "title": "فعالية «خمنوااا»",
+  "desc": "يضيف فعالية فردية فيها ٤ جولات: خمّنوا المثل والرياكشن والبلد والأكلة — ٢٨ سؤال بالإيموجي مع إجاباتها.",
+  "ops": [
+   {
+    "op": "addEvent",
+    "event": {
+     "title": "خمنوااا",
+     "subtitle": "الرياكشن / البلد / المثل / الأكلة",
+     "intro": "راح نعرض لكم إيموجيات، حاولوا تطلعون منها الرياكشن أو البلد أو الأكلة أو المثل 👀\nكل جولة مكتوب فوقها وش تخمّنون.\nجاهزييين؟ 🔥",
+     "outro": "",
+     "rounds": [
+      {
+       "title": "خمّنوا المثل",
+       "desc": "من الإيموجيات طلّعوا المثل الشعبي 📜",
+       "timer": 0,
+       "items": [
+        {
+         "team": "",
+         "q": "",
+         "a": "القرد بعين أمه غزال",
+         "qm": {
+          "url": "media/kh1.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "يا جبل ما يهزك ريح",
+         "qm": {
+          "url": "media/kh2.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "الباب يفوت جمل",
+         "qm": {
+          "url": "media/kh3.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "مد رجلك على قد لحافك",
+         "qm": {
+          "url": "media/kh4.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "ضربني وبكى، سبقني واشتكى",
+         "qm": {
+          "url": "media/kh5.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "العلم نور",
+         "qm": {
+          "url": "media/kh6.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "امشِ في جنازة ولا تمشي في جوازة",
+         "qm": {
+          "url": "media/kh7.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        }
+       ]
+      },
+      {
+       "title": "خمّنوا الرياكشن",
+       "desc": "من الإيموجيات طلّعوا الرياكشن المشهور 😮",
+       "timer": 0,
+       "items": [
+        {
+         "team": "",
+         "q": "",
+         "a": "وأنا أوكّلش بيديني البيتزا",
+         "qm": {
+          "url": "media/kh8.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "وييين مكتب حمد",
+         "qm": {
+          "url": "media/kh9.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "ستاربكس هذا عشقي",
+         "qm": {
+          "url": "media/kh10.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "حار هذا حرقني",
+         "qm": {
+          "url": "media/kh11.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "في رمضاااان!!",
+         "qm": {
+          "url": "media/kh12.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        }
+       ]
+      },
+      {
+       "title": "خمّنوا البلد",
+       "desc": "من الإيموجيات والحروف طلّعوا اسم البلد 🌍",
+       "timer": 0,
+       "items": [
+        {
+         "team": "",
+         "q": "",
+         "a": "المغرب",
+         "qm": {
+          "url": "media/kh13.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "البحرين",
+         "qm": {
+          "url": "media/kh14.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "الجزائر",
+         "qm": {
+          "url": "media/kh15.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "بيروت",
+         "qm": {
+          "url": "media/kh16.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "قطر",
+         "qm": {
+          "url": "media/kh17.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "جدة",
+         "qm": {
+          "url": "media/kh18.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "المالديف",
+         "qm": {
+          "url": "media/kh19.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "فرنسا",
+         "qm": {
+          "url": "media/kh20.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "السنغال",
+         "qm": {
+          "url": "media/kh21.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        }
+       ]
+      },
+      {
+       "title": "خمّنوا الأكلة",
+       "desc": "من الإيموجيات والحروف طلّعوا اسم الأكلة 🍲",
+       "timer": 0,
+       "items": [
+        {
+         "team": "",
+         "q": "",
+         "a": "بيتزا",
+         "qm": {
+          "url": "media/kh22.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "برقر",
+         "qm": {
+          "url": "media/kh23.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "شاورما",
+         "qm": {
+          "url": "media/kh24.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "جريش",
+         "qm": {
+          "url": "media/kh25.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "بسبوسة",
+         "qm": {
+          "url": "media/kh26.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "شوربة",
+         "qm": {
+          "url": "media/kh27.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        },
+        {
+         "team": "",
+         "q": "",
+         "a": "إيدام",
+         "qm": {
+          "url": "media/kh28.jpg",
+          "kind": "image"
+         },
+         "am": null,
+         "link": ""
+        }
+       ]
+      }
+     ]
+    }
+   }
+  ]
  }
 ]
