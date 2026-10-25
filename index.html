@@ -485,7 +485,7 @@ async function initRoom(){
   if(!room){render();return}
   room.onConnection(c=>{roomOk=c;if(c){emitState();if(role==='player'&&P.joined)sendPresence();if(role==='judge'&&J.joined)sendJudge(J.sent&&J.k?{k:J.k,s:J.s}:null)}if(S.view!=='admin')render()},()=>{roomOk=false;room=null;render()});
   room.onPeers(ch=>{const me=ch.peers.find(p=>p.sameTab);if(me){myPeer=me.peer;myBy=pKey(me)}if(role==='host')onHostPeers(ch);else if(role==='player'||role==='judge')render()},()=>{});
-  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;P.host=d;if(role==='player'&&P.joined){const tt=d.titles&&myBy?d.titles[myBy]:'';if(tt)P.title=tt;if(P.wantWelcome&&tt){P.wantWelcome=false;clearTimeout(queueWelcome.t);showWelcome()}const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
+  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;P.host=d;if(role==='player'&&P.joined){const tt=d.titles&&myBy?d.titles[myBy]:'';if(tt&&tt!==P.title){P.title=tt;fillWelcomeTitle()}const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
   render();
 }
 async function initUser(){
@@ -693,13 +693,14 @@ const markOf=k=>S.marks[k]?'<span class="mark" title="طلع من الموقع">
 function reportAway(){if(role==='player'&&P.joined&&room)room.presence({away:document.hidden?true:null}).catch(()=>{})}
 document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
-function queueWelcome(){P.title='';if(!C.titles.some(x=>normName(x[0])===normName(P.name))){P.wantWelcome=false;showWelcome();return}P.wantWelcome=true;clearTimeout(queueWelcome.t);queueWelcome.t=setTimeout(()=>{if(P.wantWelcome){P.wantWelcome=false;showWelcome()}},2500)}
+function queueWelcome(){const c=C.titles.filter(x=>normName(x[0])===normName(P.name));P.title=c.length===1?c[0][1]:'';showWelcome()}
+function fillWelcomeTitle(){const el=document.getElementById('wTitle');if(!el||!P.title)return;el.innerHTML=`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`;el.hidden=false}
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${gx(P.name,'','خالتي ')}${esc(P.name)} 🤍</div>
   <p>${gx(P.name,'نورت الفعالية، وحضورك','نورتِ الفعالية، وحضوركِ')} هو اللي يكمل الحماس 🤩</p>
   <p><b>${gx(P.name,'بس تذكّر','بس تذكّري')} 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
-  ${P.title?`<p>${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b></p>`:''}
+  <p id="wTitle" ${P.title?'':'hidden'}>${P.title?`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`:''}</p>
   <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
   <button class="btn-ink btn-big" style="width:100%">تمام</button></div>`;
   el.addEventListener('click',e=>{if(e.target.closest('button')||e.target===el)hideWelcome()});
