@@ -1273,7 +1273,7 @@ $app.addEventListener('click',e=>{
     case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';(b.querySelector('span')||b).textContent='متأكد؟ تصفير نقاط الكل';break}S.menu=false;S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}if(b.closest('.drawer')&&b.dataset.confirm!=='1'){b.dataset.confirm='1';b.querySelector('span').textContent='متأكد؟ تصفير نقاط الفريقين';break}S.menu=false;S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
     case 'rmLocal':S.locals.splice(+b.dataset.i,1);S.localsExample=false;LS.set('locals',S.locals);render();break;
     /* event */
-    case 'evOpen':{bumpQ();const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'cover',ri:-1,ii:0,done:S.evDone[C.events[i].title]||{},end:0};S.view='event';closeBuzz();emitState();render();break}
+    case 'evOpen':{bumpQ();const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'menu',ri:-1,ii:0,done:S.evDone[C.events[i].title]||{},end:0};S.view='event';closeBuzz();emitState();render();break}
     case 'evGo':S.ev.phase=b.dataset.p;S.ev.ri=-1;closeBuzz();emitState();render();window.scrollTo({top:0});break;
     case 'evRound':S.ev.ri=+b.dataset.i;S.ev.phase='round';S.ev.before=rankSnap();emitState();render();window.scrollTo({top:0});break;
     case 'evItem':evSetItem(+b.dataset.i);break;
