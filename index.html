@@ -853,7 +853,7 @@ function evView(){
   if(v.phase==='intro')return wrap(`<span class="eyebrow">مقدمة الفعالية</span><div class="mid">${esc(e.intro)}</div><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button>`);
   if(v.phase==='menu')return wrap(`<span class="eyebrow">${esc(e.title)}</span><h2 class="big">الجولات</h2>
     <div class="rounds">${e.rounds.map((r,i)=>`<button data-act="evRound" data-i="${i}" class="${v.done[i]?'done':''}"><span class="rn">${i+1}</span><span>${esc(r.title)}</span></button>`).join('')}</div>
-    ${S.mode==='solo'?'<button class="btn-ink btn-big" data-act="finale">إنهاء وإعلان الفائزين 🏁</button>':'<button class="btn-ink btn-big" data-act="evGo" data-p="outro">الختام والنتيجة</button>'}`);
+    ${S.mode==='solo'?'':'<button class="btn-ink btn-big" data-act="evGo" data-p="outro">الختام والنتيجة</button>'}`);
   if(v.phase==='outro'&&S.mode==='solo'){const l=soloPlayers(),top=l.length?l[0].score:0,w=l.filter(x=>x.score===top&&top>0);
     return wrap(`<span class="eyebrow">الختام</span><div class="huge">${w.length?(w.length>1?'تعادل!':'الفايز: '+esc(w[0].name)):'الختام'}</div>${w.length>1?`<div class="big">${w.map(x=>esc(x.name)).join(' و ')}</div>`:''}${top?`<div class="big">${top} ${top===1?'نقطة':'نقاط'}</div>`:''}${e.outro?`<div class="mid" style="font-size:clamp(1.2rem,3vw,1.8rem)">${esc(e.outro)}</div>`:''}<button data-act="evGo" data-p="menu">رجوع للجولات</button>`)}
   if(v.phase==='outro'){const [a,b]=S.teams;const win=a.score===b.score?'تعادل!':`الفايز: ${esc((a.score>b.score?a:b).name)}`;
