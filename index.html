@@ -441,7 +441,7 @@ function titleFor(k,name){
   const taken=new Set(Object.entries(S.tmap).filter(([kk,v])=>kk!==k&&v.n===nm).map(([,v])=>v.t));
   const t=cands.find(x=>!taken.has(x))||cands[0];S.tmap[k]={n:nm,t};LS.set('tmap',S.tmap);return t}
 const titleOfKey=k=>{if(String(k).startsWith('g:')){const i=+String(k).slice(2);return pairsOn()&&S.pairs.tn&&S.pairs.tn[i]?pairMembers(i):''}const v=S.tmap[k];return v?v.t:''};
-const withTitle=(name,k)=>{const t=titleOfKey(k);return t?`${esc(name)} <span class="ttl">«${esc(t)}»</span>`:esc(name)};
+const withTitle=(name,k)=>{if(String(k).startsWith('g:'))return esc(name);const t=titleOfKey(k);return t?`${esc(name)} <span class="ttl">«${esc(t)}»</span>`:esc(name)};
 /* ---------- anti-cheat: a player who leaves the page during play gets 5 seconds to come back ----------
    1st time: out of the current question + points taken. 2nd time (or the host's manual kick): out of the event. */
 S.cheat=(()=>{const d=LS.get('cheat',null);return d&&typeof d==='object'&&d.strikes&&d.banned&&d.qban?{qn:+d.qn||0,...d}:{qn:0,strikes:{},banned:{},qban:{}}})();
@@ -706,6 +706,15 @@ document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
 function queueWelcome(){const c=C.titles.filter(x=>normName(x[0])===normName(P.name));P.title=c.length===1?c[0][1]:'';showWelcome()}
 function fillWelcomeTitle(){const el=document.getElementById('wTitle');if(!el||!P.title)return;el.innerHTML=`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`;el.hidden=false}
+function showHostWelcome(){if(document.getElementById('hostWel'))return;const el=document.createElement('div');el.id='hostWel';el.className='wel';
+  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(760px,100%);font-size:clamp(1.15rem,2.4vw,1.6rem);padding:clamp(24px,4vw,44px)">
+  <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
+  <p>على بركة الله نعلن عن بدء فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
+  <p>جهّزوا أنفسكم للحماس والتحديات والضحك، ونبي نشوف الروح الرياضية والتنافس بين الجميع 😎👏🏻</p>
+  <p>شدّوا حيلكم، واستمتعوا بوقتكم، والأهم ننبسط كلنا مع بعض 🤍</p>
+  <p><b>يلا نبدأ! 🚀🔥</b></p>
+  <div class="wsig" dir="ltr" style="font-size:1.1em">SMALL FAMILY 🤍</div></div>`;
+  el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${gx(P.name,'','خالتي ')}${esc(P.name)} 🤍</div>
@@ -727,6 +736,7 @@ function render(){
   document.querySelectorAll('video[data-key]').forEach(v=>{const s=playing[v.dataset.key];if(s){v.currentTime=s.t;if(s.p)v.play().catch(()=>{})}});
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
   syncAlarm();tick();
+  if(role==='host'&&S.loaded&&hostAllowed()&&S.view!=='admin'){let seen=false;try{seen=sessionStorage.getItem('dg_hostWel')==='1';sessionStorage.setItem('dg_hostWel','1')}catch(e){seen=!!render.hw}if(!seen){render.hw=1;showHostWelcome()}}
 }
 function chooser(){return `
   <div class="top"><div class="brand">${esc(C.title)}<small>لمّتنا أحلى.. يلا نلعب ونتحدى! 🎉</small></div></div>
@@ -1008,20 +1018,20 @@ function syncTurn(){const b=S.bz;if(b.awarded){b.curPeer=null;return}const fail=
 function turnTimeout(){const b=S.bz,fail=b.fail||[],cur=b.order.find(o=>o.peer===b.curPeer);if(!cur||b.awarded)return;
   b.fail=fail.concat(cur.peer);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render()}
 function answerer(b){
-  if(!b.order.length)return '';
+  if(!b.order.length)return '';const nm=o=>{const i=pairIdx(o.key);return i>=0?pairName(i):o.name};
   const fail=b.fail||[],cur=b.order.find(o=>!fail.includes(o.peer)),solo=S.mode==='solo';
   const failed=b.order.filter(o=>fail.includes(o.peer));
   const col=o=>solo?'ochre':o.team?'green':'red';
-  const fl=failed.length?`<div class="chips" style="justify-content:center">${failed.map(o=>`<span class="chip failed" style="padding-left:12px">✗ ${esc(o.name)}</span>`).join('')}</div>`:'';
+  const fl=failed.length?`<div class="chips" style="justify-content:center">${failed.map(o=>`<span class="chip failed" style="padding-left:12px">✗ ${esc(nm(o))}</span>`).join('')}</div>`:'';
   if(b.awarded)return `<div class="answerer"><span class="eyebrow">جاوب صح ✓</span><div class="big" style="color:var(--green)">${esc(b.awardedName||'')}</div>${fl}</div>`;
   if(!cur)return `<div class="answerer">${fl}<p style="margin:0">ما فيه أحد ثاني ضغط الجرس. الجرس مفتوح للباقين 🔔</p></div>`;
   const next=b.order.filter(o=>!fail.includes(o.peer)&&o!==cur);
   return `<div class="answerer"><span class="eyebrow">يجاوب الحين</span>
-    <div class="huge" style="color:var(--${col(cur)});font-size:clamp(2.6rem,9vw,5.5rem)">${esc(cur.name)}</div>${titleOfKey(cur.key)?`<div class="mid ttl" style="margin:0">«${esc(titleOfKey(cur.key))}»</div>`:''}
+    <div class="huge" style="color:var(--${col(cur)});font-size:clamp(2.6rem,9vw,5.5rem)">${esc(nm(cur))}</div>${pairIdx(cur.key)<0&&titleOfKey(cur.key)?`<div class="mid ttl" style="margin:0">«${esc(titleOfKey(cur.key))}»</div>`:''}
     ${b.curPeer===cur.peer?`<div class="turncd" data-cd="${b.curEnd}">${Math.max(0,Math.ceil((b.curEnd-Date.now())/1000))}</div>`:''}
     ${solo?'':`<span class="teambadge t${cur.team}">${esc(S.teams[cur.team].name)}</span>`}
     <div class="row" style="justify-content:center"><button class="btn-green btn-big ansbtn" data-act="ansRight">✓ صح</button></div>
-    ${next.length?`<p class="muted small" style="margin:0">بعده: ${next.map(o=>esc(o.name)).join('، ')}</p>`:''}${fl}</div>`;
+    ${next.length?`<p class="muted small" style="margin:0">بعده: ${next.map(o=>esc(nm(o))).join('، ')}</p>`:''}${fl}</div>`;
 }
 function bellView(){
   const b=S.bz,ph=phonePlayers(),first=b.order[0];
@@ -1404,7 +1414,7 @@ $app.addEventListener('click',e=>{
     case 'ansRight':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur||b.awarded)break;
       if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,1);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
       else{S.teams[cur.team].score++;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
-      b.awarded=true;b.awardedName=cur.name;b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
+      b.awarded=true;b.awardedName=pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name;b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
     case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
     case 'bzToggle':if(S.bz.open)S.bz.open=false;else openBuzz();emitState();render();break;
