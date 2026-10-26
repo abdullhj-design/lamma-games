@@ -414,6 +414,7 @@ applyContent();
 const P={name:LS.get('pname',''),team:null,joined:false,host:null,revealed:false,lastSpyR:-1,buzzedR:-1};
 let room=null,roomOk=false,roomTried=false,myPeer=null,assetsNS=null;
 const saveTeams=()=>LS.set('teams',S.teams);
+S.evDone=LS.get('evDone',{});if(!S.evDone||typeof S.evDone!=='object')S.evDone={};
 let D=null; // admin draft
 
 /* ---------- room (phones) ---------- */
@@ -870,7 +871,7 @@ function evView(){
   const last=v.ii>=r.items.length-1;
   const next=`<button class="btn-ink btn-big" data-act="evNext">${last?'إنهاء الجولة':'السؤال التالي'}</button>`;
   const award=S.mode==='solo'?soloAwardRow(v.awardedKeys||[],S.bz.order[0]):`<div class="row" style="justify-content:center">${S.teams.map((t,i)=>`<button class="btn-${i?'green':'red'} btn-big" data-act="evAward" data-t="${i}" ${v.awarded?'disabled':''}>+1 ${esc(t.name)}</button>`).join('')}</div>`;
-  const head=`<span class="eyebrow">${esc(r.title)} · ${v.ii+1} من ${r.items.length}</span>${badge}`;
+  const head=`<button class="link" data-act="evGo" data-p="menu" style="align-self:flex-start;text-decoration:none">→ الجولات</button><span class="eyebrow">${esc(r.title)} · ${v.ii+1} من ${r.items.length}</span>${badge}`;
   const link=it.link?`<a class="extlink" href="${esc(it.link)}" target="_blank" rel="noopener">افتح المقطع ↗</a>`:'';
   if(v.phase==='q')return wrap(`${head}${it.q?`<div class="${it.q.length>40?'mid':'big'}">${esc(it.q)}</div>`:''}${evMedia(it.qm,'q'+v.ri+'_'+v.ii)}${link}${timer}${order}
     <div class="row" style="justify-content:center">${bz}${hasA?`<button class="btn-ink btn-big" data-act="evReveal">اكشف الإجابة</button>`:''}</div>
@@ -1029,7 +1030,11 @@ function adminView(){
 function adminGames(n){
   const qn=n.quiz.filter(q=>q[0]&&q[1]).length;
   const tg=(k,label)=>`<label class="toggle" for="g_${k}"><input type="checkbox" id="g_${k}" data-d="games.${k}" ${D.games[k]?'checked':''}><span>${label}</span></label>`;
-  return `<div class="panel"><h3>عام</h3>
+  return `<div class="panel"><h3>🔄 ابدأ طلعة جديدة</h3>
+      <p class="muted small" style="margin:0">قبل طلعة ثانية (مثل طلعة الزملاء): يرجّع كل الجولات غير منلعبة، ويصفّر النقاط، ويمسح المطرودين والإنذارات والألقاب الموزّعة وتصويت لجنة التقييم والقرعة. الأسئلة والفعاليات والرموز والإعدادات تبقى مثل ما هي.</p>
+      <div class="row"><button class="btn-red" data-act="newOuting">🔄 ابدأ طلعة جديدة</button></div>
+    </div>
+    <div class="panel"><h3>عام</h3>
       <div class="field"><label for="a_title">اسم الموقع</label><input id="a_title" data-d="title" value="${esc(D.title)}" maxlength="40"></div>
       <div class="lbl">الألعاب الظاهرة</div>
       <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}</div>
@@ -1268,7 +1273,7 @@ $app.addEventListener('click',e=>{
     case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';(b.querySelector('span')||b).textContent='متأكد؟ تصفير نقاط الكل';break}S.menu=false;S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}if(b.closest('.drawer')&&b.dataset.confirm!=='1'){b.dataset.confirm='1';b.querySelector('span').textContent='متأكد؟ تصفير نقاط الفريقين';break}S.menu=false;S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
     case 'rmLocal':S.locals.splice(+b.dataset.i,1);S.localsExample=false;LS.set('locals',S.locals);render();break;
     /* event */
-    case 'evOpen':{bumpQ();const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'cover',ri:-1,ii:0,done:{},end:0};S.view='event';closeBuzz();emitState();render();break}
+    case 'evOpen':{bumpQ();const i=+b.dataset.i;if(!S.ev||S.ev.ei!==i)S.ev={ei:i,phase:'cover',ri:-1,ii:0,done:S.evDone[C.events[i].title]||{},end:0};S.view='event';closeBuzz();emitState();render();break}
     case 'evGo':S.ev.phase=b.dataset.p;S.ev.ri=-1;closeBuzz();emitState();render();window.scrollTo({top:0});break;
     case 'evRound':S.ev.ri=+b.dataset.i;S.ev.phase='round';S.ev.before=rankSnap();emitState();render();window.scrollTo({top:0});break;
     case 'evItem':evSetItem(+b.dataset.i);break;
@@ -1277,7 +1282,7 @@ $app.addEventListener('click',e=>{
     case 'evTimer':S.ev.end=Date.now()+C.events[S.ev.ei].rounds[S.ev.ri].timer*1000;S.ev.beeped=false;render();break;
     case 'evBuzz':if(S.bz.open){S.bz.open=false;S.bz.used=true}else openBuzz();emitState();render();break;
     case 'evAward':{const t=+b.dataset.t;S.teams[t].score++;sfx('right');S.ev.awarded=true;saveTeams();emitState();toast('نقطة لـ '+S.teams[t].name);render();break}
-    case 'evNext':{const r=C.events[S.ev.ei].rounds[S.ev.ri];if(S.ev.ii<r.items.length-1)evSetItem(S.ev.ii+1);else{S.ev.done[S.ev.ri]=1;S.ev.phase='rank';closeBuzz();emitState();render();window.scrollTo({top:0})}break}
+    case 'evNext':{const r=C.events[S.ev.ei].rounds[S.ev.ri];if(S.ev.ii<r.items.length-1)evSetItem(S.ev.ii+1);else{S.ev.done[S.ev.ri]=1;S.evDone[C.events[S.ev.ei].title]=S.ev.done;LS.set('evDone',S.evDone);S.ev.phase='rank';closeBuzz();emitState();render();window.scrollTo({top:0})}break}
     /* spy */
     case 'spyStart':startSpy();break;
     case 'spyShow':S.spy.shown=true;render();break;
@@ -1341,6 +1346,11 @@ $app.addEventListener('click',e=>{
     case 'iAdd':{const r=D.events[S.edEv].rounds[+b.dataset.r];const last=r.items[r.items.length-1];r.items.push({team:last?(last.team==='A'?'B':last.team==='B'?'A':last.team):'A',q:'',a:'',qm:null,am:null,link:''});render();break}
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
+    case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
+      S.evDone={};LS.set('evDone',{});if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.cheat={qn:S.cheat.qn+1,strikes:{},banned:{},qban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
+      S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
+      S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
     case 'finale':S.menu=false;startFinale();break;
     case 'menu':S.menu=!S.menu;S.menuAnim=S.menu;render();break;
     case 'menuClose':S.menu=false;render();break;
