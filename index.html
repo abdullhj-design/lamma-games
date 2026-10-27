@@ -299,6 +299,7 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="qrcode.js"></script>
 <script src="config.js"></script>
 <script src="lamma-firebase.js"></script>
 <script type="application/json" id="defaults">{"title": "لَمّة سمول ڤاميلي", "games": {"spy": true, "charades": true, "buzz": true, "bell": true, "lists": true}, "spyMin": 3, "chDur": 60, "cats": [{"name": "أكلات", "words": ["كبسة", "مندي", "جريش", "قرصان", "مطازيز", "معصوب", "مرقوق", "سليق", "شاورما", "بيتزا", "سمبوسة", "لقيمات", "هريس", "مضغوط", "برجر", "فول"]}, {"name": "أماكن", "words": ["المطار", "المستشفى", "المدرسة", "البحر", "الاستراحة", "البر", "المول", "الملعب", "المطعم", "البنك", "الحلاق", "السينما", "محطة البنزين", "الجامعة", "حديقة الحيوان", "السوبرماركت"]}, {"name": "مهن", "words": ["طبيب", "طيار", "معلم", "مهندس", "طباخ", "ميكانيكي", "شرطي", "محامي", "مصور", "حلاق", "نجار", "رائد فضاء", "صيدلي", "مذيع", "خباز", "إطفائي"]}, {"name": "حيوانات", "words": ["جمل", "صقر", "حصان", "قطة", "ذئب", "ضب", "غزال", "أسد", "فيل", "زرافة", "دلفين", "نعامة", "تمساح", "بطريق", "قرد", "ثعلب"]}, {"name": "أغراض البيت", "words": ["دلة", "مكيف", "ثلاجة", "تلفزيون", "مخدة", "مكنسة", "فرن", "غسالة", "مروحة", "ساعة", "مرآة", "سجادة", "مبخرة", "ريموت", "شاحن", "كاسة"]}], "charades": ["يقود سيارة", "يصطاد سمك", "يطبخ كبسة", "يسبح", "يصور سيلفي", "يلعب كورة", "يركب جمل", "يتسوق", "يصب قهوة", "يكوي ثوب", "يغسل سيارة", "يشوي لحم", "ينصب خيمة", "يحلق", "يرقص عرضة", "يلعب بلايستيشن", "يدرس للاختبار", "يسوي رياضة", "يصلّح كفر", "يطير طيارة ورق", "جمل", "صقر", "قطة", "أسد", "فيل", "زرافة", "بطريق", "قرد", "تمساح", "دلفين", "طيار", "طبيب أسنان", "شرطي مرور", "حلاق", "مذيع", "معلم", "رائد فضاء", "إطفائي", "ساحر", "مصور", "مكيف", "دلة", "مظلة", "ريموت", "جوال", "مروحة", "سرير", "باب", "ساعة", "نظارة", "بالون", "كاميرا", "مفتاح", "قلم", "شمسية", "مخدة", "تلفزيون", "سيكل", "طائرة", "قطار"], "quiz": [["ما عاصمة اليابان؟", "طوكيو"], ["كم عدد أيام السنة الكبيسة؟", "366 يوم"], ["ما أكبر محيط في العالم؟", "المحيط الهادئ"], ["كم لاعب لكل فريق داخل ملعب كرة القدم؟", "11 لاعب"], ["ما أكبر قارة في العالم؟", "آسيا"], ["أي كوكب يُسمّى الكوكب الأحمر؟", "المريخ"], ["كم عدد أضلاع الشكل السداسي؟", "6"], ["ما عاصمة مصر؟", "القاهرة"], ["ما أسرع حيوان بري؟", "الفهد"], ["في أي مدينة يقع المسجد النبوي؟", "المدينة المنورة"], ["ما أكبر صحراء رملية متصلة في العالم؟", "الربع الخالي"], ["ما عملة اليابان؟", "الين"], ["ما أعلى جبل في العالم؟", "إيفرست"], ["ما الغاز الذي تمتصه النباتات لصنع غذائها؟", "ثاني أكسيد الكربون"], ["ما عاصمة أستراليا؟", "كانبرا"], ["كم رجل للعنكبوت؟", "8"], ["ما أصغر كوكب في المجموعة الشمسية؟", "عطارد"], ["ما اللون الناتج من خلط الأزرق والأصفر؟", "الأخضر"], ["ما الحيوان الملقب بسفينة الصحراء؟", "الجمل"], ["في أي قارة تقع البرازيل؟", "أمريكا الجنوبية"], ["ما عاصمة كندا؟", "أوتاوا"], ["كم سن عند الإنسان البالغ عادةً؟", "32"], ["ما أكبر كوكب في المجموعة الشمسية؟", "المشتري"], ["ما عاصمة تركيا؟", "أنقرة"], ["كم لاعب لكل فريق داخل ملعب كرة السلة؟", "5"], ["ما المعدن الذي يكون سائلاً في درجة حرارة الغرفة؟", "الزئبق"], ["ما أكبر عضو في جسم الإنسان؟", "الجلد"], ["ما عاصمة المغرب؟", "الرباط"], ["كم دقيقة في ساعة ونصف؟", "90 دقيقة"], ["ما عاصمة إيطاليا؟", "روما"]], "events": [], "lists": [{"q": "مناطق المملكة الإدارية 🗺️", "a": ["الرياض", "مكة المكرمة/مكة", "المدينة المنورة/المدينة", "القصيم", "المنطقة الشرقية/الشرقية", "عسير", "تبوك", "حائل", "الحدود الشمالية/الشمالية", "جازان/جيزان", "نجران", "الباحة", "الجوف"]}, {"q": "مدن سعودية 🏙️", "a": ["الرياض", "جدة", "مكة/مكة المكرمة", "المدينة/المدينة المنورة", "الدمام", "الخبر", "الظهران", "الطائف", "تبوك", "بريدة", "عنيزة", "الرس", "المذنب", "البكيرية", "البدائع", "حائل", "أبها", "خميس مشيط/خميس", "جازان/جيزان", "صبيا", "أبو عريش", "صامطة", "فرسان", "الدرب", "العارضة", "نجران", "شرورة", "الباحة", "بلجرشي", "المخواة", "عرعر", "رفحاء", "طريف", "سكاكا", "دومة الجندل", "القريات", "طبرجل", "الجبيل", "الأحساء/الاحساء/الهفوف", "المبرز", "القطيف", "سيهات", "صفوى", "حفر الباطن", "الخفجي", "رأس تنورة", "بقيق/أبقيق", "النعيرية", "ينبع", "العلا", "خيبر", "بدر", "المهد", "الحناكية", "العيص", "رابغ", "الليث", "القنفذة", "الخرمة", "تربة", "رنية", "الكامل", "خليص", "الجموم", "الدوادمي", "المجمعة", "الزلفي", "شقراء", "القويعية", "عفيف", "الخرج", "الدرعية", "وادي الدواسر", "الأفلاج/ليلى", "حوطة بني تميم", "السليل", "الدلم", "الحريق", "ثادق", "المزاحمية", "ضرما", "رماح", "حريملاء", "الغاط", "تيماء", "الوجه", "ضباء", "أملج", "حقل", "البدع", "محايل عسير/محايل", "بيشة", "النماص", "رجال ألمع", "سراة عبيدة", "ظهران الجنوب", "تنومة", "أحد رفيدة", "بقعاء", "الغزالة", "الشنان", "النبهانية", "رياض الخبراء", "الأسياح", "عيون الجواء", "الشماسية", "القصب", "الأرطاوية", "الحائط", "الشملي", "تثليث", "بارق", "المجاردة", "العقيق", "قلوة", "المندق", "الطوال", "أحد المسارحة", "ضمد", "بيش", "الداير", "العيدابي", "حبونا", "يدمة", "بدر الجنوب", "حزم الجلاميد", "حرض", "الخرخير", "سلوى"]}, {"q": "عواصم عربية 🏛️", "a": ["الرياض", "الكويت", "المنامة", "الدوحة", "أبوظبي/ابو ظبي", "مسقط", "صنعاء", "بغداد", "دمشق", "بيروت", "عمان/عمّان", "القدس", "القاهرة", "الخرطوم", "طرابلس", "تونس", "الجزائر", "الرباط", "نواكشوط", "مقديشو", "جيبوتي", "موروني"]}, {"q": "دول عربية 🌍", "a": ["السعودية/المملكة العربية السعودية/المملكة", "الإمارات/الامارات", "الكويت", "قطر", "البحرين", "عمان/سلطنة عمان", "اليمن", "العراق", "سوريا/سورية", "لبنان", "الأردن/الاردن", "فلسطين", "مصر", "السودان", "ليبيا", "تونس", "الجزائر", "المغرب", "موريتانيا", "الصومال", "جيبوتي", "جزر القمر/القمر"]}, {"q": "حيوانات 🐪", "a": ["أسد", "نمر", "فهد", "ذئب/ذيب", "ثعلب/حصني", "ضبع", "دب", "فيل", "زرافة", "حمار وحشي", "حصان/خيل/فرس", "حمار", "جمل/ناقة/بعير/ابل", "بقرة/بقر", "ثور", "جاموس", "خروف/خاروف/كبش/غنم/نعجة", "ماعز/عنز/تيس", "غزال/ظبي", "وعل", "أرنب", "قط/قطة/قطو/بس/بسة", "كلب", "فأر/فار", "جرذ", "سنجاب", "قنفذ", "ضب", "ورل", "سحلية", "حرباء", "تمساح", "سلحفاة", "ثعبان/حية/أفعى/دبيب", "عقرب", "عنكبوت", "نملة/نمل", "نحلة/نحل", "ذبابة/ذباب/ذبانة", "بعوضة/بعوض", "فراشة", "جرادة/جراد", "صرصور", "دودة", "حلزون", "ضفدع", "سمكة/سمك", "حوت", "دلفين", "قرش", "أخطبوط", "سلطعون/سرطان/قبقب", "نسر", "صقر/شاهين", "عقاب", "بومة", "غراب", "حمامة/حمام", "عصفور", "ببغاء/ببغاوات", "طاووس", "نعامة", "بطة/بط", "وزة/وز", "دجاجة/دجاج", "ديك", "حبارى", "بطريق", "خفاش", "قرد", "غوريلا", "شمبانزي", "كنغر", "كوالا", "باندا", "فقمة", "فرس النهر", "وحيد القرن", "وبر", "ابن آوى", "نورس", "هدهد", "فلامنجو/نحام", "لاما", "جربوع", "قندس", "ثعلب الماء", "نمس"]}], "lgSecs": 30, "lgPts": [3, 2, 1], "pairNames": ["الصقور 🦅", "الذيابة 🐺", "الفرسان 🐎", "النشامى 💪", "العباقرة 💡", "البرق ⚡", "الأساطير 👑", "الكواسر 🦁", "النجوم ⭐", "الإعصار 🌪️"]}</script>
@@ -441,7 +442,7 @@ function titleFor(k,name){
   const taken=new Set(Object.entries(S.tmap).filter(([kk,v])=>kk!==k&&v.n===nm).map(([,v])=>v.t));
   const t=cands.find(x=>!taken.has(x))||cands[0];S.tmap[k]={n:nm,t};LS.set('tmap',S.tmap);return t}
 const titleOfKey=k=>{if(String(k).startsWith('g:')){const i=+String(k).slice(2);return pairsOn()&&S.pairs.tn&&S.pairs.tn[i]?pairMembers(i):''}const v=S.tmap[k];return v?v.t:''};
-const withTitle=(name,k)=>{if(String(k).startsWith('g:'))return esc(name);const t=titleOfKey(k);return t?`${esc(name)} <span class="ttl">«${esc(t)}»</span>`:esc(name)};
+const withTitle=(name,k)=>{const w=warnBadge(k);if(String(k).startsWith('g:'))return esc(name)+w;const t=titleOfKey(k);return (t?`${esc(name)} <span class="ttl">«${esc(t)}»</span>`:esc(name))+w};
 /* ---------- anti-cheat: a player who leaves the page during play gets 5 seconds to come back ----------
    1st time: out of the current question + points taken. 2nd time (or the host's manual kick): out of the event. */
 S.cheat=(()=>{const d=LS.get('cheat',null);return d&&typeof d==='object'&&d.strikes&&d.banned&&d.qban?{qn:+d.qn||0,...d}:{qn:0,strikes:{},banned:{},qban:{}}})();
@@ -449,7 +450,21 @@ const saveCheat=()=>LS.set('cheat',S.cheat);
 S.alerts=[];S.pstat=new Map();S.marks={};
 const ARMED=['spy','charades','buzz','bell','event','lists'];
 const isBanned=k=>!!S.cheat.banned[k];
-const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn;
+/* ---------- الإنذارات: 🟨 no answer this question, 🟨🟨 + −1 point, 🟥 one minute out + −2, then reset ---------- */
+S.warn=(()=>{const d=LS.get('warn',null);return d&&d.n&&d.q&&d.red?d:{n:{},q:{},red:{}}})();const saveWarn=()=>LS.set('warn',S.warn);
+const warnT=k=>scoreKey(k);
+const warnBlocked=k=>{const t=warnT(k),q=S.warn.q[t];return (q&&q.qn===S.cheat.qn)||(S.warn.red[t]||0)>Date.now()};
+const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn||warnBlocked(k);
+function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;
+  if(n>=3){S.warn.red[t]=Date.now()+60000;S.warn.n[t]=0;delete S.warn.q[t];soloAdd(t,name,-2);lvl=3}
+  else{S.warn.n[t]=n;S.warn.q[t]={qn:S.cheat.qn,n};if(n===2)soloAdd(t,name,-1)}
+  const b=S.bz;for(const o of b.order)if(warnT(o.key)===t&&!b.awarded&&!(b.fail||[]).includes(o.peer)){b.fail=(b.fail||[]).concat(o.peer);if(b.curPeer===o.peer){b.curPeer=null;syncTurn()}}
+  saveWarn();emitState();
+  const el=document.createElement('div');el.className='wel';el.style.pointerEvents='none';el.innerHTML=`<div class="wcard" style="width:min(640px,100%);border:4px solid ${lvl===3?'var(--red)':'var(--ochre)'}"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">${lvl===3?'🟥':lvl===2?'🟨🟨':'🟨'}</div><div class="huge" style="font-size:clamp(2rem,6vw,3.6rem)">${lvl===3?'كرت أحمر':lvl===2?'إنذار ثاني':'إنذار'} لـ${esc(name)}</div><p class="mid" style="margin:0">${lvl===3?'محروم دقيقة + خصم نقطتين':lvl===2?'ما يجاوب على هذا السؤال + خصم نقطة':'ما يجاوب على هذا السؤال'}</p></div>`;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),3200);
+  try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();[0,.28].forEach(t0=>{const o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=2600;o.connect(g);g.connect(a.destination);const t=a.currentTime+t0;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+(t0?.55:.22));o.start(t);o.stop(t+.6)})}catch(e){}
+  render()}
+const warnBadge=k=>{if((S.warn.red[k]||0)>Date.now())return ' 🟥';const n=S.warn.n[k]||0;return n===2?' 🟨🟨':n===1?' 🟨':''};
 function bumpQ(){S.cheat.qn++;S.cheat.qban={};saveCheat()}
 const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
 function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)&&!isBanned(pKey(p))).map(p=>{const key=pKey(p),name=clean(p.presence.name);if(role==='host')titleFor(key,name);return{peer:p.peer,key,name,team:teamOfKey(key)}})}
@@ -461,6 +476,7 @@ function hostState(){
   if(S.view==='event'&&S.ev){const e=C.events[S.ev.ei],r=S.ev.ri>=0?e.rounds[S.ev.ri]:null;st.ev={title:e.title,round:S.ev.phase==='rank'?'الترتيب 📊':r?r.title:''}}
   if(S.jg)st.jg={k:S.jg.k,comms:S.jg.comms,crit:S.jg.crit,open:!S.jg.revealed,res:null};
   if(S.view==='judging')st.mode='home';
+  {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;if(red>0)w[p.key]={l:3,left:red};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'&&g.res?Object.fromEntries(g.res.map(r=>[r.k,{n:r.n,p:r.pts,rk:r.rk}])):null}}
   if(S.view==='finale'&&S.fin)st.fin={topN:S.fin.topN||5,done:!!finDone(),all:finDone()?S.fin.all.slice(0,60):null};
@@ -706,6 +722,12 @@ document.addEventListener('visibilitychange',reportAway);
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
 function queueWelcome(){const c=C.titles.filter(x=>normName(x[0])===normName(P.name));P.title=c.length===1?c[0][1]:'';showWelcome()}
 function fillWelcomeTitle(){const el=document.getElementById('wTitle');if(!el||!P.title)return;el.innerHTML=`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`;el.hidden=false}
+function showQR(){if(document.getElementById('qrBig'))return;let svg='';try{const q=qrcode(0,'M');q.addData(location.origin+location.pathname+'?join=1');q.make();svg=q.createSvgTag({cellSize:6,margin:0,scalable:true})}catch(e){toast('ما قدرت أسوي الباركود');return}
+  const el=document.createElement('div');el.id='qrBig';el.className='wel';
+  el.innerHTML=`<div class="wcard" style="width:min(620px,100%);align-items:center"><div class="huge" style="font-size:clamp(2.2rem,6vw,3.6rem)">امسح وادخل 📱</div>
+    <div style="background:#fff;border-radius:20px;padding:16px;width:min(420px,72vw);line-height:0">${svg.replace('<svg ','<svg style="width:100%;height:auto;display:block" ')}</div>
+    <p style="margin:0">افتح الكاميرا وامسح الباركود، واكتب اسمك وانضم.</p></div>`;
+  el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
 function showHostWelcome(){if(document.getElementById('hostWel'))return;const el=document.createElement('div');el.id='hostWel';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(760px,100%);font-size:clamp(1.15rem,2.4vw,1.6rem);padding:clamp(24px,4vw,44px)">
   <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
@@ -756,7 +778,12 @@ function topBar(){
   const jgShow=(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg),jgReady=S.jg&&S.jg.ready;
   const st=room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`;
   const bar=`<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}<button class="menubtn" data-act="menu" aria-label="القائمة" aria-expanded="${!!S.menu}">☰${jgReady?'<span class="mdot"></span>':''}</button></div></div>`;
-  if(!S.menu)return bar;
+  const wp=S.warnPick?`<div class="drawer-bg" data-act="warnClose"></div><div class="drawer" style="inset-inline-end:auto;inset-inline-start:50%;transform:translateX(50%);top:8vh;bottom:auto;max-height:84vh;border-radius:22px;width:min(520px,92vw)" role="dialog" aria-label="إنذار">
+    <div class="dhead"><b>إنذار 🟨</b><button class="link" data-act="warnClose" style="font-size:1.4rem;text-decoration:none">✕</button></div>
+    <p class="muted small" style="margin:0">🟨 ما يجاوب على السؤال · 🟨🟨 + خصم نقطة · 🟥 محروم دقيقة + خصم نقطتين</p>
+    ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name})):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span>${esc(x.n)}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
+  </div>`:'';
+  if(!S.menu)return bar+wp;
   const anim=S.menuAnim?' anim':'';S.menuAnim=false;
   return bar+`<div class="drawer-bg" data-act="menuClose"></div><nav class="drawer${anim}" aria-label="القائمة">
     <div class="dhead"><b>القائمة</b><button class="link" data-act="menuClose" aria-label="سكّر القائمة" style="font-size:1.4rem;text-decoration:none">✕</button></div>
@@ -765,6 +792,8 @@ function topBar(){
     ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الثنائيات 👥</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم ثنائيات 👥</span></button>'):''}
     ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
+    <button class="ditem" data-act="warnOpen"><span>إنذار 🟨</span></button>
+    <button class="ditem" data-act="qrShow"><span>QR 📱</span></button>
     <div class="sep"></div>
     <button class="ditem danger" data-act="resetScores"><span>تصفير النقاط</span></button>
     <button class="ditem" data-act="role" data-v=""><span>تغيير الدور</span></button>
@@ -870,7 +899,7 @@ function lgCheck(q,text){const idx=lgIndex(q),hit=new Set(),bad=[];
     while(i<w.length){let found=false;for(let n=Math.min(3,w.length-i);n>=1;n--){const kk=lgNorm(w.slice(i,i+n).join(' '));if(kk&&idx.has(kk)){hit.add(idx.get(kk));i+=n;found=true;any=true;break}}if(!found){miss.push(w[i]);i++}}
     if(!any)bad.push(c);else if(miss.join('').length>2)bad.push(miss.join(' '))}
   return{hit:[...hit],bad:[...new Set(bad)].slice(0,40)}}
-function lgCollect(){if(!room)return;for(const p of room.peers()){const la=p.presence&&p.presence.la;if(p.presence&&p.presence.role==='player'&&la&&la.r===S.lg.r&&!isBanned(pKey(p)))S.lg.subs[pKey(p)]={name:clean(p.presence.name),t:String(la.t||'').slice(0,2000)}}}
+function lgCollect(){if(!room)return;for(const p of room.peers()){const la=p.presence&&p.presence.la;if(p.presence&&p.presence.role==='player'&&la&&la.r===S.lg.r&&!isBanned(pKey(p))&&!warnBlocked(pKey(p)))S.lg.subs[pKey(p)]={name:clean(p.presence.name),t:String(la.t||'').slice(0,2000)}}}
 function lgScore(){const g=S.lg,q=C.lists[g.qi];if(!q)return;
   if(pairsOn()){const rows=S.pairs.groups.map((grp,i)=>{const k='g:'+i,t=grp.map(m=>(g.subs[m]||{}).t||'').join('\n'),c=lgCheck(q,t),acc=[...(g.acc[k]||[])];return{k,name:pairName(i),hit:c.hit,bad:c.bad.filter(x=>!acc.includes(x)),acc,n:c.hit.length+acc.length}});
     rows.sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar'));
@@ -1296,7 +1325,11 @@ function playerView(){
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
   if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من الفعالية</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
   if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${gx(P.name,'<div class="big" style="color:var(--red)">ياغشاش 😤</div>','')}<p>${gx(P.name,'تم طردك من الجولة وإلغاء كافة نقاطك السابقة','تم طردكِ من الجولة وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
-  const buzzer=()=>{const bz=h.buzz,done=P.buzzedR===bz.r,me=myBy,g=isGirl(P.name),ttl=me&&h.titles?h.titles[me]:'',voc=ttl?vocative(ttl):'يا '+esc(P.name);
+  const wn=h.warn&&myBy?h.warn[myBy]:null,pl=h.pk&&myBy&&h.pk[myBy],gW=isGirl(P.name);
+  if(wn&&wn.l===3){const key='r'+Math.round((Date.now()+wn.left)/5000);if(P.redKey!==key){P.redKey=key;P.redEnd=Date.now()+wn.left;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
+  const warnCard=!wn?'':wn.l===3?`<div class="cheat"><div class="big" style="color:var(--red)">🟥 كرت أحمر!</div><p>${pl?'محرومين':gW?'محرومة':'محروم'} دقيقة، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطتين</p><div class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="color:var(--red)">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</div></div>`
+    :`<div class="cheat" style="border-color:var(--ochre)"><div class="big" style="color:var(--ochre)">${wn.l===2?'🟨🟨 إنذار ثاني!':'🟨 إنذار!'}</div><p>${pl?'ما تقدرون تجاوبون':gW?'ما تقدرين تجاوبين':'ما تقدر تجاوب'} على هذا السؤال${wn.l===2?`، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطة`:''}</p></div>`;
+  const buzzer=()=>{if(warnCard)return warnCard;const bz=h.buzz,done=P.buzzedR===bz.r,me=myBy,g=isGirl(P.name),ttl=me&&h.titles?h.titles[me]:'',voc=ttl?vocative(ttl):'يا '+esc(P.name);
     const q=Array.isArray(bz.q)?bz.q:[],pos=me?q.indexOf(me):-1;
     if(bz.win&&bz.win===me)return `<div class="myturn now"><b>✓ صح ${voc}! 🎉</b><span>${g?'أخذتِ':'أخذت'} النقطة</span></div>`;
     if(pos===0){if(P.turnR!==bz.r+':'+(bz.out||[]).length){P.turnR=bz.r+':'+(bz.out||[]).length;P.turnEnd=Date.now()+(+bz.left||0);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(_){}}
@@ -1322,6 +1355,7 @@ function playerView(){
         :me?`<div class="myres"><b>${mk} ${ORD[me.r-1]||me.r} من ${all.length}</b><span>شكراً على ${g?'مشاركتكِ':'مشاركتك'} 🤍</span></div>`
         :`<div class="myres"><b>شكراً على ${g?'مشاركتكِ':'مشاركتك'} 🤍</b></div>`;
       body=head2+`<div class="lbl" style="width:100%;text-align:start">النتائج الكاملة</div><div class="toplist">${all.map(x=>`<div class="rankrow${x.k===myS?' me':''}"><span class="rk">${x.r<=3?MEDAL[x.r-1]:x.r}</span><span style="flex:1">${esc(clean(x.n))}${x.t?` <span class="ttl">«${esc(clean(x.t,30))}»</span>`:''}</span><span class="sc">${Number(x.s)||0}</span></div>`).join('')}</div>`}}
+  else if(mode==='lists'&&h.lg&&warnCard&&h.lg.stage==='play')body=warnCard;
   else if(mode==='lists'&&h.lg){const L=h.lg;
     if(L.r!==P.lgR){P.lgR=L.r;P.lgText='';P.lgSent=false;P.lgEnd=0}
     if(L.stage==='play'){if(!P.lgEnd){P.lgEnd=Date.now()+(+L.left||0);P.lgSent=false;try{navigator.vibrate&&navigator.vibrate(80)}catch(_){}}
@@ -1349,6 +1383,7 @@ function tick(){
     document.querySelectorAll('.lgcd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))})}
   if(role==='player'&&P.lgEnd&&now>=P.lgEnd&&!P.lgSent){P.lgSent=true;lgSend(true);render()}
   if(role==='host'&&S.pairs.on&&S.pairs.at&&S.pairs.shown<S.pairs.groups.length){const sh=Math.min(S.pairs.groups.length,Math.floor((now-S.pairs.at-800)/1600)+1);if(sh>S.pairs.shown){S.pairs.shown=sh;savePairs();if(sh===S.pairs.groups.length){sfx('right');toast('خلصت القرعة 🎉')}else beep(700,.2);emitState();render()}}
+  if(role==='host'){let ex=false;for(const[t,v] of Object.entries(S.warn.red))if(v&&v<=now){delete S.warn.red[t];ex=true}if(ex){saveWarn();emitState();render()}}
   if(role==='host'&&S.view==='finale'&&S.fin){const st=finStep();if(st!==S.fin.step){S.fin.step=st;if(st>=0){if(st===S.fin.groups.length-1&&!S.fin.won){S.fin.won=true;playWin()}else ding()}emitState();render()}}
   if(role==='player')document.querySelectorAll('[data-pcd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.pcd-now)/1000))});
   if(role==='host'&&S.alerts.length){let ch=false;
@@ -1456,7 +1491,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,strikes:{},banned:{},qban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
@@ -1471,6 +1506,10 @@ $app.addEventListener('click',e=>{
     case 'pairPick':{const k=b.dataset.k;if(!S.pairSel){S.pairSel=k;render();break}if(S.pairSel===k){S.pairSel=null;render();break}
       const G=S.pairs.groups,ia=G.findIndex(g=>g.includes(S.pairSel)),ib=G.findIndex(g=>g.includes(k));if(ia>=0&&ib>=0){const a=G[ia].indexOf(S.pairSel),c=G[ib].indexOf(k);G[ia][a]=k;G[ib][c]=S.pairSel}
       S.pairSel=null;savePairs();emitState();render();const pr=[...pairProblems(G[ia]||[]),...pairProblems(G[ib]||[])];if(pr.length)toast('⚠️ '+pr.join('، '));break}
+    case 'qrShow':S.menu=false;render();showQR();break;
+    case 'warnOpen':S.menu=false;S.warnPick=true;render();break;
+    case 'warnClose':S.warnPick=false;render();break;
+    case 'warnGive':S.warnPick=false;giveWarn(b.dataset.k,b.dataset.n);break;
     case 'finale':S.menu=false;startFinale();break;
     case 'menu':S.menu=!S.menu;S.menuAnim=S.menu;render();break;
     case 'menuClose':S.menu=false;render();break;
