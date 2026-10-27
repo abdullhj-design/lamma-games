@@ -709,10 +709,11 @@ function fillWelcomeTitle(){const el=document.getElementById('wTitle');if(!el||!
 function showHostWelcome(){if(document.getElementById('hostWel'))return;const el=document.createElement('div');el.id='hostWel';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(760px,100%);font-size:clamp(1.15rem,2.4vw,1.6rem);padding:clamp(24px,4vw,44px)">
   <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
-  <p>على بركة الله نعلن عن بدء فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
-  <p>جهّزوا أنفسكم للحماس والتحديات والضحك، ونبي نشوف الروح الرياضية والتنافس بين الجميع 😎👏🏻</p>
-  <p>شدّوا حيلكم، واستمتعوا بوقتكم، والأهم ننبسط كلنا مع بعض 🤍</p>
-  <p><b>يلا نبدأ! 🚀🔥</b></p>
+  <p>على بركة الله نعلن عن انطلاق فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
+  <p>استعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏</p>
+  <p><b>👀⏳ ترى بينكم بطل واحد…</b><br><b style="color:var(--ochre)">بطل لمة سمول ڤاميلي! 🏆🔥</b></p>
+  <p>شدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍</p>
+  <p><b>يلا نبدأ! 🔥🚀</b></p>
   <div class="wsig" dir="ltr" style="font-size:1.1em">SMALL FAMILY 🤍</div></div>`;
   el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
