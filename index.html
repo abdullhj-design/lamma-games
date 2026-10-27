@@ -769,7 +769,7 @@ function chooser(){return `
     ${C.judgePin||S.canEdit?`<button data-act="role" data-v="judge"><b>لجنة التقييم</b><span>مخصصة للقيادة وتتطلب رمز دخول</span></button>`:''}
   </div>
   ${window.lamma?`<p style="text-align:center;margin-top:28px">${S.canEdit?'<button class="link" data-act="adminOut">خروج صاحب الموقع</button>':'<button class="link" data-act="adminIn">دخول صاحب الموقع</button>'}</p>`:''}`}
-function scoreBar(){if(S.mode==='solo'){const l=soloPlayers();return `<div class="solobar">${l.slice(0,5).map((x,i)=>`<span class="sb r${rankOfScore(l,i)}"><b>${rankOfScore(l,i)}</b> ${withTitle(x.name,x.key)} <span class="ts">${x.score}</span></span>`).join('')||'<span class="muted small">ما فيه لاعبين بعد</span>'}<button class="btn-ink" data-act="go" data-v="ranking">الترتيب والنقاط</button></div>`}
+function scoreBar(){if(S.mode==='solo')return '';if(false){const l=soloPlayers();return `<div class="solobar">${l.slice(0,5).map((x,i)=>`<span class="sb r${rankOfScore(l,i)}"><b>${rankOfScore(l,i)}</b> ${withTitle(x.name,x.key)} <span class="ts">${x.score}</span></span>`).join('')||'<span class="muted small">ما فيه لاعبين بعد</span>'}<button class="btn-ink" data-act="go" data-v="ranking">الترتيب والنقاط</button></div>`}
   return `<div class="scores">${S.teams.map((t,i)=>`
   <div class="team t${i}"><span class="dot t${i}"></span><input class="tn" id="tn${i}" data-team-name="${i}" value="${esc(t.name)}" aria-label="اسم الفريق">
   <button data-act="pt" data-t="${i}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts">${t.score}</span><button data-act="pt" data-t="${i}" data-d="1" aria-label="أضف نقطة">+</button></div>`).join('')}</div>`}
@@ -901,11 +901,11 @@ function lgCheck(q,text){const idx=lgIndex(q),hit=new Set(),bad=[];
   return{hit:[...hit],bad:[...new Set(bad)].slice(0,40)}}
 function lgCollect(){if(!room)return;for(const p of room.peers()){const la=p.presence&&p.presence.la;if(p.presence&&p.presence.role==='player'&&la&&la.r===S.lg.r&&!isBanned(pKey(p))&&!warnBlocked(pKey(p)))S.lg.subs[pKey(p)]={name:clean(p.presence.name),t:String(la.t||'').slice(0,2000)}}}
 function lgScore(){const g=S.lg,q=C.lists[g.qi];if(!q)return;
-  if(pairsOn()){const rows=S.pairs.groups.map((grp,i)=>{const k='g:'+i,t=grp.map(m=>(g.subs[m]||{}).t||'').join('\n'),c=lgCheck(q,t),acc=[...(g.acc[k]||[])];return{k,name:pairName(i),hit:c.hit,bad:c.bad.filter(x=>!acc.includes(x)),acc,n:c.hit.length+acc.length}});
+  if(pairsOn()){const rows=S.pairs.groups.map((grp,i)=>{const k='g:'+i,t=grp.some(m=>warnBlocked(m))?'':grp.map(m=>(g.subs[m]||{}).t||'').join('\n'),c=lgCheck(q,t),acc=[...(g.acc[k]||[])];return{k,name:pairName(i),hit:c.hit,bad:c.bad.filter(x=>!acc.includes(x)),acc,n:c.hit.length+acc.length}});
     rows.sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar'));
     rows.forEach(r=>{r.rk=1+rows.filter(x=>x.n>r.n).length;r.pts=r.n>0&&r.rk<=3?C.lgPts[r.rk-1]:0;const d=r.pts-(g.awarded[r.k]||0);if(d){soloAdd(r.k,r.name,d);g.awarded[r.k]=r.pts}});
     g.res=rows;emitState();return}
-  const rows=Object.entries(g.subs).map(([k,v])=>{const c=lgCheck(q,v.t),acc=[...(g.acc[k]||[])];return{k,name:v.name,hit:c.hit,bad:c.bad.filter(x=>!acc.includes(x)),acc,n:c.hit.length+acc.length}});
+  const rows=Object.entries(g.subs).map(([k,v])=>{const c=lgCheck(q,warnBlocked(k)?'':v.t),acc=[...(g.acc[k]||[])];return{k,name:v.name,hit:c.hit,bad:c.bad.filter(x=>!acc.includes(x)),acc,n:c.hit.length+acc.length}});
   for(const p of phonePlayers())if(!rows.find(r=>r.k===p.key))rows.push({k:p.key,name:p.name,hit:[],bad:[],acc:[],n:0});
   rows.sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name,'ar'));
   rows.forEach(r=>{r.rk=1+rows.filter(x=>x.n>r.n).length;r.pts=r.n>0&&r.rk<=3?C.lgPts[r.rk-1]:0;const d=r.pts-(g.awarded[r.k]||0);if(d){soloAdd(r.k,r.name,d);g.awarded[r.k]=r.pts}});
