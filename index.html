@@ -626,7 +626,7 @@ async function joinWithPin(pin){
   if((await pinHash(pin,'diwaniya-player:'))===C.playerPin){LS.set('playerOk',C.playerPin);S.pinTries=0;S.pinMsg='';P.joined=true;sendPresence({away:null});render();queueWelcome();return}
   S.pinTries=(S.pinTries||0)+1;
   if(S.pinTries>=5){S.pinLockUntil=Date.now()+30000;S.pinTries=0;S.pinMsg='محاولات كثيرة. جرّب بعد 30 ثانية.';setTimeout(()=>{S.pinMsg='';render()},30000)}
-  else S.pinMsg='الرمز غلط. اطلبه من المقدّم.';
+  else S.pinMsg='الرمز غلط. اطلبه من عبود.';
   render();
 }
 async function checkPin(pin){
@@ -718,7 +718,7 @@ function showHostWelcome(){if(document.getElementById('hostWel'))return;const el
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${gx(P.name,'','خالتي ')}${esc(P.name)} 🤍</div>
-  <p>${gx(P.name,'نورت الفعالية، وحضورك','نورتِ الفعالية، وحضوركِ')} هو اللي يكمل الحماس 🤩</p>
+  <p>${gx(P.name,'نورت الفعالية، وحضورك هو اللي يكمل الحماس','نورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات')} 🤩</p>
   <p><b>${gx(P.name,'بس تذكّر','بس تذكّري')} 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
   <p id="wTitle" ${P.title?'':'hidden'}>${P.title?`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`:''}</p>
   <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
@@ -1282,7 +1282,7 @@ async function saveAdmin(){
 function playerView(){
   const tn=i=>esc((P.host&&P.host.teams&&P.host.teams[i]&&P.host.teams[i].name)||(i?'الفريق الأخضر':'الفريق الأحمر'));
   const head=`<div class="top"><div class="brand">${esc(clean(P.host&&P.host.title,40)||C.title)}</div><button class="link" data-act="role" data-v="">تغيير الدور</button></div>`;
-  if(!room&&roomTried)return head+`<div class="phone stage"><h2 class="big">الجوال ما قدر يتصل</h2><p class="muted" style="margin:0">افتح الرابط اللي أرسله المقدّم وأنت مسجل دخول، أو العبوا على شاشة المقدّم.</p></div>`;
+  if(!room&&roomTried)return head+`<div class="phone stage"><h2 class="big">الجوال ما قدر يتصل</h2><p class="muted" style="margin:0">افتح الرابط اللي أرسله عبود وأنت مسجل دخول.</p></div>`;
   if(!S.loaded)return head+`<div class="phone stage"><p class="muted" style="margin:0">جاري التحميل…</p></div>`;
   const needPin=!playerAllowed(),wait=S.pinLockUntil>Date.now();
   if(!P.joined)return head+`<form class="phone stage" data-form="join"><h2 class="big">انضم للعب</h2>
@@ -1294,7 +1294,7 @@ function playerView(){
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
   if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من الفعالية</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
-  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">${gx(P.name,'ياغشاش','ياغشاشة')} 😤</div><p>${gx(P.name,'تم طردك من الجولة وإلغاء كافة نقاطك السابقة','تم طردكِ من الجولة وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي','لا تغشين ياخالتي')} الجميع فايز 🤍</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
+  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${gx(P.name,'<div class="big" style="color:var(--red)">ياغشاش 😤</div>','')}<p>${gx(P.name,'تم طردك من الجولة وإلغاء كافة نقاطك السابقة','تم طردكِ من الجولة وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثانية طرد برا الفعالية</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
   const buzzer=()=>{const bz=h.buzz,done=P.buzzedR===bz.r,me=myBy,g=isGirl(P.name),ttl=me&&h.titles?h.titles[me]:'',voc=ttl?vocative(ttl):'يا '+esc(P.name);
     const q=Array.isArray(bz.q)?bz.q:[],pos=me?q.indexOf(me):-1;
     if(bz.win&&bz.win===me)return `<div class="myturn now"><b>✓ صح ${voc}! 🎉</b><span>${g?'أخذتِ':'أخذت'} النقطة</span></div>`;
@@ -1331,7 +1331,7 @@ function playerView(){
     else if(L.stage==='result'&&L.res){const me=myBy&&L.res[h.pk&&h.pk[myBy]?h.pk[myBy]:myBy],g=isGirl(P.name);body=me?`<div class="myres${me.p?' win':''}"><b>${me.n} ${me.n===1?'إجابة صحيحة':'إجابات صحيحة'} ✓</b><span style="font-size:1.15rem">${me.p?`${g?'أخذتِ':'أخذت'} +${me.p} ${me.p===1?'نقطة':'نقاط'} 🎉`:'تابع الشاشة الكبيرة 👀'}</span></div>`:`<h2 class="big">النتيجة على الشاشة الكبيرة 👀</h2>`}
     else body=`<h2 class="big">30 ثانية ⏱️</h2><p class="muted" style="margin:0">استعد… المقدّم يختار السؤال.</p>`}
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
-  else body=h.pm&&myBy&&h.pm[myBy]!=null?`<div class="myteam t0" style="background:var(--ochre)">${esc(P.name)}، ${isGirl(P.name)?'أنتِ':'أنت'} مع<b>${esc(clean(h.pm[myBy],60))} 🤝</b>${h.pt&&h.pt[myBy]?`<span>في فريق <strong>${esc(clean(h.pt[myBy],30))}</strong></span>`:''}</div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`:h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار المقدّم يختار اللعبة.</p>`;
+  else body=h.pm&&myBy&&h.pm[myBy]!=null?`<div class="myteam t0" style="background:var(--ochre)">${esc(P.name)}، ${isGirl(P.name)?'أنتِ':'أنت'} مع<b>${esc(clean(h.pm[myBy],60))} 🤝</b>${h.pt&&h.pt[myBy]?`<span>في فريق <strong>${esc(clean(h.pt[myBy],30))}</strong></span>`:''}</div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`;
   const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
   const sc=mode==='finale'?'':h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>${myS!==myBy?'نقاط فريقكم':'نقاطك'}</span><b>${Number(h.solo[mine].s)||0}</b><span>${myS!==myBy?'ترتيبكم':'ترتيبك'} ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
   return head+`<div class="phone stage"><span class="eyebrow">${P.team===null||h.mode2==='solo'?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null||h.mode2==='solo'?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
