@@ -778,8 +778,8 @@ function topBar(){
   const jgShow=(C.comms.length||S.jg)&&(nj||C.judgePin||S.jg),jgReady=S.jg&&S.jg.ready;
   const st=room?(roomOk?`<span class="status on"><span class="dot"></span>${n} لاعب${nj?` · ${nj} لجنة`:''}</span>`:`<span class="status"><span class="dot"></span>جاري الاتصال…</span>`):`<span class="status"><span class="dot"></span>وضع جهاز واحد</span>`;
   const bar=`<div class="top"><div class="brand">${esc(C.title)}</div><div class="row">${st}<button class="menubtn" data-act="menu" aria-label="القائمة" aria-expanded="${!!S.menu}">☰${jgReady?'<span class="mdot"></span>':''}</button></div></div>`;
-  const wp=S.warnPick?`<div class="drawer-bg" data-act="warnClose"></div><div class="drawer" style="inset-inline-end:auto;inset-inline-start:50%;transform:translateX(50%);top:8vh;bottom:auto;max-height:84vh;border-radius:22px;width:min(520px,92vw)" role="dialog" aria-label="إنذار">
-    <div class="dhead"><b>إنذار 🟨</b><button class="link" data-act="warnClose" style="font-size:1.4rem;text-decoration:none">✕</button></div>
+  const wp=S.warnPick?`<div class="drawer-bg" data-act="warnClose"></div><div class="drawer" style="inset-inline-end:auto;inset-inline-start:50%;transform:translateX(50%);top:8vh;bottom:auto;max-height:84vh;border-radius:22px;width:min(520px,92vw)" role="dialog" aria-label="التأديب">
+    <div class="dhead"><b>التأديب 🟨</b><button class="link" data-act="warnClose" style="font-size:1.4rem;text-decoration:none">✕</button></div>
     <p class="muted small" style="margin:0">🟨 ما يجاوب على السؤال · 🟨🟨 + خصم نقطة · 🟥 محروم دقيقة + خصم نقطتين</p>
     ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name})):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span>${esc(x.n)}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
   </div>`:'';
@@ -792,7 +792,7 @@ function topBar(){
     ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الثنائيات 👥</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم ثنائيات 👥</span></button>'):''}
     ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
-    <button class="ditem" data-act="warnOpen"><span>إنذار 🟨</span></button>
+    <button class="ditem" data-act="warnOpen"><span>التأديب 🟨</span></button>
     <button class="ditem" data-act="qrShow"><span>QR 📱</span></button>
     <div class="sep"></div>
     <button class="ditem danger" data-act="resetScores"><span>تصفير النقاط</span></button>
@@ -813,7 +813,7 @@ function rankingView(){
     ${l.length?`<ol class="order rank">${l.map((x,i)=>`<li class="ob"><span class="n">${rankOfScore(l,i)}</span><span style="flex:1">${withTitle(x.name,x.key)}${markOf(x.key)}</span>${kickBtn(x.key,x.name)}
       <button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="-1" aria-label="أنقص نقطة">−</button><span class="ts" style="min-width:2ch;text-align:center">${x.score}</span><button data-act="soloPt" data-k="${esc(x.key)}" data-n="${esc(x.name)}" data-d="1" aria-label="أضف نقطة">+</button></li>`).join('')}</ol>`
       :''}
-    ${l.some(x=>x.score>0)?'<button class="btn-ink btn-big" data-act="soloWin">🏆 أعلن الفايز</button>':''}${bannedList()}</div>`;
+    ${bannedList()}</div>`;
 }
 function soloAwardRow(disabledKeys,first){const l=soloPlayers();if(!l.length)return '<p class="muted small" style="margin:0">ما فيه لاعبين منضمين لتوزيع النقاط.</p>';
   const ord=first?[...l.filter(x=>x.key===first.key),...l.filter(x=>x.key!==first.key)]:l;
