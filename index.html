@@ -286,6 +286,15 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .lgdet .no{background:var(--red-soft);color:var(--red);border-color:var(--red)}
 .lgdet button{padding:4px 12px;border-radius:99px;font-size:1rem}
 .lgin{width:100%;min-height:42vh;font-size:1.25rem;line-height:1.7}
+.podium{min-height:70vh}
+.pods{display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,2vw,22px);width:100%;max-width:900px;height:min(52vh,460px)}
+.pod{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;min-width:0}
+.pnames{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:10px;text-align:center}
+.pnames b{font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,3.6vw,2.4rem);line-height:1.15}
+.pnames span{color:var(--ochre);font-size:clamp(.9rem,2vw,1.2rem)}
+.pblock{border-radius:18px 18px 6px 6px;background:var(--ochre);color:var(--on-accent);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;font-size:clamp(2rem,6vw,3.6rem);animation:rise 1s ease-out both}
+.pod:nth-child(1) .pblock{background:#B8BCC4;animation-delay:.3s} .pod:nth-child(3) .pblock{background:#C98A4B;animation-delay:.6s}
+@keyframes rise{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:20;max-width:90vw}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -501,7 +510,7 @@ function onHostPeers(ch){
   if(S.jg&&!S.jg.revealed&&(ch.updated.length||ch.joined.length||ch.left.length)){jgCollect();if(S.view==='judging')changed=true}
   if(watchAway())changed=true;
   if(S.view==='lists'&&(S.lg.stage==='play'||S.lg.stage==='grace'))lgCollect();
-  if(changed&&S.view!=='admin')render();
+  if(changed&&S.view!=='admin'&&S.view!=='finale')render();
 }
 async function initRoom(){
   try{if(!window.claude||!window.claude.use){roomTried=true;render();return}
@@ -871,36 +880,60 @@ function primeChamp(){stopChamp();try{const a=new Audio('media/champ.m4a');a.pre
 function startFinale(){primeChamp();const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
   const topN=3,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
   S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-2,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
-const FIN_INTRO=2500,FIN_STEP=3800,FIN_TOP=3200;
-/* steps: -1 intro · 0..L-1 places below the top · L "القمة لا تتسع للجميع…" · L+1 "القمة لـ… فقط" · L+2 the champions */
-function finStep(){const f=S.fin;if(!f||!f.groups.length)return -1;const e=Date.now()-f.at;if(e<FIN_INTRO)return -1;const L=f.groups.length-1,x=e-FIN_INTRO;
-  if(x<L*FIN_STEP)return Math.floor(x/FIN_STEP);return Math.min(L+2,L+Math.floor((x-L*FIN_STEP)/FIN_TOP))}
-const finDone=()=>S.fin&&S.fin.groups.length&&finStep()>=S.fin.groups.length+1;
+/* timeline: intro → for each place below the top: drum (name hidden) then reveal → dark drum → «القمة لا تتسع للجميع…» → «القمة لـ… فقط» → champions (fireworks + song) → podium */
+const FIN={intro:2500,drum:2200,show:2800,top2:3000,song:22500};
+function finPlan(){const f=S.fin,L=f.groups.length-1,seq=[['intro',-1,FIN.intro]];for(let i=0;i<L;i++){seq.push(['h',i,FIN.drum]);seq.push(['r',i,FIN.show])}
+  seq.push(['d1h',L,FIN.drum]);seq.push(['d1r',L,FIN.top2]);seq.push(['d2',L,FIN.top2]);seq.push(['champ',L,FIN.song]);seq.push(['podium',L,1e12]);return seq}
+function finState(){const f=S.fin;if(!f||!f.groups.length)return['none',-1];let e=Date.now()-f.at;for(const[k,i,d] of finPlan()){if(e<d)return[k,i];e-=d}return['podium',f.groups.length-1]}
+const finDone=()=>S.fin&&S.fin.groups.length&&['champ','podium'].includes(finState()[0]);
 const placeName=r=>'المركز '+(ORD[r-1]||r);
 const lamName=n=>{const t=noEmoji(n),e=String(n).replace(t,'').trim();return (t.startsWith('ال')?'لل'+t.slice(2):'ل'+t)+(e?' '+e:'')};
 let champAudio=null;
 function stopChamp(){try{if(champAudio){champAudio.pause();champAudio=null}}catch(e){}}
-function clap(){try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();
-  const len=Math.floor(a.sampleRate*.06),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
+function actx(){const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();return a}
+function noiseBuf(a,sec){const len=Math.floor(a.sampleRate*sec),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;return b}
+function clap(){try{const a=actx(),len=Math.floor(a.sampleRate*.06),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
   for(let i=0;i<70;i++){const t=a.currentTime+.05+Math.random()*2.8*Math.pow(Math.random(),.6),src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=buf;f.type='bandpass';f.frequency.value=900+Math.random()*1600;f.Q.value=.8;g.gain.value=.25+Math.random()*.25;src.connect(f);f.connect(g);g.connect(a.destination);src.start(t)}}catch(e){}}
-function finSound(st){const L=S.fin.groups.length-1;
-  if(st<0)return;if(st<L){clap();return}
-  if(st===L){beep(196,1.2);return}
-  if(st===L+1){ding();return}
-  if(st===L+2&&!S.fin.won){S.fin.won=true;try{if(!champAudio)champAudio=new Audio('media/champ.m4a');champAudio.muted=false;champAudio.currentTime=0;const p=champAudio.play();if(p&&p.catch)p.catch(()=>fanfare())}catch(e){fanfare()}}}
+function drumroll(sec){try{const a=actx(),buf=noiseBuf(a,.05),t0=a.currentTime+.02,n=Math.floor(sec*22);
+  for(let i=0;i<n;i++){const t=t0+i*(sec/n),src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=buf;f.type='bandpass';f.frequency.value=1800;f.Q.value=.7;const v=.08+.32*(i/n);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);src.connect(f);f.connect(g);g.connect(a.destination);src.start(t)}}catch(e){}}
+function boom(){try{const a=actx(),t=a.currentTime+.01,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(40,t+.5);g.gain.setValueAtTime(.7,t);g.gain.exponentialRampToValueAtTime(.001,t+.9);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1);
+  const src=a.createBufferSource(),g2=a.createGain();src.buffer=noiseBuf(a,.3);g2.gain.setValueAtTime(.35,t);g2.gain.exponentialRampToValueAtTime(.001,t+.3);src.connect(g2);g2.connect(a.destination);src.start(t)}catch(e){}}
+function finSound(k){
+  if(k==='h'||k==='d1h'){drumroll(FIN.drum/1000-.15);return}
+  if(k==='r'){boom();setTimeout(clap,150);return}
+  if(k==='d1r'){boom();return}
+  if(k==='d2'){ding();return}
+  if(k==='champ'&&!S.fin.won){S.fin.won=true;try{if(!champAudio)champAudio=new Audio('media/champ.m4a');champAudio.muted=false;champAudio.currentTime=0;const p=champAudio.play();if(p&&p.catch)p.catch(()=>fanfare())}catch(e){fanfare()}}}
+/* fireworks on a canvas that lives outside the page, so re-renders don't restart it */
+const FW={on:false,raf:0,parts:[],next:0};
+function fwStart(){if(FW.on)return;FW.on=true;let c=document.getElementById('fw');if(!c){c=document.createElement('canvas');c.id='fw';c.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:15';document.body.appendChild(c)}
+  let ctx=null;try{ctx=c.getContext&&c.getContext('2d')}catch(e){}if(!ctx){FW.on=false;FW.dead=true;c.remove();return}const cols=['#E8AA3C','#E5594C','#52AB7F','#F4ECE3','#C4851A','#7FB7FF'];
+  const fit=()=>{c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio};fit();FW.fit=fit;addEventListener('resize',fit);
+  const step=t=>{if(!FW.on)return;ctx.globalCompositeOperation='destination-out';ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(0,0,c.width,c.height);ctx.globalCompositeOperation='lighter';
+    if(t>FW.next){FW.next=t+380+Math.random()*520;const x=c.width*(.15+Math.random()*.7),y=c.height*(.12+Math.random()*.38),col=cols[Math.floor(Math.random()*cols.length)],n=70;
+      for(let i=0;i<n;i++){const ang=Math.PI*2*i/n,sp=(2+Math.random()*3.5)*devicePixelRatio;FW.parts.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:60+Math.random()*30,col})}}
+    FW.parts=FW.parts.filter(q=>q.life>0);for(const q of FW.parts){q.x+=q.vx;q.y+=q.vy;q.vy+=.045*devicePixelRatio;q.vx*=.985;q.vy*=.985;q.life--;ctx.globalAlpha=Math.max(0,q.life/90);ctx.fillStyle=q.col;ctx.beginPath();ctx.arc(q.x,q.y,2.2*devicePixelRatio,0,7);ctx.fill()}
+    ctx.globalAlpha=1;FW.raf=requestAnimationFrame(step)};FW.raf=requestAnimationFrame(step)}
+function fwStop(){const c0=document.getElementById('fw');if(!FW.on){if(c0)c0.remove();return}FW.on=false;cancelAnimationFrame(FW.raf);FW.parts=[];if(FW.fit)removeEventListener('resize',FW.fit);const c=document.getElementById('fw');if(c)c.remove()}
 function finaleView(){const f=S.fin;if(!f)return '';
   if(!f.groups.length)return `<div class="stage finale"><div class="huge">🏆</div><h2 class="big">ما فيه نقاط بعد</h2><button data-act="go" data-v="home">رجوع</button></div>`;
-  const st=finStep(),L=f.groups.length-1,isPair=k=>String(k).startsWith('g:');
-  const who=g=>g.map(x=>`<div>${esc(x.n)}</div>${isPair(x.k)&&x.t?`<div class="mid ttl" style="margin:0">${esc(x.t)}</div>`:''}`).join('');
-  if(st<0)return `<div class="stage finale"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">🏆</div><div class="huge">الفائزين</div><p class="mid" style="margin:0">مين بياخذ المراكز الثلاثة الأولى؟ 👀</p></div>`;
-  if(st<L){const g=f.groups[st],r=g[0].r;return `<div class="stage finale"><span class="place">${r<=3?MEDAL[r-1]+' ':''}${placeName(r)}</span><div class="who" data-k="${st}">${who(g)}</div><div class="huge" style="font-size:clamp(2.4rem,7vw,4rem)">👏👏👏</div></div>`}
+  const [k,i]=finState(),L=f.groups.length-1,isPair=x=>String(x.k).startsWith('g:');
+  const who=g=>g.map(x=>`<div>${esc(x.n)}</div>${isPair(x)&&x.t?`<div class="mid ttl" style="margin:0">${esc(x.t)}</div>`:''}`).join('');
+  const dark='background:#0d0a08;color:#f4ece3;border-color:#0d0a08';
+  if(k==='intro')return `<div class="stage finale"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">🏆</div><div class="huge">الفائزين</div><p class="mid" style="margin:0">مين بياخذ المراكز الثلاثة الأولى؟ 👀</p></div>`;
+  if(k==='h'||k==='r'){const g=f.groups[i],r=g[0].r;return `<div class="stage finale"><span class="place">${r<=3?MEDAL[r-1]+' ':''}${placeName(r)}…</span>${k==='h'?'<div class="who" style="animation:none;letter-spacing:.2em">🥁 ؟ ؟ ؟</div>':`<div class="who">${who(g)}</div><div class="huge" style="font-size:clamp(2.4rem,7vw,4rem)">👏👏👏</div>`}</div>`}
   const top=f.groups[L];
-  if(st===L)return `<div class="stage finale" style="background:#0d0a08;color:#f4ece3;border-color:#0d0a08"><div class="who" style="animation:pop 1.2s ease-out;color:#f4ece3">القمة لا تتسع للجميع…</div></div>`;
-  if(st===L+1)return `<div class="stage finale" style="background:#0d0a08;color:#f4ece3;border-color:#0d0a08"><div class="mid" style="margin:0;opacity:.7">القمة لا تتسع للجميع…</div><div class="who" style="color:var(--ochre)">القمة ${top.map(x=>esc(lamName(x.n))).join(' و')} فقط</div></div>`;
-  const conf=Array.from({length:60},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
-  const pairW=top.some(x=>isPair(x.k)),mem=top.map(x=>isPair(x.k)&&x.t?x.t:x.n+(x.t?' «'+x.t+'»':'')).join(' و'),many=pairW||top.length>1,champ=many?'أبطال':isGirl(top[0].n)?'بطلة':'بطل';
-  return `<div class="stage evstage wincard finale"><div class="confetti" aria-hidden="true">${conf}</div><span class="place">🥇 ${top.map(x=>esc(x.n)).join(' و')}</span>
-    <div class="huge">مبروك ${esc(mem)}</div><div class="who" style="animation:none;font-size:clamp(2.2rem,7vw,4.4rem)">${champ} لمّة سمول ڤاميلي 🏆</div>
+  if(k==='d1h')return `<div class="stage finale" style="${dark}"><div class="who" style="animation:none;color:#f4ece3;letter-spacing:.2em">🥁 …</div></div>`;
+  if(k==='d1r')return `<div class="stage finale" style="${dark}"><div class="who" style="color:#f4ece3">القمة لا تتسع للجميع…</div></div>`;
+  if(k==='d2')return `<div class="stage finale" style="${dark}"><div class="mid" style="margin:0;opacity:.7">القمة لا تتسع للجميع…</div><div class="who" style="color:var(--ochre)">القمة ${top.map(x=>esc(lamName(x.n))).join(' و')} فقط</div></div>`;
+  const pairW=top.some(isPair),mem=top.map(x=>isPair(x)&&x.t?x.t:x.n+(x.t?' «'+x.t+'»':'')).join(' و'),champ=pairW||top.length>1?'أبطال':isGirl(top[0].n)?'بطلة':'بطل';
+  if(k==='champ')return `<div class="stage evstage wincard finale"><span class="place">🥇 ${top.map(x=>esc(x.n)).join(' و')}</span>
+    <div class="huge">مبروك ${esc(mem)}</div><div class="who" style="animation:none;font-size:clamp(2.2rem,7vw,4.4rem)">${champ} لمّة سمول ڤاميلي 🏆</div></div>`;
+  const byR=r=>f.groups.find(g=>g[0].r===r)||f.groups.filter(g=>g[0].r<=r).slice(-1)[0];
+  const g1=f.groups[L],g2=L>=1?f.groups[L-1]:null,g3=L>=2?f.groups[L-2]:null;
+  const col=(g,h,m)=>`<div class="pod"><div class="pnames">${g?g.map(x=>`<b>${esc(x.n)}</b>${isPair(x)&&x.t?`<span>${esc(x.t)}</span>`:x.t?`<span>«${esc(x.t)}»</span>`:''}`).join(''):''}</div><div class="pblock" style="height:${h}">${g?m:''}</div></div>`;
+  return `<div class="stage evstage finale podium"><div class="huge" style="font-size:clamp(2rem,6vw,3.4rem)">🏆 أبطال لمّة سمول ڤاميلي</div>
+    <div class="pods">${col(g2,'34%','🥈')}${col(g1,'52%','🥇')}${col(g3,'22%','🥉')}</div>
     <div class="row" style="justify-content:center"><button data-act="go" data-v="home">الصفحة الرئيسية</button></div></div>`}
 /* ---------- 30 ثانية: everyone types answers on their phone; the page checks them against the list ---------- */
 S.lg={qi:-1,stage:'pick',r:0,end:0,subs:{},res:null,acc:{},awarded:{},open:null};S.lgDone=LS.get('lgDone',{});if(!S.lgDone||typeof S.lgDone!=='object')S.lgDone={};
@@ -1400,7 +1433,9 @@ function tick(){
   if(role==='player'&&P.lgEnd&&now>=P.lgEnd&&!P.lgSent){P.lgSent=true;lgSend(true);render()}
   if(role==='host'&&S.pairs.on&&S.pairs.at&&S.pairs.shown<S.pairs.groups.length){const sh=Math.min(S.pairs.groups.length,Math.floor((now-S.pairs.at-800)/1600)+1);if(sh>S.pairs.shown){S.pairs.shown=sh;savePairs();if(sh===S.pairs.groups.length){sfx('right');toast('خلصت القرعة 🎉')}else beep(700,.2);emitState();render()}}
   if(role==='host'){let ex=false;for(const[t,v] of Object.entries(S.warn.red))if(v&&v<=now){delete S.warn.red[t];ex=true}if(ex){saveWarn();emitState();render()}}
-  if(role==='host'&&S.view==='finale'&&S.fin){const st=finStep();if(st!==S.fin.step){S.fin.step=st;finSound(st);emitState();render()}}
+  if(role==='host'&&S.view==='finale'&&S.fin){const [k,i]=finState(),key=k+i;if(key!==S.fin.step){S.fin.step=key;finSound(k);emitState();render()}}
+  if(FW.on&&!(role==='host'&&S.view==='finale'&&S.fin&&['champ','podium'].includes(finState()[0])))fwStop();
+  if(!FW.on&&!FW.dead&&role==='host'&&S.view==='finale'&&S.fin&&['champ','podium'].includes(finState()[0]))fwStart();
   if(role==='player')document.querySelectorAll('[data-pcd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.pcd-now)/1000))});
   if(role==='host'&&S.alerts.length){let ch=false;
     for(const a of S.alerts.slice()){if(now<a.end)continue;if(a.ph==='wait'){alertKick(a);ch=false}else{S.alerts=S.alerts.filter(x=>x!==a);ch=true}}
@@ -1423,7 +1458,7 @@ $app.addEventListener('click',e=>{
   if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
-    case 'go':if(S.view==='finale')stopChamp();if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
+    case 'go':if(S.view==='finale'){stopChamp();fwStop()}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
     case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
