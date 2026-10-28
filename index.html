@@ -478,7 +478,7 @@ function hostState(){
   if(S.view==='judging')st.mode='home';
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;if(red>0)w[p.key]={l:3,left:red};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
-  if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'&&g.res?Object.fromEntries(g.res.map(r=>[r.k,{n:r.n,p:r.pts,rk:r.rk}])):null}}
+  if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
   if(S.view==='finale'&&S.fin)st.fin={topN:S.fin.topN||5,done:!!finDone(),all:finDone()?S.fin.all.slice(0,60):null};
   {const tt={};for(const p of phonePlayers()){const t=titleOfKey(p.key);if(t)tt[p.key]=t}if(Object.keys(tt).length)st.titles=tt}
   {const kk={};for(const k of Object.keys(S.cheat.banned))kk[k]='ban';for(const[k,q] of Object.entries(S.cheat.qban))if(q===S.cheat.qn&&!kk[k])kk[k]='q';if(Object.keys(kk).length)st.kick=kk}
@@ -867,26 +867,40 @@ function closeBuzz(){S.bz.open=false;S.bz.order=[];S.bz.used=false;S.bz.fail=[];
 function openBuzz(){const b=S.bz;b.used=true;b.open=true;b.r++;b.fail=[];b.order=[];b.awarded=false;b.awardedName='';b.curPeer=null;b.win=null}
 /* ---------- final announcement: 5th → 1st, then results on phones ---------- */
 const MEDAL=['🥇','🥈','🥉'];
-function startFinale(){const l=soloPlayers().filter(x=>x.score>0),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
-  const topN=pairsOn()?3:5,top=all.filter(x=>x.r<=topN),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
-  S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-1,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
-const FIN_INTRO=2500,FIN_STEP=3200;
-function finStep(){const f=S.fin;if(!f)return -1;const e=Date.now()-f.at;return e<FIN_INTRO?-1:Math.min(f.groups.length-1,Math.floor((e-FIN_INTRO)/FIN_STEP))}
-const finDone=()=>S.fin&&S.fin.groups.length&&finStep()>=S.fin.groups.length-1;
+function startFinale(){const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
+  const topN=pairsOn()?3:5,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
+  S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-2,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
+const FIN_INTRO=2500,FIN_STEP=3800,FIN_TOP=3200;
+/* steps: -1 intro · 0..L-1 places below the top · L "القمة لا تتسع للجميع…" · L+1 "القمة لـ… فقط" · L+2 the champions */
+function finStep(){const f=S.fin;if(!f||!f.groups.length)return -1;const e=Date.now()-f.at;if(e<FIN_INTRO)return -1;const L=f.groups.length-1,x=e-FIN_INTRO;
+  if(x<L*FIN_STEP)return Math.floor(x/FIN_STEP);return Math.min(L+2,L+Math.floor((x-L*FIN_STEP)/FIN_TOP))}
+const finDone=()=>S.fin&&S.fin.groups.length&&finStep()>=S.fin.groups.length+1;
 const placeName=r=>'المركز '+(ORD[r-1]||r);
+const lamName=n=>{const t=noEmoji(n),e=String(n).replace(t,'').trim();return (t.startsWith('ال')?'لل'+t.slice(2):'لـ'+t)+(e?' '+e:'')};
+let champAudio=null;
+function stopChamp(){try{if(champAudio){champAudio.pause();champAudio=null}}catch(e){}}
+function clap(){try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();
+  const len=Math.floor(a.sampleRate*.06),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
+  for(let i=0;i<70;i++){const t=a.currentTime+.05+Math.random()*2.8*Math.pow(Math.random(),.6),src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=buf;f.type='bandpass';f.frequency.value=900+Math.random()*1600;f.Q.value=.8;g.gain.value=.25+Math.random()*.25;src.connect(f);f.connect(g);g.connect(a.destination);src.start(t)}}catch(e){}}
+function finSound(st){const L=S.fin.groups.length-1;
+  if(st<0)return;if(st<L){clap();return}
+  if(st===L){beep(196,1.2);return}
+  if(st===L+1){ding();return}
+  if(st===L+2&&!S.fin.won){S.fin.won=true;stopChamp();try{champAudio=new Audio('media/champ.m4a');champAudio.play().catch(()=>{champAudio=null;fanfare()})}catch(e){fanfare()}}}
 function finaleView(){const f=S.fin;if(!f)return '';
   if(!f.groups.length)return `<div class="stage finale"><div class="huge">🏆</div><h2 class="big">ما فيه نقاط بعد</h2><button data-act="go" data-v="home">رجوع</button></div>`;
-  const st=finStep(),names=g=>g.map(x=>`${esc(x.n)}${x.t?` <span class="ttl">«${esc(x.t)}»</span>`:''}`).join('<br>');
-  if(st<0)return `<div class="stage finale"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">🏆</div><div class="huge">الفائزين</div><p class="mid" style="margin:0">مين بياخذ ${S.fin.topN===3?'المراكز الثلاثة الأولى':'المراكز الخمسة الأولى'}؟ 👀</p></div>`;
-  const g=f.groups[st],last=st===f.groups.length-1,r=g[0].r;
-  const prev=f.groups.slice(0,st).reverse().flat();
-  const list=prev.length?`<div class="toplist">${prev.map(x=>`<div class="rankrow"><span class="rk">${x.r<=3?MEDAL[x.r-1]:x.r}</span><span style="flex:1">${esc(x.n)}${x.t?` <span class="ttl">«${esc(x.t)}»</span>`:''}</span><span class="sc">${x.s}</span></div>`).join('')}</div>`:'';
-  if(last){const conf=Array.from({length:48},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
-    return `<div class="stage evstage wincard finale"><div class="confetti" aria-hidden="true">${conf}</div><span class="place">${r===1?'🥇 '+placeName(1):placeName(r)}</span>
-      <div class="huge">ألف مبروك!</div><div class="who" style="animation:none">${names(g)}</div><div class="pts">${g[0].s} ${g[0].s===1?'نقطة':'نقاط'}</div>
-      ${list}<p class="mid" style="margin:0">مبروك للفائزين 🎉</p>
-      <div class="row" style="justify-content:center"><button data-act="go" data-v="home">الصفحة الرئيسية</button></div></div>`}
-  return `<div class="stage finale"><span class="place">${r<=3?MEDAL[r-1]+' ':''}${placeName(r)}</span><div class="who" data-k="${st}">${names(g)}</div><div class="pts">${g[0].s} ${g[0].s===1?'نقطة':'نقاط'}</div>${list}</div>`}
+  const st=finStep(),L=f.groups.length-1,isPair=k=>String(k).startsWith('g:');
+  const who=g=>g.map(x=>`<div>${esc(x.n)}</div>${isPair(x.k)&&x.t?`<div class="mid ttl" style="margin:0">${esc(x.t)}</div>`:''}`).join('');
+  if(st<0)return `<div class="stage finale"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">🏆</div><div class="huge">الفائزين</div><p class="mid" style="margin:0">مين بياخذ ${f.topN===3?'المراكز الثلاثة الأولى':'المراكز الخمسة الأولى'}؟ 👀</p></div>`;
+  if(st<L){const g=f.groups[st],r=g[0].r;return `<div class="stage finale"><span class="place">${r<=3?MEDAL[r-1]+' ':''}${placeName(r)}</span><div class="who" data-k="${st}">${who(g)}</div><div class="huge" style="font-size:clamp(2.4rem,7vw,4rem)">👏👏👏</div></div>`}
+  const top=f.groups[L];
+  if(st===L)return `<div class="stage finale" style="background:#0d0a08;color:#f4ece3;border-color:#0d0a08"><div class="who" style="animation:pop 1.2s ease-out;color:#f4ece3">القمة لا تتسع للجميع…</div></div>`;
+  if(st===L+1)return `<div class="stage finale" style="background:#0d0a08;color:#f4ece3;border-color:#0d0a08"><div class="mid" style="margin:0;opacity:.7">القمة لا تتسع للجميع…</div><div class="who" style="color:var(--ochre)">القمة ${top.map(x=>esc(lamName(x.n))).join(' و')} فقط</div></div>`;
+  const conf=Array.from({length:60},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
+  const mem=top.map(x=>isPair(x.k)&&x.t?x.t:x.n).join(' و');
+  return `<div class="stage evstage wincard finale"><div class="confetti" aria-hidden="true">${conf}</div><span class="place">🥇 ${top.map(x=>esc(x.n)).join(' و')}</span>
+    <div class="huge">مبروك ${esc(mem)}</div><div class="who" style="animation:none;font-size:clamp(2.2rem,7vw,4.4rem)">أبطال لمّة سمول ڤاميلي 🏆</div>
+    <div class="row" style="justify-content:center"><button data-act="go" data-v="home">الصفحة الرئيسية</button></div></div>`}
 /* ---------- 30 ثانية: everyone types answers on their phone; the page checks them against the list ---------- */
 S.lg={qi:-1,stage:'pick',r:0,end:0,subs:{},res:null,acc:{},awarded:{},open:null};S.lgDone=LS.get('lgDone',{});if(!S.lgDone||typeof S.lgDone!=='object')S.lgDone={};
 const lgNorm=t=>{let x=String(t||'').toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
@@ -911,7 +925,7 @@ function lgScore(){const g=S.lg,q=C.lists[g.qi];if(!q)return;
   rows.forEach(r=>{r.rk=1+rows.filter(x=>x.n>r.n).length;r.pts=r.n>0&&r.rk<=3?C.lgPts[r.rk-1]:0;const d=r.pts-(g.awarded[r.k]||0);if(d){soloAdd(r.k,r.name,d);g.awarded[r.k]=r.pts}});
   g.res=rows;emitState()}
 function lgStart(i){bumpQ();const g=S.lg;g.qi=i;g.stage='play';g.r++;g.end=Date.now()+C.lgSecs*1000;g.subs={};g.res=null;g.acc={};g.awarded={};g.open=null;S.lgDone[C.lists[i].q]=1;LS.set('lgDone',S.lgDone);beep(660,.25);emitState();render()}
-function lgFinish(){const g=S.lg;g.stage='result';lgCollect();lgScore();sfx('right');render()}
+function lgFinish(){const g=S.lg;g.stage='result';g.det=false;lgCollect();lgScore();sfx('right');render()}
 function lgView(){const g=S.lg,ph=phonePlayers();
   if(g.stage==='pick'||g.qi<0)return `<div class="stage"><span class="eyebrow">30 ثانية ⏱️</span><h2 class="big">اختر السؤال</h2>
     <p class="muted" style="margin:0">${ph.length} لاعب متصل · كل سؤال ${C.lgSecs} ثانية · النقاط: الأول ${C.lgPts[0]}، الثاني ${C.lgPts[1]}، الثالث ${C.lgPts[2]}</p>
@@ -921,7 +935,9 @@ function lgView(){const g=S.lg,ph=phonePlayers();
     ${g.stage==='play'?`<div class="lgcd" data-cd="${g.end}">${Math.max(0,Math.ceil((g.end-Date.now())/1000))}</div>`:'<div class="big">⏱️ انتهى الوقت… نصحّح</div>'}
     <p class="muted" style="margin:0">${ph.length} لاعب يكتبون</p></div>`;
   const rows=g.res||[],medal=['🥇','🥈','🥉'];
-  return `<div class="stage"><span class="eyebrow">النتيجة · ${q.a.length} إجابة صحيحة ممكنة</span><div class="lgq" style="font-size:clamp(1.8rem,5vw,3rem)">${esc(q.q)}</div>
+  if(!g.det)return `<div class="stage"><div class="huge" style="font-size:clamp(3rem,10vw,5rem)">✓</div><div class="lgq" style="font-size:clamp(1.8rem,5vw,3rem)">انتهى السؤال</div><p class="muted" style="margin:0">${esc(q.q)}</p>
+    <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="lgPick">السؤال التالي</button><button class="link" data-act="lgDet">التفاصيل</button></div></div>`;
+  return `<div class="stage"><button class="link" data-act="lgDet" style="align-self:flex-start;text-decoration:none">← إخفاء التفاصيل</button><span class="eyebrow">النتيجة · ${q.a.length} إجابة صحيحة ممكنة</span><div class="lgq" style="font-size:clamp(1.8rem,5vw,3rem)">${esc(q.q)}</div>
     <div class="ranklist">${rows.map(r=>`<div><button class="rankrow lgrow" data-act="lgOpen" data-k="${esc(r.k)}"><span class="rk">${r.n>0&&r.rk<=3?medal[r.rk-1]:r.rk}</span><span style="flex:1">${withTitle(r.name,r.k)}</span><span class="sc">${r.n} ✓</span>${r.pts?`<span class="ttl">+${r.pts}</span>`:''}</button>
       ${g.open===r.k?`<div class="lgdet">${r.hit.map(i=>`<span class="chip ok">${esc(q.a[i].split('/')[0])}</span>`).join('')}${r.acc.map(x=>`<button class="ok" data-act="lgUnacc" data-k="${esc(r.k)}" data-v="${esc(x)}" title="إلغاء القبول">${esc(x)} ✓</button>`).join('')}${r.bad.map(x=>`<button class="no" data-act="lgAcc" data-k="${esc(r.k)}" data-v="${esc(x)}" title="اقبلها">${esc(x)} ✗</button>`).join('')}${!r.hit.length&&!r.acc.length&&!r.bad.length?'<span class="muted small">ما كتب شي</span>':''}</div>`:''}</div>`).join('')||'<p class="muted" style="margin:0">ما وصلت إجابات.</p>'}</div>
     <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="lgPick">السؤال التالي</button></div></div>`}
@@ -1349,12 +1365,11 @@ function playerView(){
   else if(mode==='event'&&h.ev)body=`<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if(mode==='finale'&&h.fin){const f=h.fin;
     if(!f.done)body=`<div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🏆</div><h2 class="big">جاري إعلان الفائزين…</h2><p style="margin:0;font-size:1.15rem">تابعوا الشاشة الكبيرة 👀</p>`;
-    else{const all=Array.isArray(f.all)?f.all:[],myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,pr=myS!==myBy,me=all.find(x=>x.k===myS),g=isGirl(P.name),ttl=!pr&&me&&me.t?me.t:(h.titles&&myBy?h.titles[myBy]:''),voc=ttl?vocative(ttl):'يا '+esc(P.name);
-      const mk=pr?'مركزكم':g?'مركزكِ':'مركزك';
-      const head2=me&&me.r<=(f.topN||5)?`<div class="myres win"><b>🎉 ألف مبروك ${voc}!</b><span style="font-size:1.2rem">${mk} <strong>${ORD[me.r-1]}</strong> ${me.r<=3?MEDAL[me.r-1]:''}</span></div>`
-        :me?`<div class="myres"><b>${mk} ${ORD[me.r-1]||me.r} من ${all.length}</b><span>شكراً على ${g?'مشاركتكِ':'مشاركتك'} 🤍</span></div>`
-        :`<div class="myres"><b>شكراً على ${g?'مشاركتكِ':'مشاركتك'} 🤍</b></div>`;
-      body=head2+`<div class="lbl" style="width:100%;text-align:start">النتائج الكاملة</div><div class="toplist">${all.map(x=>`<div class="rankrow${x.k===myS?' me':''}"><span class="rk">${x.r<=3?MEDAL[x.r-1]:x.r}</span><span style="flex:1">${esc(clean(x.n))}${x.t?` <span class="ttl">«${esc(clean(x.t,30))}»</span>`:''}</span><span class="sc">${Number(x.s)||0}</span></div>`).join('')}</div>`}}
+    else{const all=Array.isArray(f.all)?f.all:[],myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,pr=myS!==myBy,me=all.find(x=>x.k===myS),g=isGirl(P.name),top=f.topN||5;
+      const you=pr?'أنتم':g?'أنتِ':'أنت',mk=pr?'مركزكم':g?'مركزكِ':'مركزك',tk=pr?'ترتيبكم':g?'ترتيبكِ':'ترتيبك',mq=pr?'ما قصرتوا':g?'ما قصرتِ':'ما قصرت';
+      body=me&&me.r===1&&me.s>0?`<div class="myres win"><b>🎉 مبروك!</b><span style="font-size:1.25rem">${you} <strong>أبطال لمّة سمول ڤاميلي</strong> 🏆</span></div>`
+        :me&&me.r<=top&&me.s>0?`<div class="myres win"><b>🎉 مبروك!</b><span style="font-size:1.25rem">${mk} <strong>${ORD[me.r-1]}</strong> ${me.r<=3?MEDAL[me.r-1]:''}</span></div>`
+        :`<div class="myres"><b>${mq} 🤍</b>${me?`<span style="font-size:1.2rem">${tk} <strong>${ORD[me.r-1]||me.r}</strong></span>`:''}<span>نلتقي مرة أخرى 👏⏳🤍</span></div>`}}
   else if(mode==='lists'&&h.lg&&warnCard&&h.lg.stage==='play')body=warnCard;
   else if(mode==='lists'&&h.lg){const L=h.lg;
     if(L.r!==P.lgR){P.lgR=L.r;P.lgText='';P.lgSent=false;P.lgEnd=0}
@@ -1363,12 +1378,12 @@ function playerView(){
       body=`<span class="eyebrow">30 ثانية ⏱️</span><h2 class="big" style="margin:0">${esc(clean(L.q,80))}</h2><div class="turncd" data-pcd="${P.lgEnd}">${Math.max(0,Math.ceil((P.lgEnd-Date.now())/1000))}</div>
         <textarea id="lgIn" class="lgin" placeholder="اكتب كل إجابة في سطر…" ${over?'disabled':''} autocomplete="off" autocorrect="off" spellcheck="false">${esc(P.lgText||'')}</textarea>`}
     else if(L.stage==='grace'||(L.stage==='play'&&Date.now()>=P.lgEnd))body=`<h2 class="big">⏱️ انتهى الوقت</h2><p class="muted" style="margin:0">نصحّح الإجابات… تابع الشاشة الكبيرة 👀</p>`;
-    else if(L.stage==='result'&&L.res){const me=myBy&&L.res[h.pk&&h.pk[myBy]?h.pk[myBy]:myBy],g=isGirl(P.name);body=me?`<div class="myres${me.p?' win':''}"><b>${me.n} ${me.n===1?'إجابة صحيحة':'إجابات صحيحة'} ✓</b><span style="font-size:1.15rem">${me.p?`${g?'أخذتِ':'أخذت'} +${me.p} ${me.p===1?'نقطة':'نقاط'} 🎉`:'تابع الشاشة الكبيرة 👀'}</span></div>`:`<h2 class="big">النتيجة على الشاشة الكبيرة 👀</h2>`}
+    else if(L.stage==='result'&&L.res){const me=myBy&&L.res[h.pk&&h.pk[myBy]?h.pk[myBy]:myBy],g=isGirl(P.name);body=`<div class="myres"><b>✓ انحسبت ${g?'إجاباتكِ':'إجاباتك'}</b><span>استعد للسؤال الجاي 🔥</span></div>`}
     else body=`<h2 class="big">30 ثانية ⏱️</h2><p class="muted" style="margin:0">استعد… المقدّم يختار السؤال.</p>`}
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
   else body=h.pm&&myBy&&h.pm[myBy]!=null?`<div class="myteam t0" style="background:var(--ochre)">${esc(P.name)}، ${isGirl(P.name)?'أنتِ':'أنت'} مع<b>${esc(clean(h.pm[myBy],60))} 🤝</b>${h.pt&&h.pt[myBy]?`<span>في فريق <strong>${esc(clean(h.pt[myBy],30))}</strong></span>`:''}</div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`;
   const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
-  const sc=mode==='finale'?'':h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>${myS!==myBy?'نقاط فريقكم':'نقاطك'}</span><b>${Number(h.solo[mine].s)||0}</b><span>${myS!==myBy?'ترتيبكم':'ترتيبك'} ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
+  const sc=true?'':h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>${myS!==myBy?'نقاط فريقكم':'نقاطك'}</span><b>${Number(h.solo[mine].s)||0}</b><span>${myS!==myBy?'ترتيبكم':'ترتيبك'} ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
   return head+`<div class="phone stage"><span class="eyebrow">${P.team===null||h.mode2==='solo'?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null||h.mode2==='solo'?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
 
@@ -1384,7 +1399,7 @@ function tick(){
   if(role==='player'&&P.lgEnd&&now>=P.lgEnd&&!P.lgSent){P.lgSent=true;lgSend(true);render()}
   if(role==='host'&&S.pairs.on&&S.pairs.at&&S.pairs.shown<S.pairs.groups.length){const sh=Math.min(S.pairs.groups.length,Math.floor((now-S.pairs.at-800)/1600)+1);if(sh>S.pairs.shown){S.pairs.shown=sh;savePairs();if(sh===S.pairs.groups.length){sfx('right');toast('خلصت القرعة 🎉')}else beep(700,.2);emitState();render()}}
   if(role==='host'){let ex=false;for(const[t,v] of Object.entries(S.warn.red))if(v&&v<=now){delete S.warn.red[t];ex=true}if(ex){saveWarn();emitState();render()}}
-  if(role==='host'&&S.view==='finale'&&S.fin){const st=finStep();if(st!==S.fin.step){S.fin.step=st;if(st>=0){if(st===S.fin.groups.length-1&&!S.fin.won){S.fin.won=true;playWin()}else ding()}emitState();render()}}
+  if(role==='host'&&S.view==='finale'&&S.fin){const st=finStep();if(st!==S.fin.step){S.fin.step=st;finSound(st);emitState();render()}}
   if(role==='player')document.querySelectorAll('[data-pcd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.pcd-now)/1000))});
   if(role==='host'&&S.alerts.length){let ch=false;
     for(const a of S.alerts.slice()){if(now<a.end)continue;if(a.ph==='wait'){alertKick(a);ch=false}else{S.alerts=S.alerts.filter(x=>x!==a);ch=true}}
@@ -1407,7 +1422,7 @@ $app.addEventListener('click',e=>{
   if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
-    case 'go':if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
+    case 'go':if(S.view==='finale')stopChamp();if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
     case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
@@ -1426,7 +1441,7 @@ $app.addEventListener('click',e=>{
     case 'evTimer':S.ev.end=Date.now()+C.events[S.ev.ei].rounds[S.ev.ri].timer*1000;S.ev.beeped=false;render();break;
     case 'evBuzz':if(S.bz.open){S.bz.open=false;S.bz.used=true}else openBuzz();emitState();render();break;
     case 'evAward':{const t=+b.dataset.t;S.teams[t].score++;sfx('right');S.ev.awarded=true;saveTeams();emitState();toast('نقطة لـ '+S.teams[t].name);render();break}
-    case 'evNext':{const r=C.events[S.ev.ei].rounds[S.ev.ri];if(S.ev.ii<r.items.length-1)evSetItem(S.ev.ii+1);else{S.ev.done[S.ev.ri]=1;S.evDone[C.events[S.ev.ei].title]=S.ev.done;LS.set('evDone',S.evDone);S.ev.phase='rank';closeBuzz();emitState();render();window.scrollTo({top:0})}break}
+    case 'evNext':{const r=C.events[S.ev.ei].rounds[S.ev.ri];if(S.ev.ii<r.items.length-1)evSetItem(S.ev.ii+1);else{S.ev.done[S.ev.ri]=1;S.evDone[C.events[S.ev.ei].title]=S.ev.done;LS.set('evDone',S.evDone);S.ev.phase='menu';S.ev.ri=-1;closeBuzz();emitState();render();window.scrollTo({top:0})}break}
     /* spy */
     case 'spyStart':startSpy();break;
     case 'spyShow':S.spy.shown=true;render();break;
@@ -1496,7 +1511,8 @@ $app.addEventListener('click',e=>{
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
     case 'lgGo':lgStart(+b.dataset.i);break;
-    case 'lgPick':S.lg.stage='pick';S.lg.open=null;emitState();render();break;
+    case 'lgDet':S.lg.det=!S.lg.det;render();break;
+    case 'lgPick':S.lg.stage='pick';S.lg.open=null;S.lg.det=false;emitState();render();break;
     case 'lgOpen':S.lg.open=S.lg.open===b.dataset.k?null:b.dataset.k;render();break;
     case 'lgAcc':{const k=b.dataset.k;(S.lg.acc[k]=S.lg.acc[k]||[]).push(b.dataset.v);lgScore();render();break}
     case 'lgUnacc':{const k=b.dataset.k;S.lg.acc[k]=(S.lg.acc[k]||[]).filter(x=>x!==b.dataset.v);lgScore();render();break}
