@@ -286,14 +286,14 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .lgdet .no{background:var(--red-soft);color:var(--red);border-color:var(--red)}
 .lgdet button{padding:4px 12px;border-radius:99px;font-size:1rem}
 .lgin{width:100%;min-height:42vh;font-size:1.25rem;line-height:1.7}
-.podium{min-height:70vh}
-.pods{display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,2vw,22px);width:100%;max-width:900px;height:min(52vh,460px)}
-.pod{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;min-width:0}
-.pnames{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:10px;text-align:center}
-.pnames b{font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,3.6vw,2.4rem);line-height:1.15}
-.pnames span{color:var(--ochre);font-size:clamp(.9rem,2vw,1.2rem)}
-.pblock{border-radius:18px 18px 6px 6px;background:var(--ochre);color:var(--on-accent);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;font-size:clamp(2rem,6vw,3.6rem);animation:rise 1s ease-out both}
-.pod:nth-child(1) .pblock{background:#B8BCC4;animation-delay:.3s} .pod:nth-child(3) .pblock{background:#C98A4B;animation-delay:.6s}
+.fpodium{min-height:70vh}
+.fpods{display:flex;align-items:flex-end;justify-content:center;gap:clamp(8px,2vw,22px);width:100%;max-width:900px;height:min(52vh,460px)}
+.fpod{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;height:100%;min-width:0}
+.fpnames{display:flex;flex-direction:column;align-items:center;gap:2px;padding-bottom:10px;text-align:center}
+.fpnames b{font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,3.6vw,2.4rem);line-height:1.15}
+.fpnames span{color:var(--ochre);font-size:clamp(.9rem,2vw,1.2rem)}
+.fpblock{border-radius:18px 18px 6px 6px;background:var(--ochre);color:var(--on-accent);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;font-size:clamp(2rem,6vw,3.6rem);animation:rise 1s ease-out both}
+.fpod:nth-child(1) .fpblock{background:#B8BCC4;animation-delay:.3s} .fpod:nth-child(3) .fpblock{background:#C98A4B;animation-delay:.6s}
 @keyframes rise{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:20;max-width:90vw}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -931,9 +931,9 @@ function finaleView(){const f=S.fin;if(!f)return '';
     <div class="huge">مبروك ${esc(mem)}</div><div class="who" style="animation:none;font-size:clamp(2.2rem,7vw,4.4rem)">${champ} لمّة سمول ڤاميلي 🏆</div></div>`;
   const byR=r=>f.groups.find(g=>g[0].r===r)||f.groups.filter(g=>g[0].r<=r).slice(-1)[0];
   const g1=f.groups[L],g2=L>=1?f.groups[L-1]:null,g3=L>=2?f.groups[L-2]:null;
-  const col=(g,h,m)=>`<div class="pod"><div class="pnames">${g?g.map(x=>`<b>${esc(x.n)}</b>${isPair(x)&&x.t?`<span>${esc(x.t)}</span>`:x.t?`<span>«${esc(x.t)}»</span>`:''}`).join(''):''}</div><div class="pblock" style="height:${h}">${g?m:''}</div></div>`;
-  return `<div class="stage evstage finale podium"><div class="huge" style="font-size:clamp(2rem,6vw,3.4rem)">🏆 أبطال لمّة سمول ڤاميلي</div>
-    <div class="pods">${col(g2,'34%','🥈')}${col(g1,'52%','🥇')}${col(g3,'22%','🥉')}</div>
+  const col=(g,h,m)=>`<div class="fpod"><div class="fpnames">${g?g.map(x=>`<b>${esc(x.n)}</b>${isPair(x)&&x.t?`<span>${esc(x.t)}</span>`:x.t?`<span>«${esc(x.t)}»</span>`:''}`).join(''):''}</div><div class="fpblock" style="height:${h}">${g?m:''}</div></div>`;
+  return `<div class="stage evstage finale fpodium"><div class="huge" style="font-size:clamp(2rem,6vw,3.4rem)">🏆 أبطال لمّة سمول ڤاميلي</div>
+    <div class="fpods">${col(g2,'34%','🥈')}${col(g1,'52%','🥇')}${col(g3,'22%','🥉')}</div>
     <div class="row" style="justify-content:center"><button data-act="go" data-v="home">الصفحة الرئيسية</button></div></div>`}
 /* ---------- 30 ثانية: everyone types answers on their phone; the page checks them against the list ---------- */
 S.lg={qi:-1,stage:'pick',r:0,end:0,subs:{},res:null,acc:{},awarded:{},open:null};S.lgDone=LS.get('lgDone',{});if(!S.lgDone||typeof S.lgDone!=='object')S.lgDone={};
