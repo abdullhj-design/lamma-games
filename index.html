@@ -118,6 +118,9 @@ textarea{width:100%;min-height:150px;resize:vertical;line-height:1.7}
 .evstage .link{color:var(--on-nat);border:0!important}
 .media{max-width:100%;max-height:55vh;border-radius:16px;background:#000;display:block}
 img.media{background:transparent}
+.bzon .media{max-height:26vh;transition:max-height .3s}
+.bzon{gap:12px}
+.bzon .answerer{margin-top:-4px}
 .teambadge{display:inline-flex;align-items:center;gap:8px;padding:4px 14px;border-radius:99px;font-weight:600;background:color-mix(in srgb,var(--on-nat) 14%,transparent)}
 .teambadge.t0{background:var(--red);color:var(--on-accent)} .teambadge.t1{background:var(--green);color:var(--on-accent)}
 .rounds{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;width:100%}
@@ -752,7 +755,7 @@ function showQR(){if(document.getElementById('qrBig'))return;let svg='';try{cons
     <p style="margin:0">افتح الكاميرا وامسح الباركود، واكتب اسمك وانضم.</p></div>`;
   el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
 function showHostWelcome(){if(document.getElementById('hostWel'))return;const el=document.createElement('div');el.id='hostWel';el.className='wel';
-  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(760px,100%);font-size:clamp(1.15rem,2.4vw,1.6rem);padding:clamp(24px,4vw,44px)">
+  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(1150px,96vw);font-size:clamp(1.05rem,2vw,1.45rem);line-height:1.55;gap:8px;padding:clamp(18px,2.6vw,30px) clamp(22px,4vw,52px)">
   <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
   <p>على بركة الله نعلن عن انطلاق فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
   <p>استعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏</p>
@@ -1027,7 +1030,7 @@ function rankBoard(e,v){
     <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button></div>`}
 function evView(){
   const v=S.ev,e=C.events[v.ei];
-  const wrap=(inner)=>`<div class="stage evstage">${inner}</div>`;
+  const wrap=(inner)=>`<div class="stage evstage${S.bz.order&&S.bz.order.length&&(v.phase==='q'||v.phase==='a')?' bzon':''}">${inner}</div>`;
   if(v.phase==='cover')return wrap(`<span class="eyebrow">${esc(e.subtitle||'فعالية')}</span><div class="huge">${esc(e.title)}</div>
     <button class="btn-ink btn-big" data-act="evGo" data-p="${e.intro?'intro':'menu'}">ابدأ</button>`);
   if(v.phase==='intro')return wrap(`<span class="eyebrow">مقدمة الفعالية</span><div class="mid">${esc(e.intro)}</div><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button>`);
