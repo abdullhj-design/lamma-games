@@ -548,7 +548,7 @@ async function initRoom(){
   room.onConnection(c=>{roomOk=c;if(c){emitState();if(role==='player'&&P.joined)sendPresence();if(role==='judge'&&J.joined)sendJudge(J.sent&&J.k?{k:J.k,s:J.s}:null)}if(S.view!=='admin')render()},()=>{roomOk=false;room=null;render()});
   room.onPeers(ch=>{const me=ch.peers.find(p=>p.sameTab);if(me){myPeer=me.peer;myBy=pKey(me)}if(role==='host')onHostPeers(ch);else if(role==='player'||role==='judge')render()},()=>{});
   room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;if(role==='player'){const an=d.anthem;
-      if(an&&an.id&&P.flagId!==an.id&&d.anthemStop!==an.id){P.flagId=an.id;P.flagEnd=Date.now()+(+an.left||46000)}
+      if(an&&an.id&&d.anthemStop!==an.id){P.flagId=an.id;P.flagEnd=Date.now()+(+an.left||46000)}
       if(d.anthemStop&&d.anthemStop===P.flagId)P.flagEnd=0;
       syncPhoneFlag(P.joined&&(P.flagEnd||0)>Date.now())}const typing=role==='player'&&d.mode==='lists'&&d.lg&&d.lg.stage==='play'&&P.host&&P.host.lg&&P.host.lg.r===d.lg.r&&P.host.lg.stage==='play'&&document.activeElement&&document.activeElement.id==='lgIn';if(role==='player'&&d.pm&&myBy&&d.pm[myBy]!=null&&P.lastPm!==d.pm[myBy]){P.lastPm=d.pm[myBy];try{navigator.vibrate&&navigator.vibrate([100,60,100,60,200])}catch(_){}}P.host=d;if(typing)return;if(role==='player'&&P.joined){const tt=d.titles&&myBy?d.titles[myBy]:'';if(tt&&tt!==P.title){P.title=tt;fillWelcomeTitle()}const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
   render();
@@ -768,7 +768,7 @@ function showQR(){if(document.getElementById('qrBig'))return;let svg='';try{cons
     <div style="background:#fff;border-radius:20px;padding:16px;width:min(420px,72vw);line-height:0">${svg.replace('<svg ','<svg style="width:100%;height:auto;display:block" ')}</div>
     <p style="margin:0">افتح الكاميرا وامسح الباركود، واكتب اسمك وانضم.</p></div>`;
   el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
-function showHostWelcome(){if(document.getElementById('hostWel'))return;const el=document.createElement('div');el.id='hostWel';el.className='wel';
+function showHostWelcome(){if(document.getElementById('hostWel'))return;prepAnthem();const el=document.createElement('div');el.id='hostWel';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(1150px,96vw);font-size:clamp(1.05rem,2vw,1.45rem);line-height:1.55;gap:8px;padding:clamp(18px,2.6vw,30px) clamp(22px,4vw,52px)">
   <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
   <p>على بركة الله نعلن عن انطلاق فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
@@ -781,13 +781,20 @@ function showHostWelcome(){if(document.getElementById('hostWel'))return;const el
 /* ---------- النشيد الوطني: after the opening card — flag video on the big screen, flag image on every phone ---------- */
 S.anthem=0;S.anthemId='';S.anthemStop='';let anthemAudio=null;
 const anthemOn=()=>S.anthem>Date.now();
-function startAnthem(){S.anthem=Date.now()+46000;S.anthemId=Date.now().toString(36);
-  try{anthemAudio=new Audio('media/anthem.m4a');const pr=anthemAudio.play();if(pr&&pr.catch)pr.catch(()=>{});anthemAudio.addEventListener('ended',()=>stopAnthem())}catch(e){}
+function prepAnthem(){try{if(!anthemAudio){anthemAudio=new Audio('media/anthem.m4a');anthemAudio.preload='auto';anthemAudio.load()}}catch(e){}
+  if(!document.getElementById('anthemPre')){const v=document.createElement('video');v.id='anthemPre';v.src='media/flag.mp4';v.preload='auto';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;bottom:0;left:0';document.body.appendChild(v);try{v.load()}catch(e){}}}
+function goFull(on){try{const d=document,el=d.documentElement;
+  if(on){const f=el.requestFullscreen||el.webkitRequestFullscreen;if(f&&!(d.fullscreenElement||d.webkitFullscreenElement)){const r=f.call(el);if(r&&r.catch)r.catch(()=>{})}}
+  else if(d.fullscreenElement||d.webkitFullscreenElement){const x=d.exitFullscreen||d.webkitExitFullscreen;if(x){const r=x.call(d);if(r&&r.catch)r.catch(()=>{})}}}catch(e){}}
+function startAnthem(){prepAnthem();goFull(true);S.anthemId=Date.now().toString(36);S.anthem=Date.now()+60000;
+  const a=anthemAudio;
+  if(a){a.currentTime=0;a.onplaying=()=>{const dur=isFinite(a.duration)&&a.duration>0?a.duration:45.6;S.anthem=Date.now()+Math.max(1,(dur-a.currentTime))*1000+400;emitState()};
+    a.onended=()=>stopAnthem();try{const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{S.anthem=Date.now()+46000;emitState()})}catch(e){S.anthem=Date.now()+46000}}
   let el=document.getElementById('anthemBig');if(!el){el=document.createElement('div');el.id='anthemBig';el.className='flagfull';
-    el.innerHTML='<video src="media/flag.mp4" autoplay muted loop playsinline></video>';el.addEventListener('click',()=>stopAnthem());document.body.appendChild(el);
-    const v=el.querySelector('video');try{const q=v.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
+    const pre=document.getElementById('anthemPre');let v;if(pre){v=pre;v.removeAttribute('style');v.loop=true;v.autoplay=true}else{v=document.createElement('video');v.src='media/flag.mp4';v.muted=true;v.loop=true;v.autoplay=true;v.setAttribute('playsinline','')}
+    el.appendChild(v);el.addEventListener('click',()=>stopAnthem());document.body.appendChild(el);try{const q=v.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   emitState()}
-function stopAnthem(){if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();emitState()}
+function stopAnthem(){if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.onended=null;anthemAudio.onplaying=null;anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();goFull(false);emitState()}
 function syncPhoneFlag(on){let el=document.getElementById('flagPhone');
   if(on&&!el){el=document.createElement('div');el.id='flagPhone';el.className='flagfull phone';el.innerHTML='<img src="media/flag.jpg" alt="العلم السعودي">';document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate([120,80,120])}catch(_){}}
   else if(!on&&el)el.remove()}
