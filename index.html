@@ -506,7 +506,8 @@ function hostState(){
   if(S.view==='event'&&S.ev){const e=C.events[S.ev.ei],r=S.ev.ri>=0?e.rounds[S.ev.ri]:null;st.ev={title:e.title,round:S.ev.phase==='rank'?'الترتيب 📊':r?r.title:''}}
   if(S.jg)st.jg={k:S.jg.k,comms:S.jg.comms,crit:S.jg.crit,open:!S.jg.revealed,res:null};
   if(S.view==='judging')st.mode='home';
-  if(anthemOn())st.anthem=1;
+  if(anthemOn())st.anthem={id:S.anthemId,left:Math.max(0,S.anthem-Date.now())};
+  if(S.anthemStop)st.anthemStop=S.anthemStop;
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;if(red>0)w[p.key]={l:3,left:red};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
@@ -541,7 +542,10 @@ async function initRoom(){
   if(!room){render();return}
   room.onConnection(c=>{roomOk=c;if(c){emitState();if(role==='player'&&P.joined)sendPresence();if(role==='judge'&&J.joined)sendJudge(J.sent&&J.k?{k:J.k,s:J.s}:null)}if(S.view!=='admin')render()},()=>{roomOk=false;room=null;render()});
   room.onPeers(ch=>{const me=ch.peers.find(p=>p.sameTab);if(me){myPeer=me.peer;myBy=pKey(me)}if(role==='host')onHostPeers(ch);else if(role==='player'||role==='judge')render()},()=>{});
-  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;if(role==='player')syncPhoneFlag(!!d.anthem&&P.joined);const typing=role==='player'&&d.mode==='lists'&&d.lg&&d.lg.stage==='play'&&P.host&&P.host.lg&&P.host.lg.r===d.lg.r&&P.host.lg.stage==='play'&&document.activeElement&&document.activeElement.id==='lgIn';if(role==='player'&&d.pm&&myBy&&d.pm[myBy]!=null&&P.lastPm!==d.pm[myBy]){P.lastPm=d.pm[myBy];try{navigator.vibrate&&navigator.vibrate([100,60,100,60,200])}catch(_){}}P.host=d;if(typing)return;if(role==='player'&&P.joined){const tt=d.titles&&myBy?d.titles[myBy]:'';if(tt&&tt!==P.title){P.title=tt;fillWelcomeTitle()}const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
+  room.on('state',m=>{if(role!=='player'&&role!=='judge')return;const d=m.data;if(!d||typeof d!=='object')return;if(role==='player'){const an=d.anthem;
+      if(an&&an.id&&P.flagId!==an.id&&d.anthemStop!==an.id){P.flagId=an.id;P.flagEnd=Date.now()+(+an.left||46000)}
+      if(d.anthemStop&&d.anthemStop===P.flagId)P.flagEnd=0;
+      syncPhoneFlag(P.joined&&(P.flagEnd||0)>Date.now())}const typing=role==='player'&&d.mode==='lists'&&d.lg&&d.lg.stage==='play'&&P.host&&P.host.lg&&P.host.lg.r===d.lg.r&&P.host.lg.stage==='play'&&document.activeElement&&document.activeElement.id==='lgIn';if(role==='player'&&d.pm&&myBy&&d.pm[myBy]!=null&&P.lastPm!==d.pm[myBy]){P.lastPm=d.pm[myBy];try{navigator.vibrate&&navigator.vibrate([100,60,100,60,200])}catch(_){}}P.host=d;if(typing)return;if(role==='player'&&P.joined){const tt=d.titles&&myBy?d.titles[myBy]:'';if(tt&&tt!==P.title){P.title=tt;fillWelcomeTitle()}const nt=d.assign&&myBy&&(d.assign[myBy]===0||d.assign[myBy]===1)?d.assign[myBy]:null;if(nt!==P.team){P.team=nt;sendPresence();if(nt!==null){try{navigator.vibrate&&navigator.vibrate([80,60,80])}catch(_){}}}}if(d.spy&&d.spy.r!==P.lastSpyR){P.lastSpyR=d.spy.r;P.revealed=false}render()},()=>{});
   render();
 }
 async function initUser(){
@@ -770,15 +774,15 @@ function showHostWelcome(){if(document.getElementById('hostWel'))return;const el
   <div class="wsig" dir="ltr" style="font-size:1.1em">SMALL FAMILY 🤍</div></div>`;
   el.addEventListener('click',()=>{el.remove();startAnthem()});document.body.appendChild(el)}
 /* ---------- النشيد الوطني: after the opening card — flag video on the big screen, flag image on every phone ---------- */
-S.anthem=0;let anthemAudio=null;
+S.anthem=0;S.anthemId='';S.anthemStop='';let anthemAudio=null;
 const anthemOn=()=>S.anthem>Date.now();
-function startAnthem(){S.anthem=Date.now()+46000;
+function startAnthem(){S.anthem=Date.now()+46000;S.anthemId=Date.now().toString(36);
   try{anthemAudio=new Audio('media/anthem.m4a');const pr=anthemAudio.play();if(pr&&pr.catch)pr.catch(()=>{});anthemAudio.addEventListener('ended',()=>stopAnthem())}catch(e){}
   let el=document.getElementById('anthemBig');if(!el){el=document.createElement('div');el.id='anthemBig';el.className='flagfull';
     el.innerHTML='<video src="media/flag.mp4" autoplay muted loop playsinline></video>';el.addEventListener('click',()=>stopAnthem());document.body.appendChild(el);
     const v=el.querySelector('video');try{const q=v.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   emitState()}
-function stopAnthem(){S.anthem=0;try{if(anthemAudio){anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();emitState()}
+function stopAnthem(){if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();emitState()}
 function syncPhoneFlag(on){let el=document.getElementById('flagPhone');
   if(on&&!el){el=document.createElement('div');el.id='flagPhone';el.className='flagfull phone';el.innerHTML='<img src="media/flag.jpg" alt="العلم السعودي">';document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate([120,80,120])}catch(_){}}
   else if(!on&&el)el.remove()}
@@ -1476,6 +1480,7 @@ function tick(){
   if(role==='player'&&P.lgEnd&&now>=P.lgEnd&&!P.lgSent){P.lgSent=true;lgSend(true);render()}
   if(role==='host'&&S.pairs.on&&S.pairs.at&&S.pairs.shown<S.pairs.groups.length){const sh=Math.min(S.pairs.groups.length,Math.floor((now-S.pairs.at-800)/1600)+1);if(sh>S.pairs.shown){S.pairs.shown=sh;savePairs();if(sh===S.pairs.groups.length){sfx('right');toast('خلصت القرعة 🎉')}else beep(700,.2);emitState();render()}}
   if(role==='host'&&S.anthem&&now>=S.anthem)stopAnthem();
+  if(role==='player'&&document.getElementById('flagPhone')&&!((P.flagEnd||0)>now))syncPhoneFlag(false);
   if(role==='host'){let ex=false;for(const[t,v] of Object.entries(S.warn.red))if(v&&v<=now){delete S.warn.red[t];ex=true}if(ex){saveWarn();emitState();render()}}
   if(role==='host'&&S.view==='finale'&&S.fin){const [k,i]=finState(),key=k+i;if(key!==S.fin.step){S.fin.step=key;finSound(k);emitState();render()}}
   if(FW.on&&!(role==='host'&&S.view==='finale'&&S.fin&&['champ','podium'].includes(finState()[0])))fwStop();
