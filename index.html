@@ -787,7 +787,7 @@ function prepAnthem(){try{if(!anthemAudio){anthemAudio=new Audio('media/anthem.m
 function goFull(on){try{const d=document,el=d.documentElement;
   if(on){const f=el.requestFullscreen||el.webkitRequestFullscreen;if(f&&!(d.fullscreenElement||d.webkitFullscreenElement)){const r=f.call(el);if(r&&r.catch)r.catch(()=>{})}}
   else if(d.fullscreenElement||d.webkitFullscreenElement){const x=d.exitFullscreen||d.webkitExitFullscreen;if(x){const r=x.call(d);if(r&&r.catch)r.catch(()=>{})}}}catch(e){}}
-function startAnthem(){prepAnthem();goFull(true);S.anthemId=Date.now().toString(36);S.anthem=Date.now()+60000;
+function startAnthem(){prepAnthem();S.anthemId=Date.now().toString(36);S.anthem=Date.now()+60000;
   const a=anthemAudio;
   if(a){a.currentTime=0;a.onplaying=()=>{const dur=isFinite(a.duration)&&a.duration>0?a.duration:45.6;S.anthem=Date.now()+Math.max(1,(dur-a.currentTime))*1000+400;emitState()};
     a.onended=()=>stopAnthem();try{const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{S.anthem=Date.now()+46000;emitState()})}catch(e){S.anthem=Date.now()+46000}}
@@ -795,7 +795,7 @@ function startAnthem(){prepAnthem();goFull(true);S.anthemId=Date.now().toString(
     const pre=document.getElementById('anthemPre');let v;if(pre){v=pre;v.removeAttribute('style');v.loop=true;v.autoplay=true}else{v=document.createElement('video');v.src='media/flag.mp4';v.muted=true;v.loop=true;v.autoplay=true;v.setAttribute('playsinline','')}
     el.appendChild(v);el.addEventListener('click',()=>stopAnthem());document.body.appendChild(el);try{const q=v.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   emitState()}
-function stopAnthem(){if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.onended=null;anthemAudio.onplaying=null;anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();goFull(false);emitState()}
+function stopAnthem(){if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.onended=null;anthemAudio.onplaying=null;anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el)el.remove();emitState()}
 function syncPhoneFlag(on){let el=document.getElementById('flagPhone');
   if(on&&!el){el=document.createElement('div');el.id='flagPhone';el.className='flagfull phone';el.innerHTML='<img src="media/flag.jpg" alt="العلم السعودي">';document.body.appendChild(el);try{navigator.vibrate&&navigator.vibrate([120,80,120])}catch(_){}}
   else if(!on&&el)el.remove()}
@@ -855,6 +855,7 @@ function topBar(){
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
     <button class="ditem" data-act="warnOpen"><span>التأديب 🟨</span></button>
     <button class="ditem" data-act="qrShow"><span>QR 📱</span></button>
+    <button class="ditem" data-act="fullToggle"><span>${document.fullscreenElement||document.webkitFullscreenElement?'خروج من ملء الشاشة':'⛶ ملء الشاشة'}</span></button>
     <div class="sep"></div>
     <button class="ditem danger" data-act="resetScores"><span>تصفير النقاط</span></button>
     <button class="ditem" data-act="role" data-v=""><span>تغيير الدور</span></button>
@@ -932,7 +933,7 @@ const MEDAL=['🥇','🥈','🥉'];
 let susAudio=null;
 function primeChamp(){stopChamp();try{if(susAudio){susAudio.pause()}const b=new Audio('media/suspense.m4a');b.preload='auto';b.muted=true;const q=b.play();if(q&&q.then)q.then(()=>{b.pause();b.currentTime=0;b.muted=false}).catch(()=>{b.muted=false});susAudio=b}catch(e){susAudio=null}
 try{const a=new Audio('media/champ.m4a');a.preload='auto';a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.currentTime=0;a.muted=false}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}champAudio=a}catch(e){champAudio=null}}
-function startFinale(){primeChamp();goFull(true);const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
+function startFinale(){primeChamp();const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
   const topN=3,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
   S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-2,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
 /* timeline: intro → for each place below the top: drum (name hidden) then reveal → dark drum → «القمة لا تتسع للجميع…» → «القمة لـ… فقط» → champions (fireworks + song) → podium */
@@ -1521,7 +1522,7 @@ $app.addEventListener('click',e=>{
   if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
-    case 'go':if(S.view==='finale'){stopChamp();fwStop();goFull(false)}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
+    case 'go':if(S.view==='finale'){stopChamp();fwStop()}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
     case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
@@ -1577,10 +1578,10 @@ $app.addEventListener('click',e=>{
     case 'adminSave':saveAdmin();break;
     case 'updApply':{const u=(S.updates||[]).find(x=>x.id===b.dataset.id);if(!u)break;const n=applyUpdate(u);D.applied.push(u.id);S.saveOk=true;S.saveMsg=n?`انطبق «${clean(u.title,60)}» ✓ اضغط «احفظ» عشان يثبت.`:'ما لقيت المكان اللي ينطبق عليه التحديث.';render();break}
     case 'tab':S.tab=b.dataset.v;render();break;
-    case 'jgOpen':goFull(true);if(S.view==='finale'){stopChamp();fwStop()}S.jgFrom=S.view==='judging'?S.jgFrom:S.view;
+    case 'jgOpen':if(S.view==='finale'){stopChamp();fwStop()}S.jgFrom=S.view==='judging'?S.jgFrom:S.view;
       if(!S.jg||(!Object.keys(S.jg.votes).length&&!S.jg.revealed&&JSON.stringify([S.jg.comms,S.jg.crit])!==JSON.stringify([C.comms,C.crit])))newJg();
       S.view='judging';closeBuzz();jgCollect();if(S.jg.ready&&!S.jg.revealed)jgReveal();emitState();render();window.scrollTo({top:0});break;
-    case 'jgBack':goFull(false);S.view=S.jgFrom&&!['judging','admin','finale'].includes(S.jgFrom)?S.jgFrom:'home';emitState();render();break;
+    case 'jgBack':S.view=S.jgFrom&&!['judging','admin','finale'].includes(S.jgFrom)?S.jgFrom:'home';emitState();render();break;
     case 'jgReset':if(b.dataset.confirm!=='1'&&S.jg&&Object.keys(S.jg.votes).length){b.dataset.confirm='1';b.textContent='متأكد؟ الأصوات الحالية بتنمسح';break}
       if(!C.comms.length){S.jg=null;LS.set('jg',null);render();break}newJg();emitState();render();break;
     case 'tryFanfare':fanfare();break;
@@ -1621,6 +1622,7 @@ $app.addEventListener('click',e=>{
     case 'pairPick':{const k=b.dataset.k;if(!S.pairSel){S.pairSel=k;render();break}if(S.pairSel===k){S.pairSel=null;render();break}
       const G=S.pairs.groups,ia=G.findIndex(g=>g.includes(S.pairSel)),ib=G.findIndex(g=>g.includes(k));if(ia>=0&&ib>=0){const a=G[ia].indexOf(S.pairSel),c=G[ib].indexOf(k);G[ia][a]=k;G[ib][c]=S.pairSel}
       S.pairSel=null;savePairs();emitState();render();const pr=[...pairProblems(G[ia]||[]),...pairProblems(G[ib]||[])];if(pr.length)toast('⚠️ '+pr.join('، '));break}
+    case 'fullToggle':{const on=!(document.fullscreenElement||document.webkitFullscreenElement);S.menu=false;goFull(on);setTimeout(render,400);break}
     case 'qrShow':S.menu=false;render();showQR();break;
     case 'warnOpen':S.menu=false;S.warnPick=true;render();break;
     case 'warnClose':S.warnPick=false;render();break;
