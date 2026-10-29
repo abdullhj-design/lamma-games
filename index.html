@@ -316,11 +316,12 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 @keyframes bzpulse{to{transform:scale(1.08)}}
 .bzcard .bzok{background:#fff!important;color:#2E6A4C!important;border:0!important;font-size:1.8rem;font-weight:800;border-radius:18px;padding:12px 54px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
 .bznext{font-size:1rem;opacity:.9}
-.fintrans{width:100%;font:inherit;cursor:pointer;gap:14px}
+.fintrans{position:fixed;inset:0;z-index:20;width:100vw;height:100vh;border-radius:0!important;margin:0;font:inherit;cursor:pointer;gap:clamp(10px,2vh,22px);justify-content:center;background:var(--nat)!important;color:var(--on-nat)!important;border:0!important}
 .flagfull{position:fixed;inset:0;z-index:40;background:#225335;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .flagfull video{width:100%;height:100%;object-fit:cover}
 .flagfull.phone{cursor:default}
 .flagfull img{width:100%;height:auto;display:block}
+.judgefull .stage,.judgefull .wincard{min-height:calc(100vh - 150px);justify-content:center}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:20;max-width:90vw}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -863,7 +864,8 @@ function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
   if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='pairs')body=pairsView();
-  if(S.view==='judging'||S.view==='finale')return topBar()+body;
+  if(S.view==='judging')return topBar()+'<div class="judgefull">'+body+'</div>';
+  if(S.view==='finale')return topBar()+body;
   return topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body;
 }
 function rankingView(){
@@ -927,20 +929,22 @@ function closeBuzz(){S.bz.open=false;S.bz.order=[];S.bz.used=false;S.bz.fail=[];
 function openBuzz(){const b=S.bz;b.used=true;b.open=true;b.r++;b.fail=[];b.order=[];b.awarded=false;b.awardedName='';b.curPeer=null;b.win=null}
 /* ---------- final announcement: 5th → 1st, then results on phones ---------- */
 const MEDAL=['🥇','🥈','🥉'];
-function primeChamp(){stopChamp();try{const a=new Audio('media/champ.m4a');a.preload='auto';a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.currentTime=0;a.muted=false}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}champAudio=a}catch(e){champAudio=null}}
-function startFinale(){primeChamp();const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
+let susAudio=null;
+function primeChamp(){stopChamp();try{if(susAudio){susAudio.pause()}const b=new Audio('media/suspense.m4a');b.preload='auto';b.muted=true;const q=b.play();if(q&&q.then)q.then(()=>{b.pause();b.currentTime=0;b.muted=false}).catch(()=>{b.muted=false});susAudio=b}catch(e){susAudio=null}
+try{const a=new Audio('media/champ.m4a');a.preload='auto';a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.currentTime=0;a.muted=false}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}champAudio=a}catch(e){champAudio=null}}
+function startFinale(){primeChamp();goFull(true);const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
   const topN=3,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
   S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-2,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
 /* timeline: intro → for each place below the top: drum (name hidden) then reveal → dark drum → «القمة لا تتسع للجميع…» → «القمة لـ… فقط» → champions (fireworks + song) → podium */
-const FIN={intro:2500,drum:2200,show:2800,top2:3000,song:30000,pod:30000};
-function finPlan(){const f=S.fin,L=f.groups.length-1,seq=[['intro',-1,FIN.intro]];for(let i=0;i<L;i++){seq.push(['h',i,FIN.drum]);seq.push(['r',i,FIN.show])}
-  seq.push(['d1h',L,FIN.drum]);seq.push(['d1r',L,FIN.top2]);seq.push(['d2',L,FIN.top2]);seq.push(['champ',L,FIN.song]);seq.push(['podium',L,FIN.pod]);seq.push(['trans',L,1e12]);return seq}
+const FIN={intro:2500,sus1:6000,sus2:6800,song:30000,pod:30000};
+function finPlan(){const f=S.fin,L=f.groups.length-1,seq=[['intro',-1,FIN.intro]];
+  seq.push(['d1r',L,FIN.sus1]);seq.push(['d2',L,FIN.sus2]);seq.push(['champ',L,FIN.song]);seq.push(['podium',L,FIN.pod]);seq.push(['trans',L,1e12]);return seq}
 function finState(){const f=S.fin;if(!f||!f.groups.length)return['none',-1];let e=Date.now()-f.at;for(const[k,i,d] of finPlan()){if(e<d)return[k,i];e-=d}return['trans',f.groups.length-1]}
 const finDone=()=>S.fin&&S.fin.groups.length&&['champ','podium','trans'].includes(finState()[0]);
 const placeName=r=>'المركز '+(ORD[r-1]||r);
 const lamName=n=>{const t=noEmoji(n),e=String(n).replace(t,'').trim();return (t.startsWith('ال')?'لل'+t.slice(2):'ل'+t)+(e?' '+e:'')};
 let champAudio=null;
-function stopChamp(){try{if(champAudio){champAudio.pause();champAudio=null}}catch(e){}}
+function stopChamp(){try{if(champAudio){champAudio.pause();champAudio=null}if(susAudio){susAudio.pause();susAudio=null}}catch(e){}}
 function actx(){const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();return a}
 function noiseBuf(a,sec){const len=Math.floor(a.sampleRate*sec),b=a.createBuffer(1,len,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=Math.random()*2-1;return b}
 function clap(){try{const a=actx(),len=Math.floor(a.sampleRate*.06),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3);
@@ -950,12 +954,10 @@ function drumroll(sec){try{const a=actx(),buf=noiseBuf(a,.05),t0=a.currentTime+.
 function boom(){try{const a=actx(),t=a.currentTime+.01,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(40,t+.5);g.gain.setValueAtTime(.7,t);g.gain.exponentialRampToValueAtTime(.001,t+.9);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1);
   const src=a.createBufferSource(),g2=a.createGain();src.buffer=noiseBuf(a,.3);g2.gain.setValueAtTime(.35,t);g2.gain.exponentialRampToValueAtTime(.001,t+.3);src.connect(g2);g2.connect(a.destination);src.start(t)}catch(e){}}
 function finSound(k){
-  if(k==='h'||k==='d1h'){drumroll(FIN.drum/1000-.15);return}
-  if(k==='r'){boom();setTimeout(clap,150);return}
-  if(k==='d1r'){boom();return}
-  if(k==='d2'){ding();return}
+  if(k==='d1r'){try{if(!susAudio)susAudio=new Audio('media/suspense.m4a');susAudio.muted=false;susAudio.currentTime=0;const p=susAudio.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}return}
+  if(k==='d2')return;
   if(k==='trans'){fwStop();return}
-  if(k==='champ'&&!S.fin.won){S.fin.won=true;try{if(!champAudio)champAudio=new Audio('media/champ.m4a');champAudio.muted=false;champAudio.currentTime=0;const p=champAudio.play();if(p&&p.catch)p.catch(()=>fanfare())}catch(e){fanfare()}}}
+  if(k==='champ'&&!S.fin.won){S.fin.won=true;try{if(susAudio){susAudio.pause();susAudio=null}}catch(e){}try{if(!champAudio)champAudio=new Audio('media/champ.m4a');champAudio.muted=false;champAudio.currentTime=0;const p=champAudio.play();if(p&&p.catch)p.catch(()=>fanfare())}catch(e){fanfare()}}}
 /* fireworks on a canvas that lives outside the page, so re-renders don't restart it */
 const FW={on:false,raf:0,parts:[],next:0};
 function fwStart(){if(FW.on)return;FW.on=true;let c=document.getElementById('fw');if(!c){c=document.createElement('canvas');c.id='fw';c.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:15';document.body.appendChild(c)}
@@ -1519,7 +1521,7 @@ $app.addEventListener('click',e=>{
   if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
     case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
-    case 'go':if(S.view==='finale'){stopChamp();fwStop()}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
+    case 'go':if(S.view==='finale'){stopChamp();fwStop();goFull(false)}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell')openBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
     case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
@@ -1575,10 +1577,10 @@ $app.addEventListener('click',e=>{
     case 'adminSave':saveAdmin();break;
     case 'updApply':{const u=(S.updates||[]).find(x=>x.id===b.dataset.id);if(!u)break;const n=applyUpdate(u);D.applied.push(u.id);S.saveOk=true;S.saveMsg=n?`انطبق «${clean(u.title,60)}» ✓ اضغط «احفظ» عشان يثبت.`:'ما لقيت المكان اللي ينطبق عليه التحديث.';render();break}
     case 'tab':S.tab=b.dataset.v;render();break;
-    case 'jgOpen':if(S.view==='finale'){stopChamp();fwStop()}S.jgFrom=S.view==='judging'?S.jgFrom:S.view;
+    case 'jgOpen':goFull(true);if(S.view==='finale'){stopChamp();fwStop()}S.jgFrom=S.view==='judging'?S.jgFrom:S.view;
       if(!S.jg||(!Object.keys(S.jg.votes).length&&!S.jg.revealed&&JSON.stringify([S.jg.comms,S.jg.crit])!==JSON.stringify([C.comms,C.crit])))newJg();
       S.view='judging';closeBuzz();jgCollect();if(S.jg.ready&&!S.jg.revealed)jgReveal();emitState();render();window.scrollTo({top:0});break;
-    case 'jgBack':S.view=S.jgFrom&&!['judging','admin','finale'].includes(S.jgFrom)?S.jgFrom:'home';emitState();render();break;
+    case 'jgBack':goFull(false);S.view=S.jgFrom&&!['judging','admin','finale'].includes(S.jgFrom)?S.jgFrom:'home';emitState();render();break;
     case 'jgReset':if(b.dataset.confirm!=='1'&&S.jg&&Object.keys(S.jg.votes).length){b.dataset.confirm='1';b.textContent='متأكد؟ الأصوات الحالية بتنمسح';break}
       if(!C.comms.length){S.jg=null;LS.set('jg',null);render();break}newJg();emitState();render();break;
     case 'tryFanfare':fanfare();break;
