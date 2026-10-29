@@ -338,6 +338,8 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .lqr{position:absolute;bottom:18px;inset-inline-end:18px;background:#fff;border-radius:14px;padding:8px;width:130px;line-height:0;text-align:center}
 .lqr svg{width:100%;height:auto}
 .lqr span{display:block;line-height:1.3;color:#1D4A2F;font-size:.85rem;margin-top:4px}
+.goldq{box-shadow:0 0 0 6px var(--ochre),0 0 60px color-mix(in srgb,var(--ochre) 60%,transparent)!important}
+.goldtag{background:linear-gradient(90deg,#c4851a,#f2c25a,#c4851a);color:#1d1714;font-weight:800;border-radius:99px;padding:6px 20px;font-size:clamp(1rem,2.4vw,1.4rem);animation:pop .5s ease-out}
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;z-index:20;max-width:90vw}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -529,6 +531,7 @@ function hostState(){
   if(S.view==='event'&&S.ev){const e=C.events[S.ev.ei],r=S.ev.ri>=0?e.rounds[S.ev.ri]:null;st.ev={title:e.title,round:S.ev.phase==='rank'?'الترتيب 📊':r?r.title:''}}
   if(S.jg)st.jg={k:S.jg.k,comms:S.jg.comms,crit:S.jg.crit,open:!S.jg.revealed,res:null};
   if(S.view==='judging')st.mode='home';
+  if(isGold())st.gold=1;
   if(anthemOn())st.anthem={id:S.anthemId,left:Math.max(0,S.anthem-Date.now())};
   if(S.anthemStop)st.anthemStop=S.anthemStop;
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;if(red>0)w[p.key]={l:3,left:red};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n}}if(Object.keys(w).length)st.warn=w}
@@ -945,7 +948,7 @@ function localsEditor(){
 function teamOf(t){return t==='A'?0:t==='B'?1:-1}
 function evMedia(m,key){if(!m)return '';return m.kind==='video'?`<video class="media" data-key="${key}" src="${esc(blob(m))}" controls playsinline preload="metadata"></video>`:`<img class="media" src="${esc(blob(m))}" alt="">`}
 function closeBuzz(){S.bz.open=false;S.bz.order=[];S.bz.used=false;S.bz.fail=[];S.bz.awardedName='';S.bz.curPeer=null;S.bz.win=null}
-function openBuzz(){const b=S.bz;b.used=true;b.open=true;b.r++;b.fail=[];b.order=[];b.awarded=false;b.awardedName='';b.curPeer=null;b.win=null}
+function openBuzz(){const b=S.bz;b.mul=1;b.used=true;b.open=true;b.r++;b.fail=[];b.order=[];b.awarded=false;b.awardedName='';b.curPeer=null;b.win=null}
 /* ---------- final announcement: 5th → 1st, then results on phones ---------- */
 const MEDAL=['🥇','🥈','🥉'];
 let susAudio=null;
@@ -1094,7 +1097,7 @@ function rankBoard(e,v){
     <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button></div>`}
 function evView(){
   const v=S.ev,e=C.events[v.ei];
-  const wrap=(inner)=>`<div class="stage evstage${S.bz.order&&S.bz.order.length&&(v.phase==='q'||v.phase==='a')?' bzon':''}">${inner}</div>`;
+  const wrap=(inner)=>`<div class="stage evstage${S.bz.order&&S.bz.order.length&&(v.phase==='q'||v.phase==='a')?' bzon':''}${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}${inner}</div>`;
   if(v.phase==='cover')return wrap(`<span class="eyebrow">${esc(e.subtitle||'فعالية')}</span><div class="huge">${esc(e.title)}</div>
     <button class="btn-ink btn-big" data-act="evGo" data-p="${e.intro?'intro':'menu'}">ابدأ</button>`);
   if(v.phase==='intro')return wrap(`<span class="eyebrow">مقدمة الفعالية</span><div class="mid">${esc(e.intro)}</div><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button>`);
@@ -1190,7 +1193,7 @@ function answerer(b){
   const fail=b.fail||[],cur=b.order.find(o=>!fail.includes(o.peer)),solo=S.mode==='solo';
   const failed=b.order.filter(o=>fail.includes(o.peer));
   const fl=failed.length?`<div class="chips" style="justify-content:center">${failed.map(o=>`<span class="chip failed" style="padding-left:12px">✗ ${esc(nm(o))}</span>`).join('')}</div>`:'';
-  if(b.awarded){const en=b.animKey!=='ok'+b.r?(b.animKey='ok'+b.r,' enter'):'';return `<div class="answerer"><div class="bzcard ok${en}"><div style="font-size:clamp(3rem,8vw,4.5rem);line-height:1">✓</div><div class="bzname">صح!</div><div class="bzsub">${esc(b.awardedName||'')}</div><span class="bztag">+1 🎉</span></div>${fl}</div>`}
+  if(b.awarded){const en=b.animKey!=='ok'+b.r?(b.animKey='ok'+b.r,' enter'):'';return `<div class="answerer"><div class="bzcard ok${en}"><div style="font-size:clamp(3rem,8vw,4.5rem);line-height:1">✓</div><div class="bzname">صح!</div><div class="bzsub">${esc(b.awardedName||'')}</div><span class="bztag">${(b.mul||1)>1?'+'+b.mul+' ⭐':'+1 🎉'}</span></div>${fl}</div>`}
   if(!cur)return `<div class="answerer">${fl}<p style="margin:0">ما فيه أحد ثاني ضغط الجرس. الجرس مفتوح للباقين 🔔</p></div>`;
   const next=b.order.filter(o=>!fail.includes(o.peer)&&o!==cur),en=b.animKey!==cur.peer?(b.animKey=cur.peer,' enter'):'';
   const left=b.curPeer===cur.peer?Math.max(0,b.curEnd-Date.now()):0,tot=b.curDur||10000;
@@ -1488,7 +1491,7 @@ function playerView(){
       if(h.spy.reveal)body+=`<p style="margin:0">برا السالفة: <b>${esc(h.spy.reveal.spy)}</b> · السالفة: <b>${esc(h.spy.reveal.word)}</b></p>`;}}
   else if(mode==='buzz'&&h.buzz)body=buzzer();
   else if(mode==='bell')body=`<h2 class="big">فقرة الجرس 🔔</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`;
-  else if(mode==='event'&&h.ev)body=`<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
+  else if(mode==='event'&&h.ev)body=`${h.gold?'<div class="goldtag" style="position:static">⭐ سؤال ذهبي! النقطة بنقطتين</div>':''}<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if(mode==='finale'&&h.fin){const f=h.fin;
     if(!f.done)body=`<div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🏆</div><h2 class="big">جاري إعلان الفائزين…</h2><p style="margin:0;font-size:1.15rem">تابعوا الشاشة الكبيرة 👀</p>`;
     else{const all=Array.isArray(f.all)?f.all:[],myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,pr=myS!==myBy,me=all.find(x=>x.k===myS),g=isGirl(P.name),top=f.topN||5;
@@ -1546,7 +1549,17 @@ setInterval(tick,250);
 let wake=null;async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){}}
 
 /* ---------- events ---------- */
-function evSetItem(i,phase='q'){bumpQ();const v=S.ev;v.ii=i;v.phase=phase;v.end=0;v.beeped=false;v.awarded=false;v.awardedKeys=[];closeBuzz();if(phase==='q')openBuzz();emitState();render();window.scrollTo({top:0})}
+/* ---------- السؤال الذهبي: one random question per event is worth 2 points ---------- */
+S.gold=LS.get('gold',{});if(!S.gold||typeof S.gold!=='object')S.gold={};
+function goldFor(ei){const e=C.events[ei];if(!e)return null;const all=[];e.rounds.forEach((r,ri)=>r.items.forEach((_,ii)=>all.push(ri+':'+ii)));if(!all.length)return null;
+  let g=S.gold[e.title];if(!g||!all.includes(g)){g=pick(all);S.gold[e.title]=g;LS.set('gold',S.gold)}return g}
+const isGold=()=>S.view==='event'&&S.ev&&S.ev.ri>=0&&(S.ev.phase==='q'||S.ev.phase==='a')&&goldFor(S.ev.ei)===S.ev.ri+':'+S.ev.ii;
+const ptsMul=()=>isGold()?2:1;
+function goldFlash(){const el=document.createElement('div');el.className='wel goldflash';el.style.pointerEvents='none';
+  el.innerHTML='<div class="wcard" style="width:min(720px,94vw);border:4px solid var(--ochre);background:radial-gradient(circle at 50% 30%,#f2c25a,#c4851a 75%);color:#fff"><div class="huge" style="font-size:clamp(4rem,12vw,7rem)">⭐</div><div class="huge" style="font-size:clamp(2.6rem,8vw,4.6rem)">سؤال ذهبي!</div><div class="big">النقاط ×2</div></div>';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2800);
+  try{const a=actx();[784,988,1175,1568,1976].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.09;o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.9);o.start(t);o.stop(t+1)})}catch(e){}}
+function evSetItem(i,phase='q'){bumpQ();const v=S.ev;v.ii=i;v.phase=phase;v.end=0;v.beeped=false;v.awarded=false;v.awardedKeys=[];closeBuzz();if(phase==='q')openBuzz();emitState();render();window.scrollTo({top:0});if(phase==='q'&&isGold())goldFlash()}
 function getD(path){return path.split('.').reduce((o,k)=>o[k],D)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.menu){S.menu=false;render()}});
 $app.addEventListener('click',e=>{
@@ -1558,7 +1571,7 @@ $app.addEventListener('click',e=>{
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
     case 'soloPt':soloAdd(b.dataset.k,b.dataset.n,+b.dataset.d);render();break;
-    case 'soloAward':{soloAdd(b.dataset.k,b.dataset.n,1);sfx('right');if(S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(b.dataset.k)}toast('نقطة لـ '+b.dataset.n);render();break}
+    case 'soloAward':{soloAdd(b.dataset.k,b.dataset.n,ptsMul());sfx('right');if(S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(b.dataset.k)}toast('نقطة لـ '+b.dataset.n);render();break}
     case 'soloWin':{const l=soloPlayers();const top=l.length?l[0].score:0;S.soloWin=l.filter(x=>x.score===top&&top>0);playWin();render();break}
     case 'soloWinClose':S.soloWin=null;render();break;
     case 'resetScores':if(S.mode==='solo'){if(b.dataset.confirm!=='1'){b.dataset.confirm='1';(b.querySelector('span')||b).textContent='متأكد؟ تصفير نقاط الكل';break}S.menu=false;S.solo={scores:{}};saveSolo();S.soloWin=null;emitState();render();toast('صفّرنا النقاط الفردية');break}if(b.closest('.drawer')&&b.dataset.confirm!=='1'){b.dataset.confirm='1';b.querySelector('span').textContent='متأكد؟ تصفير نقاط الفريقين';break}S.menu=false;S.teams.forEach(t=>t.score=0);saveTeams();emitState();render();toast('صفّرنا النقاط');break;
@@ -1572,7 +1585,7 @@ $app.addEventListener('click',e=>{
     case 'evBack':S.ev.phase='q';emitState();render();break;
     case 'evTimer':S.ev.end=Date.now()+C.events[S.ev.ei].rounds[S.ev.ri].timer*1000;S.ev.beeped=false;render();break;
     case 'evBuzz':if(S.bz.open){S.bz.open=false;S.bz.used=true}else openBuzz();emitState();render();break;
-    case 'evAward':{const t=+b.dataset.t;S.teams[t].score++;sfx('right');S.ev.awarded=true;saveTeams();emitState();toast('نقطة لـ '+S.teams[t].name);render();break}
+    case 'evAward':{const t=+b.dataset.t;S.teams[t].score+=ptsMul();sfx('right');S.ev.awarded=true;saveTeams();emitState();toast('نقطة لـ '+S.teams[t].name);render();break}
     case 'evNext':{const r=C.events[S.ev.ei].rounds[S.ev.ri];if(S.ev.ii<r.items.length-1)evSetItem(S.ev.ii+1);else{S.ev.done[S.ev.ri]=1;S.evDone[C.events[S.ev.ei].title]=S.ev.done;LS.set('evDone',S.evDone);S.ev.phase='menu';S.ev.ri=-1;closeBuzz();emitState();render();window.scrollTo({top:0})}break}
     /* spy */
     case 'spyStart':startSpy();break;
@@ -1595,8 +1608,8 @@ $app.addEventListener('click',e=>{
     case 'drawRedo':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.draw.assign={};saveDraw();emitState();render();break;
     case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'ansRight':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur||b.awarded)break;
-      if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,1);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
-      else{S.teams[cur.team].score++;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
+      const mul=ptsMul();b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
+      else{S.teams[cur.team].score+=mul;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
       b.awarded=true;b.awardedName=bzLabel(cur);b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
     case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
@@ -1638,7 +1651,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,strikes:{},banned:{},qban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
