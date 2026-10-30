@@ -320,6 +320,10 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .flagfull{position:fixed;inset:0;z-index:40;background:#225335;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .flagfull video{width:100%;height:100%;object-fit:cover}
 .flagfull.phone{cursor:default}
+.flagfull.dark{background:#000;animation:fadein .5s ease}
+.flagfull.dark video{opacity:0;transition:opacity 2.2s ease}
+.flagfull.dark.show video{opacity:1}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
 .flagfull.fadeout{transition:opacity 1.8s ease;opacity:0;pointer-events:none}
 #postAnth .wcard{animation:pop .6s ease-out}
 .flagfull img{width:100%;height:auto;display:block}
@@ -813,7 +817,7 @@ function startAnthem(){if(anthemOn()&&document.getElementById('anthemBig'))retur
   const a=anthemAudio;
   if(a){if(!a.played||!a.played.length)try{a.currentTime=0}catch(e){}a.onpause=()=>{if(!S.anthemStopping&&anthemOn()&&!a.ended)setTimeout(()=>{if(!S.anthemStopping&&anthemOn()&&a.paused&&!a.ended){const r=a.play();if(r&&r.catch)r.catch(()=>{})}},300)};a.onplaying=()=>{const dur=isFinite(a.duration)&&a.duration>0?a.duration:45.6;S.anthem=Date.now()+Math.max(1,(dur-a.currentTime))*1000+400;emitState()};
     a.onended=()=>stopAnthem();try{const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{S.anthem=Date.now()+46000;emitState()})}catch(e){S.anthem=Date.now()+46000}}
-  let el=document.getElementById('anthemBig');if(!el){el=document.createElement('div');el.id='anthemBig';el.className='flagfull';
+  let el=document.getElementById('anthemBig');if(!el){el=document.createElement('div');el.id='anthemBig';el.className='flagfull dark';setTimeout(()=>el.classList.add('show'),1000);
     const pre=document.getElementById('anthemPre');let v;if(pre){v=pre;v.removeAttribute('style');v.loop=true;v.autoplay=true}else{v=document.createElement('video');v.src='media/flag.mp4';v.muted=true;v.loop=true;v.autoplay=true;v.setAttribute('playsinline','')}
     el.appendChild(v);el.addEventListener('click',()=>stopAnthem());document.body.appendChild(el);try{const q=v.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   emitState()}
