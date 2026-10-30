@@ -320,6 +320,16 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .flagfull{position:fixed;inset:0;z-index:40;background:#225335;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .flagfull video{width:100%;height:100%;object-fit:cover}
 .flagfull.phone{cursor:default}
+.preveal{display:flex;flex-direction:column;align-items:center;gap:18px;margin:6px 0 10px}
+.pteam{font-family:var(--display);font-size:clamp(2.8rem,9vw,5.4rem);color:var(--ochre);line-height:1.1;animation:pop .5s ease}
+.pslots{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px}
+.pname{font-size:clamp(2rem,6.5vw,4rem);font-weight:800;min-width:5ch;padding:6px 18px;border-radius:16px;background:rgba(0,0,0,.05)}
+.pname.pspin{opacity:.75;filter:blur(.5px)}
+.pname.ghost{opacity:.3}
+.pname.got{background:var(--ochre);color:#fff}
+.pname.land{animation:land .6s cubic-bezier(.2,1.6,.4,1)}
+.pand{font-size:clamp(1.6rem,4vw,2.6rem)}
+@keyframes land{0%{transform:scale(1.6)}100%{transform:scale(1)}}
 .flagfull.dark{background:#000;animation:fadein .5s ease}
 .flagfull.dark video{opacity:0;transition:opacity 2.2s ease}
 .flagfull.dark.show video{opacity:1}
@@ -1079,13 +1089,23 @@ function makePairs(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName));
   const tn=shuffle(C.pairNames);S.pairs={on:true,tn:groups.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(groups).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
   S.view='pairs';emitState();render();window.scrollTo({top:0});if(warn.length)toast('ما فيه أولاد كفاية للبنات — راجع التوزيع')}
 function pairProblems(g){const girls=g.filter(k=>isGirl(S.pairs.names[k])).length,ng=new Set(C.noGirl.map(normName));const out=[];if(girls>1)out.push('بنتين مع بعض');if(girls&&g.some(k=>!isGirl(S.pairs.names[k])&&ng.has(normName(S.pairs.names[k]))))out.push((S.pairs.names[g.find(k=>ng.has(normName(S.pairs.names[k])))]||'')+' مع بنت');return out}
+const PD={lead:600,name:1300,spin:1900,hold:800,gap:1300};
+function pairPhase(now){const P_=S.pairs;if(!P_.at)return null;let t=now-P_.at-PD.lead;if(t<0)return {gi:0,k:'wait',mi:0};
+  for(let i=0;i<P_.groups.length;i++){const L=P_.groups[i].length,D=PD.name+L*(PD.spin+PD.hold)+PD.gap;
+    if(t<D){if(t<PD.name)return {gi:i,k:'name',mi:0};const u=t-PD.name,mi=Math.floor(u/(PD.spin+PD.hold));if(mi>=L)return {gi:i,k:'done',mi:L};const v=u-mi*(PD.spin+PD.hold);return v<PD.spin?{gi:i,k:'spin',mi,p:v/PD.spin}:{gi:i,k:'land',mi}}
+    t-=D}return {gi:P_.groups.length,k:'end',mi:0}}
+function pairShownAt(ph){if(!ph)return S.pairs.groups.length;if(ph.k==='end')return S.pairs.groups.length;const L=S.pairs.groups[ph.gi]?S.pairs.groups[ph.gi].length:0;return ph.gi+((ph.k==='done'||(ph.k==='land'&&ph.mi===L-1))?1:0)}
+function pairReveal(P_){const ph=pairPhase(Date.now());if(!ph||ph.k==='wait'||ph.k==='end')return '<div class="huge" style="font-size:clamp(2.4rem,7vw,4.4rem)">🎲</div>';
+  const g=P_.groups[ph.gi],landed=ph.k==='name'?0:ph.k==='spin'?ph.mi:ph.mi+1,pool=P_.groups.slice(ph.gi).flat().filter(k=>!g.slice(0,landed).includes(k)).map(k=>P_.names[k]||'');
+  const slots=g.map((k,j)=>j<landed?`<span class="pname got ${j===landed-1&&ph.k==='land'?'land':''}">${esc(P_.names[k]||'')}</span>`:j===landed&&ph.k==='spin'?`<span class="pname pspin" data-pool="${esc(JSON.stringify(pool))}">${esc(pool[Math.floor(Math.random()*pool.length)]||'')}</span>`:`<span class="pname ghost">❓</span>`).join('<span class="pand">🤝</span>');
+  return `<div class="preveal"><div class="pteam">${esc(pairName(ph.gi))}</div><div class="pslots">${slots}</div></div>`}
 function pairsView(){const P_=S.pairs,n=P_.groups.length,shown=Math.min(n,P_.shown);
   if(!n)return `<div class="stage"><span class="eyebrow">الثنائيات</span><div class="huge">👥</div><p class="muted" style="margin:0">ما فيه ثنائيات. اضغط «قسّمهم ثنائيات».</p><button class="btn-ink btn-big" data-act="pairsDraw">قسّمهم ثنائيات 👥</button></div>`;
-  const busy=shown<n,last=busy&&shown>0?P_.groups[shown-1]:null;
+  const busy=!P_.fin&&!!P_.at&&pairPhase(Date.now()).k!=='end';
   const card=(g,i)=>{const pr=pairProblems(g);return `<div class="rankrow" style="justify-content:center;flex-wrap:wrap;gap:8px"><b style="font-family:var(--display);font-weight:400;font-size:1.3em;min-width:6ch">${esc(pairName(i))}</b>${g.map(k=>`<button class="dn ${S.pairSel===k?'new':''}" data-act="pairPick" data-k="${esc(k)}" ${busy?'disabled':''}>${esc(P_.names[k]||'')}</button>`).join('<span>🤝</span>')}${pr.length?`<span class="muted small" style="color:var(--red)">⚠️ ${pr.join('، ')}</span>`:''}</div>`};
   const ph=phonePlayers(),inG=new Set(P_.groups.flat()),late=ph.filter(p=>!inG.has(p.key));
   return `<div class="stage"><span class="eyebrow">قرعة الثنائيات</span>
-    ${busy?`<div class="huge" style="font-size:clamp(2.4rem,7vw,4.4rem)">${last?esc(pairName(shown-1))+'<br><span style="font-size:.6em">'+last.map(k=>esc(P_.names[k]||'')).join(' 🤝 ')+'</span>':'🎲'}</div>`:`<div class="huge" style="font-size:clamp(2.4rem,7vw,4.4rem)">${n} ${n===1?'فريق':'فرق'} 👥</div>`}
+    ${busy?pairReveal(P_):`<div class="huge" style="font-size:clamp(2.4rem,7vw,4.4rem)">${n} ${n===1?'فريق':'فرق'} 👥</div>`}
     <div class="ranklist">${P_.groups.slice(0,shown).map(card).join('')}</div>
     ${late.length&&!busy?`<p class="muted" style="margin:0">انضموا بعد القرعة: ${late.map(p=>esc(p.name)).join('، ')}</p>`:''}
     ${!busy?`<p class="muted small" style="margin:0">${S.pairSel?'اختر اللاعب اللي تبي تبدّله معه':'تبي تبدّل؟ اضغط اسمين وبيتبادلون.'}</p>
@@ -1541,7 +1561,9 @@ function tick(){
   if(role==='host'&&S.view==='lists'){const g=S.lg;if(g.stage==='play'&&now>=g.end){g.stage='grace';beep(440,.6);emitState();render();setTimeout(()=>{if(S.lg.stage==='grace')lgFinish()},1800)}
     document.querySelectorAll('.lgcd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))})}
   if(role==='player'&&P.lgEnd&&now>=P.lgEnd&&!P.lgSent){P.lgSent=true;lgSend(true);render()}
-  if(role==='host'&&S.pairs.on&&S.pairs.at&&S.pairs.shown<S.pairs.groups.length){const sh=Math.min(S.pairs.groups.length,Math.floor((now-S.pairs.at-800)/1600)+1);if(sh>S.pairs.shown){S.pairs.shown=sh;savePairs();if(sh===S.pairs.groups.length){sfx('right');toast('خلصت القرعة 🎉')}else beep(700,.2);emitState();render()}}
+  if(role==='host'&&S.pairs.on&&S.pairs.at&&!S.pairs.fin){const ph=pairPhase(now),key=ph.gi+ph.k+ph.mi,sh=Math.min(S.pairs.groups.length,pairShownAt(ph));
+    if(key!==S.pairKey){const fresh=S.pairKey!=null;S.pairKey=key;if(fresh&&S.view==='pairs'){if(ph.k==='name')beep(880,.25);else if(ph.k==='spin')drumroll(PD.spin/1000);else if(ph.k==='land'){boom();if(ph.mi===S.pairs.groups[ph.gi].length-1)setTimeout(clap,250)}}
+      if(ph.k==='end')S.pairs.fin=true;if(sh>S.pairs.shown||ph.k==='end'){S.pairs.shown=sh;savePairs();emitState();if(ph.k==='end')toast('خلصت القرعة 🎉')}if(S.view==='pairs')render()}}
   if(role==='host'&&S.anthem&&now>=S.anthem)stopAnthem();
   if(role==='player'&&document.getElementById('flagPhone')&&!((P.flagEnd||0)>now))syncPhoneFlag(false);
   if(role==='host'){let ex=false;for(const[t,v] of Object.entries(S.warn.red))if(v&&v<=now){delete S.warn.red[t];ex=true}if(ex){saveWarn();emitState();render()}}
@@ -1559,6 +1581,7 @@ function tick(){
   if(role==='host'&&S.view==='event'&&S.ev&&S.ev.end&&now>=S.ev.end&&!S.ev.beeped){S.ev.beeped=true;beep(440,.8)}
 }
 setInterval(tick,250);
+setInterval(()=>{const el=document.querySelector('.pspin');if(!el)return;const ph=pairPhase(Date.now()),p=ph&&ph.k==='spin'?ph.p:1,now=Date.now();if(now-(el._t||0)<50+p*p*320)return;el._t=now;let pool;try{pool=JSON.parse(el.dataset.pool)}catch(e){return}if(!pool.length)return;let n=pool[Math.floor(Math.random()*pool.length)];if(pool.length>1&&n===el.textContent)n=pool[(pool.indexOf(n)+1)%pool.length];el.textContent=n},40);
 let wake=null;async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){}}
 
 /* ---------- events ---------- */
