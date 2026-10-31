@@ -325,7 +325,7 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .rdst{font-size:1.2rem;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.05)}.rdst.cur{background:var(--ochre);color:#fff}.rdst.ok{background:#2e7d32;color:#fff}
 .rdbtns{gap:10px;width:100%}.rdbtns button{flex:1;font-size:1.5rem;padding:16px 0;border:0;border-radius:14px;color:#fff}.rdok{background:#2e7d32}.rdno{background:var(--red)}.rdbtns button:disabled{opacity:.35}
 #rulesBig .wcard.rules{width:min(1100px,95vw);max-height:94vh;overflow:auto;padding:clamp(18px,3vw,36px);gap:12px;text-align:right}
-#rulesBig ol{margin:0;padding-inline-start:1.4em;display:flex;flex-direction:column;gap:8px;font-size:clamp(1.05rem,2.2vw,1.55rem);line-height:1.5}
+#rulesBig p{font-size:clamp(1.05rem,2.2vw,1.55rem);line-height:1.5}
 #rulesBig.out{opacity:0;transition:opacity .4s}
 #rulesBig .huge{text-align:center}
 .preveal{display:flex;flex-direction:column;align-items:center;gap:18px;margin:6px 0 10px}
@@ -423,6 +423,12 @@ function normEvent(e){
   return{title:clean(e.title,60)||'فعالية',subtitle:clean(e.subtitle,80),intro:cleanML(e.intro,700),outro:cleanML(e.outro,700),rounds};
 }
 const BELLQ_DEF="وش عاصمة أستراليا؟ | كانبرا\nكم عدد سور القرآن الكريم؟ | 114\nوش أكبر كوكب في المجموعة الشمسية؟ | المشتري\nكم عدد مناطق المملكة الإدارية؟ | 13\nفي أي سنة توحّدت المملكة العربية السعودية؟ | 1932\nوش أعلى قمة جبلية في العالم؟ | إيفرست\nكم عدد قلوب الأخطبوط؟ | 3\nوش أصغر دولة في العالم؟ | الفاتيكان\nوش لون الصندوق الأسود في الطيارة؟ | برتقالي\nكم ساعة في الأسبوع؟ | 168\nوش العنصر اللي رمزه الكيميائي Fe؟ | الحديد\nوش أكبر محيط في العالم؟ | المحيط الهادئ\nمن هو أول مؤذن في الإسلام؟ | بلال بن رباح\nوش أطول سورة في القرآن؟ | البقرة\nوش المدينة اللي يسمونها عروس البحر الأحمر؟ | جدة\nكم عدد أسنان الإنسان البالغ؟ | 32\nوش أسرع حيوان بري؟ | الفهد\nوش الكوكب اللي يسمونه الكوكب الأحمر؟ | المريخ\nوش عاصمة كندا؟ | أوتاوا\nكم عدد ألوان قوس قزح؟ | 7\nوش أكبر صحراء رملية في السعودية؟ | الربع الخالي\nوش الطائر اللي ما يطير بس يركض بسرعة كبيرة؟ | النعامة\nفي أي سنة فاز المنتخب السعودي على الأرجنتين في كأس العالم؟ | 2022\nوش اسم عملة اليابان؟ | الين\nكم رجل للعنكبوت؟ | 8\nوش أقرب كوكب للشمس؟ | عطارد\nوش أكبر قارة في العالم؟ | آسيا\nوش الغزوة اللي صارت في السنة الثانية للهجرة؟ | بدر\nكم لاعب في فريق كرة القدم داخل الملعب؟ | 11\nوش الحيوان اللي يسمونه سفينة الصحراء؟ | الجمل".split('\n').map(l=>{const i=l.indexOf('|');return {q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}});
+const TXD={"welBoy": "## أهلًا {name} 🤍\nنورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩\n**بس تذكّر 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "welGirl": "## أهلًا خالتي {name} 🤍\nنورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات 🤩\n**بس تذكّري 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "open": "# 🤍🔥 يا هلا بالجميع!\nعلى بركة الله نعلن عن انطلاق فعاليات **SMALL FAMILY** 🏆🎉\nاستعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏\n**👀⏳ ترى بينكم بطل واحد…**\n==بطل لمة سمول ڤاميلي! 🏆🔥==\nشدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍\n**يلا نبدأ! 🔥🚀**", "post": "# 🇸🇦 دام عزّك يا وطن\nوالحين… خلّونا نشوف مين ==بطل لمّة سمول ڤاميلي== 🏆\n# يلا نبدأ! 🔥", "rules": "# 📜 شروط لمّة سمول ڤاميلي\n1. 📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش\n2. 🚫 الغش:\nأول مرة: طرد من السؤال وتنخصم نقطة وحدة\nثاني مرة: طرد من الجولة وتنخصم 3 نقاط\nثالث مرة: طرد من البطولة وسحب الجوائز\n3. 🟨 الإنذار الأول: ما تجاوب على السؤال\n4. 🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة\n5. 🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين\n6. ⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل\n7. 🤫 الترتيب سري، وما ينكشف إلا بالنهاية\n8. 👨‍⚖️ قرار عبود نهائي 😄", "k1Boy": "## ياغشاش 😤\nتم طردك من السؤال وخصم نقطة وحدة منك\n**والمرة الثانية طرد من الجولة وخصم 3 نقاط**\nلا تغش ياصديقي الجميع فايز 🤍", "k1Girl": "تم طردكِ من السؤال وخصم نقطة وحدة منكِ\n**والمرة الثانية طرد من الجولة وخصم 3 نقاط**\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k2Boy": "## 🚫 تم طردك من الجولة\nوخصم 3 نقاط منك\n**والمرة الثالثة طرد من البطولة وسحب الجوائز**\nلا تغش ياصديقي الجميع فايز 🤍", "k2Girl": "## 🚫 تم طردكِ من الجولة\nوخصم 3 نقاط منكِ\n**والمرة الثالثة طرد من البطولة وسحب الجوائز**\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k3Boy": "## تم طردك من البطولة\nسحب كافة الجوائز اللي أخذتها", "k3Girl": "## تم طردكِ من البطولة\nسحب كافة الجوائز اللي أخذتيها", "fin1": "القمة لا تتسع للجميع…", "fin2": "القمة {name} فقط", "trans": "# 🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!\nوشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥\n# ==بس لحظة… ما خلصنا 👀==\nباقي إعلان أخير ينتظره الكل:\n# 🏆 أفضل لجنة في الطلعة", "closing": "# وبكذا وصلنا لختام فعاليتنا 🤍\nشكرًا من القلب لكل من كان جزءًا منها ❤️\n**ألف مبروك للفائزين 🎉**\nوهاردلك للبقية، والقادم أجمل بإذن الله\nشكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍\nوالجايات أحلى بإذن الله 👏🏻🔥"};
+const TXL={"welBoy": "👋 ترحيب اللاعب (الأولاد)", "welGirl": "👋 ترحيب اللاعبة (البنات)", "open": "🎬 بطاقة الافتتاح (الشاشة الكبيرة)", "post": "🇸🇦 بطاقة بعد النشيد", "rules": "📜 الشروط", "k1Boy": "🚫 الغش أول مرة (الأولاد)", "k1Girl": "🚫 الغش أول مرة (البنات)", "k2Boy": "🚫 الغش ثاني مرة (الأولاد)", "k2Girl": "🚫 الغش ثاني مرة (البنات)", "k3Boy": "🚫 الغش ثالث مرة (الأولاد)", "k3Girl": "🚫 الغش ثالث مرة (البنات)", "fin1": "🏆 إعلان الأبطال: الجملة الأولى", "fin2": "🏆 إعلان الأبطال: الجملة الثانية ({name} = اسم البطل)", "trans": "👀 بطاقة «ما خلصنا» (بعد المنصة)", "closing": "🤍 بطاقة الختام (بعد تقييم اللجان)"};
+const T=k=>(C.texts&&typeof C.texts[k]==='string'&&C.texts[k].trim())?C.texts[k]:TXD[k];
+function txInline(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/==(.+?)==/g,'<b style="color:var(--ochre)">$1</b>')}
+function txHtml(k,o={}){const nm=o.name!=null?o.name:'';return T(k).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const x=v=>txInline(v).replace(/\{name\}/g,o.rawName?nm:esc(nm));
+  if(l.startsWith('## '))return `<div class="big"${o.h2?` style="${o.h2}"`:''}>${x(l.slice(3))}</div>`;if(l.startsWith('# '))return `<div class="huge" style="${o.h1||''}">${x(l.slice(2))}</div>`;return `<p${o.p?` style="${o.p}"`:''}>${x(l)}</p>`}).join('')}
 function normalize(j){
   const d=DEFAULTS,o={};j=j&&typeof j==='object'?j:{};
   o.title=clean(j.title,40)||d.title;
@@ -456,6 +462,7 @@ function normalize(j){
   o.noGirl=uniq(j.noGirl,20,50);
   {const pn=uniq(j.pairNames,30,40);o.pairNames=pn.length?pn:d.pairNames}
   {const ls=Array.isArray(j.lists)?j.lists.map(x=>({q:clean(x&&x.q,80),a:(Array.isArray(x&&x.a)?x.a:[]).map(y=>clean(y,80)).filter(Boolean).slice(0,300)})).filter(x=>x.q&&x.a.length):[];o.lists=ls.length?ls:d.lists}
+  {const t={};if(j.texts&&typeof j.texts==='object')for(const k of Object.keys(TXD))if(typeof j.texts[k]==='string'&&j.texts[k].trim())t[k]=cleanML(j.texts[k],3000);o.texts=t}
   {const bq=Array.isArray(j.bellQs)?j.bellQs.map(x=>({q:clean(x&&x.q,150),a:clean(x&&x.a,80)})).filter(x=>x.q&&x.a).slice(0,300):[];o.bellQs=bq.length?bq:BELLQ_DEF}
   o.lgSecs=[10,15,20,25,30,45,60].includes(+j.lgSecs)?+j.lgSecs:d.lgSecs;
   o.lgPts=Array.isArray(j.lgPts)&&j.lgPts.length===3&&j.lgPts.every(x=>Number.isInteger(+x)&&+x>=0&&+x<=20)?j.lgPts.map(Number):d.lgPts;
@@ -668,11 +675,7 @@ function judgingView(){
   return head+winnerCard(g.res.win.map(r=>({n:r.name,m:r.mem})),true);
 }
 function closingCard(){const P_=t=>`<p style="margin:0;max-width:40ch;font-size:clamp(1.15rem,2.8vw,1.7rem);line-height:1.7">${t}</p>`;
-  return `<div class="stage evstage closing"><div class="huge" style="font-size:clamp(2.2rem,6.5vw,4.2rem)">وبكذا وصلنا لختام فعاليتنا 🤍</div>
-  ${P_('شكرًا من القلب لكل من كان جزءًا منها ❤️')}
-  ${P_('<b>ألف مبروك للفائزين 🎉</b><br>وهاردلك للبقية، والقادم أجمل بإذن الله')}
-  ${P_('شكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍')}
-  ${P_('والجايات أحلى بإذن الله 👏🏻🔥')}
+  return `<div class="stage evstage closing">${txHtml('closing',{h1:'font-size:clamp(2.2rem,6.5vw,4.2rem)',p:'margin:0;max-width:40ch;font-size:clamp(1.15rem,2.8vw,1.7rem);line-height:1.7'})}
   <div class="big" dir="ltr" style="letter-spacing:.06em">SMALL FAMILY 🤍</div></div>`}
 function winnerCard(win,big,eyebrow='أفضل لجنة بالطلعة',note=C.prizeNote){
   const conf=Array.from({length:48},(_,i)=>`<i style="left:${(i*97)%100}%;animation-duration:${(3.4+(i%5)*.45).toFixed(2)}s;animation-delay:${-((i*0.37)%4).toFixed(2)}s;background:var(--${['ochre','on-nat','green','red'][i%4]})"></i>`).join('');
@@ -828,12 +831,7 @@ function showQR(){if(document.getElementById('qrBig'))return;let svg='';try{cons
   el.addEventListener('click',()=>el.remove());document.body.appendChild(el)}
 function showHostWelcome(){if(document.getElementById('hostWel')||anthemOn())return;prepAnthem();const el=document.createElement('div');el.id='hostWel';el.className='wel';
   el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true" style="width:min(1150px,96vw);font-size:clamp(1.05rem,2vw,1.45rem);line-height:1.55;gap:8px;padding:clamp(18px,2.6vw,30px) clamp(22px,4vw,52px)">
-  <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">🤍🔥 يا هلا بالجميع!</div>
-  <p>على بركة الله نعلن عن انطلاق فعاليات <b dir="ltr">SMALL FAMILY</b> 🏆🎉</p>
-  <p>استعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏</p>
-  <p><b>👀⏳ ترى بينكم بطل واحد…</b><br><b style="color:var(--ochre)">بطل لمة سمول ڤاميلي! 🏆🔥</b></p>
-  <p>شدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍</p>
-  <p><b>يلا نبدأ! 🔥🚀</b></p>
+  ${txHtml('open',{h1:'font-size:clamp(2.2rem,6vw,3.8rem)'})}
   <div class="wsig" dir="ltr" style="font-size:1.1em">SMALL FAMILY 🤍</div></div>`;
   el.addEventListener('click',()=>{el.remove();startAnthem()});document.body.appendChild(el)}
 /* ---------- النشيد الوطني: after the opening card — flag video on the big screen, flag image on every phone ---------- */
@@ -855,16 +853,10 @@ function startAnthem(){if(anthemOn()&&document.getElementById('anthemBig'))retur
 function stopAnthem(){S.anthemStopping=true;if(S.anthemId)S.anthemStop=S.anthemId;S.anthem=0;try{if(anthemAudio){anthemAudio.onended=null;anthemAudio.onplaying=null;anthemAudio.onpause=null;anthemAudio.pause();anthemAudio=null}}catch(e){}const el=document.getElementById('anthemBig');if(el){el.id='';el.classList.add('fadeout');setTimeout(()=>el.remove(),1900);setTimeout(showPostAnthem,1700)}emitState()}
 function showPostAnthem(){if(document.getElementById('postAnth'))return;const el=document.createElement('div');el.id='postAnth';el.className='wel';
   el.innerHTML=`<div class="wcard" style="width:min(1000px,94vw);padding:clamp(22px,3.5vw,40px);font-size:clamp(1.2rem,2.6vw,1.8rem);gap:10px">
-    <div class="huge" style="font-size:clamp(2.6rem,7vw,4.6rem)">🇸🇦 دام عزّك يا وطن</div>
-    <p>والحين… خلّونا نشوف مين <b style="color:var(--ochre)">بطل لمّة سمول ڤاميلي</b> 🏆</p>
-    <div class="huge" style="font-size:clamp(2.2rem,6vw,3.8rem)">يلا نبدأ! 🔥</div></div>`;
+    ${txHtml('post',{h1:'font-size:clamp(2.4rem,6.5vw,4.4rem)'})}</div>`;
   let gone=false;const next=()=>{if(gone)return;gone=true;el.remove();showRules()};el.addEventListener('click',next);document.body.appendChild(el);setTimeout(next,5000)}
 function showRules(){if(document.getElementById('rulesBig'))return;const el=document.createElement('div');el.id='rulesBig';el.className='wel';
-  el.innerHTML=`<div class="wcard rules"><div class="huge" style="font-size:clamp(2.2rem,5.5vw,3.6rem)">📜 شروط لمّة سمول ڤاميلي</div>
-    <ol><li>📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش</li>
-    <li>🚫 الغش:<br>أول مرة: طرد من السؤال وتنخصم نقطة وحدة<br>ثاني مرة: طرد من الجولة وتنخصم 3 نقاط<br>ثالث مرة: طرد من البطولة وسحب الجوائز</li>
-    <li>🟨 الإنذار الأول: ما تجاوب على السؤال</li><li>🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة</li><li>🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين</li>
-    <li>⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل</li><li>🤫 الترتيب سري، وما ينكشف إلا بالنهاية</li><li>👨‍⚖️ قرار عبود نهائي 😄</li></ol>
+  el.innerHTML=`<div class="wcard rules">${txHtml('rules',{h1:'font-size:clamp(2.2rem,5.5vw,3.6rem)',p:'margin:0'})}
     <button class="btn-big" style="background:var(--ochre);color:#fff;border:0;font-size:1.6rem;padding:14px 46px;align-self:center">يلا نبدأ 🔥</button></div>`;
   el.querySelector('button').addEventListener('click',()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)});document.body.appendChild(el)}
 function syncPhoneFlag(on){let el=document.getElementById('flagPhone');
@@ -873,9 +865,7 @@ function syncPhoneFlag(on){let el=document.getElementById('flagPhone');
   else if(!on&&el&&!el.classList.contains('fadeout')){el.classList.add('fadeout');setTimeout(()=>el.remove(),1900)}}
 function hideWelcome(){const el=document.getElementById('welcome');if(el)el.remove();clearTimeout(hideWelcome.t)}
 function showWelcome(){hideWelcome();const el=document.createElement('div');el.id='welcome';el.className='wel';
-  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true"><div class="big">أهلًا ${gx(P.name,'','خالتي ')}${esc(P.name)} 🤍</div>
-  <p>${gx(P.name,'نورت الفعالية، وحضورك هو اللي يكمل الحماس','نورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات')} 🤩</p>
-  <p><b>${gx(P.name,'بس تذكّر','بس تذكّري')} 👀</b><br>الغش ممنوع، الجميع مراقب 😎😉</p>
+  el.innerHTML=`<div class="wcard" role="dialog" aria-modal="true">${txHtml(isGirl(P.name)?'welGirl':'welBoy',{name:P.name})}
   <p id="wTitle" ${P.title?'':'hidden'}>${P.title?`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`:''}</p>
   <div class="wsig" dir="ltr">SMALL FAMILY 🤍</div>
   <button class="btn-ink btn-big" style="width:100%">تمام</button></div>`;
@@ -1067,16 +1057,12 @@ function finaleView(){const f=S.fin;if(!f)return '';
   if(k==='h'||k==='r'){const g=f.groups[i],r=g[0].r;return `<div class="stage finale"><span class="place">${r<=3?MEDAL[r-1]+' ':''}${placeName(r)}…</span>${k==='h'?'<div class="who" style="animation:none;letter-spacing:.2em">🥁 ؟ ؟ ؟</div>':`<div class="who">${who(g)}</div><div class="huge" style="font-size:clamp(2.4rem,7vw,4rem)">👏👏👏</div>`}</div>`}
   const top=f.groups[L];
   if(k==='d1h')return `<div class="stage finale" style="${dark}"><div class="who" style="animation:none;color:#f4ece3;letter-spacing:.2em">🥁 …</div></div>`;
-  if(k==='d1r')return `<div class="stage finale" style="${dark}"><div class="who" style="color:#f4ece3">القمة لا تتسع للجميع…</div></div>`;
-  if(k==='d2')return `<div class="stage finale" style="${dark}"><div class="mid" style="margin:0;opacity:.7">القمة لا تتسع للجميع…</div><div class="who" style="color:var(--ochre)">القمة ${top.map(x=>esc(lamName(x.n))).join(' و')} فقط</div></div>`;
+  if(k==='d1r')return `<div class="stage finale" style="${dark}"><div class="who" style="color:#f4ece3">${txInline(T('fin1'))}</div></div>`;
+  if(k==='d2')return `<div class="stage finale" style="${dark}"><div class="mid" style="margin:0;opacity:.7">${txInline(T('fin1'))}</div><div class="who" style="color:var(--ochre)">${txInline(T('fin2')).replace(/\{name\}/g,top.map(x=>esc(lamName(x.n))).join(' و'))}</div></div>`;
   const pairW=top.some(isPair),mem=top.map(x=>isPair(x)&&x.t?x.t:x.n+(x.t?' «'+x.t+'»':'')).join(' و'),champ=pairW||top.length>1?'أبطال':isGirl(top[0].n)?'بطلة':'بطل';
   if(k==='champ')return `<div class="stage evstage wincard finale"><span class="place">🥇 ${top.map(x=>esc(x.n)).join(' و')}</span>
     <div class="huge">مبروك ${esc(top.map(x=>isPair(x)&&x.t?x.t:x.n).join(' و'))}</div>${!pairW&&top.length===1&&top[0].t?`<div class="mid ttl" style="margin:0;font-size:clamp(1.8rem,4.5vw,3rem)">«${esc(top[0].t)}»</div>`:''}<div class="who" style="animation:none;font-size:clamp(2.2rem,7vw,4.4rem)">${champ} لمّة سمول ڤاميلي 🏆</div></div>`;
-  if(k==='trans')return `<button class="stage finale fintrans" data-act="jgOpen"><div class="huge" style="font-size:clamp(2rem,6vw,3.6rem)">🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!</div>
-    <p class="mid" style="margin:0">وشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥</p>
-    <div class="huge" style="font-size:clamp(2.2rem,6.5vw,4rem);color:var(--ochre)">بس لحظة… ما خلصنا 👀</div>
-    <p class="mid" style="margin:0">باقي إعلان أخير ينتظره الكل:</p>
-    <div class="huge" style="font-size:clamp(2.2rem,6.5vw,4rem)">🏆 أفضل لجنة في الطلعة</div>
+  if(k==='trans')return `<button class="stage finale fintrans" data-act="jgOpen">${txHtml('trans',{h1:'font-size:clamp(2.1rem,6vw,3.8rem)',p:'margin:0;font-size:clamp(1.2rem,2.8vw,1.8rem)'})}
     <div class="big" dir="ltr" style="letter-spacing:.06em">SMALL FAMILY 🤍</div></button>`;
   const g1=f.groups[L],g2=L>=1?f.groups[L-1]:null,g3=L>=2?f.groups[L-2]:null;
   const col=(g,h,m)=>`<div class="fpod"><div class="fpnames">${g?g.map(x=>`<b>${esc(x.n)}</b>${isPair(x)&&x.t?`<span>${esc(x.t)}</span>`:x.t?`<span>«${esc(x.t)}»</span>`:''}`).join(''):''}</div><div class="fpblock" style="height:${h}">${g?m:''}</div></div>`;
@@ -1303,7 +1289,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
@@ -1318,7 +1304,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -1439,6 +1425,10 @@ function adminGames(n){
       <div class="field" style="max-width:260px"><label for="a_chDur">مدة الجولة الافتراضية</label><select id="a_chDur" data-d="chDur">${[30,45,60,90,120].map(d=>`<option value="${d}" ${+D.chDur===d?'selected':''}>${d} ثانية</option>`).join('')}</select></div>
       <div class="field"><label for="a_ch">الكلمات <span class="hint">— ${n.charades.length} كلمة</span></label><textarea id="a_ch" data-d="charades" style="min-height:200px">${esc(D.charades)}</textarea></div>
     </div>
+    <div class="panel"><h3>النصوص ✏️</h3>
+      <p class="muted small" style="margin:0">كل سطر يطلع لحاله. <b>#</b> بأول السطر = عنوان كبير، <b>##</b> = عنوان متوسط، <b>**كلام**</b> = خط عريض، <b>==كلام==</b> = لون ذهبي، <b>{name}</b> = اسم الشخص. لا تنسى «احفظ» تحت.</p>
+      ${Object.keys(TXD).map(k=>`<div class="field"><label for="tx_${k}" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(TXL[k])}</span>${D.tx&&D.tx[k]!==TXD[k]?`<button class="link" data-act="txReset" data-k="${k}">رجّع النص الأصلي</button>`:''}</label><textarea id="tx_${k}" data-d="tx.${k}" style="min-height:${Math.min(320,60+TXD[k].split('\n').length*26)}px">${esc(D.tx?D.tx[k]:'')}</textarea></div>`).join('')}
+    </div>
     <div class="panel"><h3>فقرة الجرس 🔔</h3>
       <p class="muted small" style="margin:0">تقرأ السؤال بصوتك من جوالك («لوحة المقدّم»)، والشاشة الكبيرة ما تطلع فيها الأسئلة. كل سطر: السؤال | الجواب</p>
       <div class="field"><label for="a_bq">الأسئلة</label><textarea id="a_bq" data-d="bellQs" style="min-height:240px">${esc(D.bellQs)}</textarea></div>
@@ -1549,9 +1539,10 @@ function playerView(){
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
-  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من البطولة</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
-  if(kicked==='g')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">🚫 ${gx(P.name,'تم طردك','تم طردكِ')} من الجولة</div><p>${gx(P.name,'وخصم 3 نقاط منك','وخصم 3 نقاط منكِ')}</p><p><b>والمرة الثالثة طرد من البطولة وسحب الجوائز</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع الجولة الجاية.</p></div>`;
-  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${gx(P.name,'<div class="big" style="color:var(--red)">ياغشاش 😤</div>','')}<p>${gx(P.name,'تم طردك من السؤال وخصم نقطة وحدة منك','تم طردكِ من السؤال وخصم نقطة وحدة منكِ')}</p><p><b>والمرة الثانية طرد من الجولة وخصم 3 نقاط</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
+  const kg=isGirl(P.name)?'Girl':'Boy',kh={h2:'color:var(--red)',p:'margin:4px 0'};
+  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><div class="cheat">${txHtml('k3'+kg,kh)}</div></div>`;
+  if(kicked==='g')return head+`<div class="phone stage"><div class="cheat">${txHtml('k2'+kg,kh)}</div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع الجولة الجاية.</p></div>`;
+  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${txHtml('k1'+kg,kh)}</div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
   const wn=h.warn&&myBy?h.warn[myBy]:null,pl=h.pk&&myBy&&h.pk[myBy],gW=isGirl(P.name);
   if(wn&&wn.l===3){const key='r'+Math.round((Date.now()+wn.left)/5000);if(P.redKey!==key){P.redKey=key;P.redEnd=Date.now()+wn.left;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
   const warnCard=!wn?'':wn.l===3?`<div class="cheat"><div class="big" style="color:var(--red)">🟥 كرت أحمر!</div><p>${pl?'محرومين':gW?'محرومة':'محروم'} دقيقة، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطتين</p><div class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="color:var(--red)">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</div></div>`
@@ -1726,6 +1717,7 @@ $app.addEventListener('click',e=>{
     case 'jSend':{const g=P.host&&P.host.jg;if(!g||!g.open||!Number.isInteger(J.c))break;J.sent=true;J.editing=false;sendJudge({k:g.k,c:J.c});try{navigator.vibrate&&navigator.vibrate(60)}catch(_){}render();window.scrollTo({top:0});break}
     case 'jpinOff':D.judgePin='';D.jpinNew='';S.saveOk=true;S.saveMsg='انشال رمز اللجنة من المسودة — اضغط «احفظ» لتثبيته.';render();break;
     case 'ppinOff':D.playerPin='';D.ppinNew='';S.saveOk=true;S.saveMsg='انشال رمز اللاعبين من المسودة — اضغط «احفظ» لتثبيته.';render();break;
+    case 'txReset':if(D&&D.tx){D.tx[b.dataset.k]=TXD[b.dataset.k];S.saveMsg='';render()}break;
     case 'pinOff':D.hostPin='';D.pinNew='';S.saveOk=true;S.saveMsg='انشال الرقم من المسودة — اضغط «احفظ» لتثبيته.';render();break;
     case 'adminDefaults':Object.assign(D,gamesDraft(normalize(DEFAULTS)));S.saveOk=true;S.saveMsg='رجعنا الكلمات والأسئلة الأصلية في المسودة — اضغط «احفظ» لتثبيتها.';render();break;
     case 'catAdd':D.cats.push({name:'',words:''});S.saveMsg='';render();{const i=document.getElementById('a_cn'+(D.cats.length-1));if(i)i.focus()}break;
@@ -1783,7 +1775,7 @@ $app.addEventListener('input',e=>{
   const t=e.target;
   if(t.id==='lgIn'){P.lgText=t.value;clearTimeout(lgT);lgT=setTimeout(()=>lgSend(false),350);return}if(!t.matches('[data-d]')||!D)return;
   setDraft(t.dataset.d,t.type==='checkbox'?t.checked:t.value);S.saveMsg='';
-  if(t.dataset.d.startsWith('events.'))return; // no re-render while typing event fields
+  if(t.dataset.d.startsWith('events.')||t.dataset.d.startsWith('tx.'))return; // no re-render while typing
   clearTimeout(draftTimer);draftTimer=setTimeout(()=>{if(S.view==='admin')render()},600);
 });
 $app.addEventListener('submit',e=>{
