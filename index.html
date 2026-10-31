@@ -773,7 +773,7 @@ function strike(k,name,perm){
   const c=S.cheat,prev=c.strikes[k]||0,n=perm?Math.max(3,prev+1):prev+1,u={k,prev,n,solo:null,team:null,ded:0};
   c.strikes[k]=n;c.gban=c.gban||{};syncGame();
   if(n>=3){c.banned[k]=name;delete c.qban[k];delete c.gban[k]}else if(n===2){c.gban[k]=c.gs;delete c.qban[k]}else c.qban[k]=c.qn;
-  u.sk=scoreKey(k);const sc=S.solo.scores[u.sk];if(sc&&sc.score>0){u.solo=sc.score;sc.score=0;saveSolo()}
+  u.sk=scoreKey(k);const want=n===1?1:n===2?3:0,sc=S.solo.scores[u.sk];if(want&&sc&&sc.score>0){const d=Math.min(want,sc.score);u.solo=d;sc.score-=d;saveSolo()}
   const t=C.teamsOn?teamOfKey(k):null;if(t!==null){const d=Math.min(C.cheatPenalty,S.teams[t].score);S.teams[t].score-=d;u.team=t;u.ded=d;saveTeams()}
   const b=S.bz,o=b.order.find(o=>o.key===k);if(o&&!b.awarded&&!(b.fail||[]).includes(o.peer)){b.fail=(b.fail||[]).concat(o.peer)}
   saveCheat();emitState();return u;
@@ -798,7 +798,7 @@ function alarmView(){
       <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">${gx(a.name,'إذا ما رجع ينطرد تلقائي','إذا ما رجعت تنطرد تلقائي')}</p>
       <button class="btn-red btn-big" data-act="alKick" data-k="${k}">${gx(a.name,'اطرده','اطردها')}</button></div>`;
     if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} ${gx(a.name,'رجع','رجعت')}</div></div>`;
-    const u=a.u||{};const pre=u.n>=3?'طرد نهائي من الطلعة 🚫':u.n===2?'طرد من الفعالية كاملة':'طرد من السؤال';const sub=pre+' + سحب كل '+(u.sk&&u.sk.startsWith('g:')?'نقاط فريقه':gx(a.name,'نقاطه','نقاطها'))+(u.team!==null&&u.ded?` + ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`:'');
+    const u=a.u||{};const sub=(u.n>=3?'طرد من البطولة وسحب الجوائز 🚫':u.n===2?'طرد من الجولة + خصم 3 نقاط':'طرد من السؤال + خصم نقطة وحدة')+(u.team!==null&&u.ded?` + ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`:'');
     return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
@@ -812,7 +812,7 @@ function syncAlarm(){const html=alarmView(),sig=html.replace(/data-cd="\d+">\d+<
   el.innerHTML=html}
 function bannedList(){const b=Object.entries(S.cheat.banned);if(!b.length)return '';
   return `<div class="banlist"><div class="lbl">المطرودين 🚫 (${b.length})</div><div class="chips" style="justify-content:center">${b.map(([k,n])=>`<span class="chip">${esc(n)}<button class="link" data-act="unban" data-k="${esc(k)}">رجّعه</button></span>`).join('')}</div></div>`}
-const kickBtn=(k,n)=>k&&!String(k).startsWith('l:')?`<button class="kickx" data-act="manKick" data-k="${esc(k)}" data-n="${esc(n)}" title="اطرده من الطلعة" aria-label="اطرد ${esc(n)}">🚫</button>`:'';
+const kickBtn=(k,n)=>k&&!String(k).startsWith('l:')?`<button class="kickx" data-act="manKick" data-k="${esc(k)}" data-n="${esc(n)}" title="اطرده من البطولة" aria-label="اطرد ${esc(n)}">🚫</button>`:'';
 const markOf=k=>S.marks[k]?'<span class="mark" title="طلع من الموقع">⚠️</span>':'';
 /* ---------- player: report leaving the page ---------- */
 function reportAway(){if(role==='player'&&P.joined&&room)room.presence({away:document.hidden?true:null}).catch(()=>{})}
@@ -862,7 +862,7 @@ function showPostAnthem(){if(document.getElementById('postAnth'))return;const el
 function showRules(){if(document.getElementById('rulesBig'))return;const el=document.createElement('div');el.id='rulesBig';el.className='wel';
   el.innerHTML=`<div class="wcard rules"><div class="huge" style="font-size:clamp(2.2rem,5.5vw,3.6rem)">📜 شروط لمّة سمول ڤاميلي</div>
     <ol><li>📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش</li>
-    <li>🚫 الغش:<br>أول مرة: تنطرد من السؤال وتنخصم نقاطك<br>ثاني مرة: تنطرد من الفعالية أو اللعبة كاملة<br>ثالث مرة: تنطرد من الطلعة وتنسحب كافة جوائزك</li>
+    <li>🚫 الغش:<br>أول مرة: طرد من السؤال وتنخصم نقطة وحدة<br>ثاني مرة: طرد من الجولة وتنخصم 3 نقاط<br>ثالث مرة: طرد من البطولة وسحب الجوائز</li>
     <li>🟨 الإنذار الأول: ما تجاوب على السؤال</li><li>🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة</li><li>🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين</li>
     <li>⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل</li><li>🤫 الترتيب سري، وما ينكشف إلا بالنهاية</li><li>👨‍⚖️ قرار عبود نهائي 😄</li></ol>
     <button class="btn-big" style="background:var(--ochre);color:#fff;border:0;font-size:1.6rem;padding:14px 46px;align-self:center">يلا نبدأ 🔥</button></div>`;
@@ -1549,9 +1549,9 @@ function playerView(){
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
-  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من الطلعة</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
-  if(kicked==='g')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">🚫 ${gx(P.name,'تم طردك','تم طردكِ')} من الفعالية</div><p>${gx(P.name,'وإلغاء كافة نقاطك السابقة','وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثالثة طرد من الطلعة وسحب كافة الجوائز</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع الفعالية الجاية.</p></div>`;
-  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${gx(P.name,'<div class="big" style="color:var(--red)">ياغشاش 😤</div>','')}<p>${gx(P.name,'تم طردك من السؤال وإلغاء كافة نقاطك السابقة','تم طردكِ من السؤال وإلغاء كافة نقاطكِ السابقة')}</p><p><b>والمرة الثانية طرد من الفعالية كاملة</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
+  if(kicked==='ban')return head+`<div class="phone stage"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🚫</div><h2 class="big" style="color:var(--red)">${gx(P.name,'تم طردك','تم طردكِ')} من البطولة</h2><p style="margin:0;font-size:1.2rem">سحب كافة الجوائز ${gx(P.name,'اللي أخذتها','اللي أخذتيها')}</p></div>`;
+  if(kicked==='g')return head+`<div class="phone stage"><div class="cheat"><div class="big" style="color:var(--red)">🚫 ${gx(P.name,'تم طردك','تم طردكِ')} من الجولة</div><p>${gx(P.name,'وخصم 3 نقاط منك','وخصم 3 نقاط منكِ')}</p><p><b>والمرة الثالثة طرد من البطولة وسحب الجوائز</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع الجولة الجاية.</p></div>`;
+  if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${gx(P.name,'<div class="big" style="color:var(--red)">ياغشاش 😤</div>','')}<p>${gx(P.name,'تم طردك من السؤال وخصم نقطة وحدة منك','تم طردكِ من السؤال وخصم نقطة وحدة منكِ')}</p><p><b>والمرة الثانية طرد من الجولة وخصم 3 نقاط</b></p><p style="margin-top:6px">${gx(P.name,'لا تغش ياصديقي الجميع فايز 🤍','<b>الله يصلحك ياخالتي 💔</b><br>للأسف خليتني أسوي شي ما أبي أسويه')}</p></div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
   const wn=h.warn&&myBy?h.warn[myBy]:null,pl=h.pk&&myBy&&h.pk[myBy],gW=isGirl(P.name);
   if(wn&&wn.l===3){const key='r'+Math.round((Date.now()+wn.left)/5000);if(P.redKey!==key){P.redKey=key;P.redEnd=Date.now()+wn.left;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
   const warnCard=!wn?'':wn.l===3?`<div class="cheat"><div class="big" style="color:var(--red)">🟥 كرت أحمر!</div><p>${pl?'محرومين':gW?'محرومة':'محروم'} دقيقة، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطتين</p><div class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="color:var(--red)">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</div></div>`
