@@ -513,7 +513,7 @@ const S={view:'home',teams:LS.get('teams',[{name:'الفريق الأحمر',sco
 function applyContent(){if(!C.teamsOn&&S.mode&&S.mode!=='solo'){S.mode='solo';LS.set('mode','solo')}S.ch.dur=C.chDur;S.ch.pool=[];S.bz.qs=shuffle(C.quiz.map((_,i)=>i));S.bz.qi=-1;if(S.spyCat!=='عشوائي'&&!catNames().includes(S.spyCat))S.spyCat='عشوائي';if(S.ev&&!C.events[S.ev.ei]){S.ev=null;if(S.view==='event')S.view='home'}}
 applyContent();
 {const g=LS.get('jg',null);if(g&&typeof g==='object'&&typeof g.k==='string'&&Array.isArray(g.comms)&&Array.isArray(g.crit)&&g.votes&&typeof g.votes==='object'&&Object.values(g.votes).every(v=>v&&Number.isInteger(v.c))&&(!g.revealed||(g.res&&Array.isArray(g.res.win))))S.jg=g;else S.jg=null}
-const P={name:LS.get('pname',''),team:null,joined:false,host:null,revealed:false,lastSpyR:-1,buzzedR:-1};
+LS.set('pname','');const P={name:'',draft:'',pinDraft:'',team:null,joined:false,host:null,revealed:false,lastSpyR:-1,buzzedR:-1};
 let room=null,roomOk=false,roomTried=false,myPeer=null,assetsNS=null;
 const saveTeams=()=>LS.set('teams',S.teams);
 S.evDone=LS.get('evDone',{});if(!S.evDone||typeof S.evDone!=='object')S.evDone={};
@@ -1581,11 +1581,13 @@ function playerView(){
   if(!room&&roomTried)return head+`<div class="phone stage"><h2 class="big">الجوال ما قدر يتصل</h2><p class="muted" style="margin:0">افتح الرابط اللي أرسله عبود وأنت مسجل دخول.</p></div>`;
   if(!S.loaded)return head+`<div class="phone stage"><p class="muted" style="margin:0">جاري التحميل…</p></div>`;
   const needPin=!playerAllowed(),wait=S.pinLockUntil>Date.now();
-  if(!P.joined)return head+`<form class="phone stage" data-form="join"><h2 class="big">انضم للعب</h2>
-    <input id="pname" placeholder="اسمك" maxlength="20" value="${esc(P.name)}" autocomplete="off" style="width:100%;font-size:1.2rem" aria-label="اسمك">
-    ${needPin?`<input id="ppinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز الدخول" aria-label="رمز الدخول" style="width:100%;font-size:1.2rem;text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`:''}
+  if(!P.joined)return head+`<form class="phone stage" data-form="join"><div class="huge" style="font-size:clamp(1.7rem,7.5vw,2.4rem);line-height:1.3">🏆 بطولة لمّة سمول ڤاميلي 🏆</div>
+    <p style="margin:0;font-size:1.15rem">اكتب اسمك وادخل، وبينكم بطل واحد 👀</p><h2 class="big">انضم للعب</h2>
+    <input id="pname" placeholder="اسمك" maxlength="20" value="${esc(P.draft)}" autocomplete="off" style="width:100%;font-size:1.2rem" aria-label="اسمك">
+    ${needPin?`<input id="ppinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز الدخول" aria-label="رمز الدخول" value="${esc(P.pinDraft)}" style="width:100%;font-size:1.2rem;text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`:''}
     ${S.pinMsg?`<p class="msg err" role="alert" style="margin:0">${esc(S.pinMsg)}</p>`:''}
-    <button class="btn-ink btn-big" type="submit" style="width:100%">انضم</button></form>`;
+    <button class="btn-ink btn-big" type="submit" style="width:100%">انضم</button>
+    <p style="margin:0;font-size:1.1rem;opacity:.85">🎁 لكل واحد لقب خاص… بتعرفه أول ما تدخل!</p></form>`;
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
@@ -1761,7 +1763,7 @@ $app.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
   if(S.menu&&b.closest('.drawer')&&act!=='menuClose'&&!(act==='resetScores'&&b.dataset.confirm!=='1'))S.menu=false;
   switch(act){
-    case 'role':role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
+    case 'role':P.draft='';P.pinDraft='';role=b.dataset.v||null;LS.set('role',role);if(role)keepAwake();if(role==='host'){S.view='home';emitState()}if(role!=='player'&&room&&P.joined){room.presence({role:null,buzz:null}).catch(()=>{});P.joined=false}if(role!=='judge'&&room&&J.joined){room.presence({role:null,vote:null}).catch(()=>{});J.joined=false}S.pinMsg='';render();break;
     case 'go':if(S.view==='finale'){stopChamp();fwStop()}if(S.view!==b.dataset.v)bumpQ();if(b.dataset.v==='lists'&&S.view!=='lists'){S.lg.stage='pick';S.lg.open=null}S.view=b.dataset.v;closeBuzz();if(S.view==='bell'&&S.bq.i>=0&&S.bq.i<C.bellQs.length)openBuzz();emitState();render();break;
     case 'pt':{const t=S.teams[+b.dataset.t];t.score=Math.max(0,t.score+ +b.dataset.d);saveTeams();emitState();render();break}
     case 'modeToggle':S.mode=S.mode==='solo'?'teams':'solo';LS.set('mode',S.mode);S.soloWin=null;emitState();render();toast(S.mode==='solo'?'صار النظام فردي 👤':'رجع النظام فرق 👥');break;
@@ -1894,6 +1896,7 @@ function setDraft(path,val){const k=path.split('.');let o=D;for(let i=0;i<k.leng
 let draftTimer=null;
 $app.addEventListener('input',e=>{
   const t=e.target;
+  if(t.id==='pname'){P.draft=t.value;return}if(t.id==='ppinIn'){P.pinDraft=t.value;return}
   if(t.id==='lgIn'){P.lgText=t.value;clearTimeout(lgT);lgT=setTimeout(()=>lgSend(false),350);return}if(!t.matches('[data-d]')||!D)return;
   setDraft(t.dataset.d,t.type==='checkbox'?t.checked:t.value);S.saveMsg='';
   if(t.dataset.d.startsWith('events.')||t.dataset.d.startsWith('tx.'))return; // no re-render while typing
@@ -1906,7 +1909,7 @@ $app.addEventListener('submit',e=>{
     if(!judgeAllowed()){const pi=document.getElementById('jpinIn');const v=pi?pi.value.trim():'';if(!v){S.pinMsg='اكتب رمز اللجنة.';render();return}joinJudge(v);return}
     J.joined=true;S.pinMsg='';sendJudge();render();return}
   if(f==='pin'){const v=document.getElementById('pinIn').value.trim();if(v)checkPin(v);return}
-  if(f==='join'){const n=clean(document.getElementById('pname').value);if(!n){toast('اكتب اسمك');return}P.name=n;LS.set('pname',n);
+  if(f==='join'){const n=clean(document.getElementById('pname').value);if(!n){toast('اكتب اسمك');return}P.name=n;
     if(!playerAllowed()){const pi=document.getElementById('ppinIn');const v=pi?pi.value.trim():'';if(!v){S.pinMsg='اكتب رمز الدخول.';render();return}joinWithPin(v);return}
     P.joined=true;S.pinMsg='';sendPresence({away:null});render();queueWelcome()}
 });
