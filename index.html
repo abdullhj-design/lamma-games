@@ -953,7 +953,7 @@ function topBar(){
     <div class="dhead"><b>القائمة</b><button class="link" data-act="menuClose" aria-label="سكّر القائمة" style="font-size:1.4rem;text-decoration:none">✕</button></div>
     ${C.teamsOn?`<button class="ditem" data-act="go" data-v="draw"><span>القرعة 🎲</span>${un?`<small>${un} بانتظار</small>`:''}</button>
     <button class="ditem" data-act="modeToggle"><span>نظام النقاط</span><small>${S.mode==='solo'?'👤 فردي':'👥 فرق'} ← بدّل</small></button>`:''}
-    ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الثنائيات 👥</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم ثنائيات 👥</span></button>'):''}
+    ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الفرق 👥</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم فرق 👥</span></button>'):''}
     ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
     <button class="ditem" data-act="go" data-v="lobby"><span>👥 شاشة الانتظار والافتتاح</span></button>
@@ -1040,12 +1040,12 @@ let susAudio=null;
 function primeChamp(){stopChamp();try{if(susAudio){susAudio.pause()}const b=new Audio('media/suspense6.m4a');b.preload='auto';b.muted=true;const q=b.play();if(q&&q.then)q.then(()=>{b.pause();b.currentTime=0;b.muted=false}).catch(()=>{b.muted=false});susAudio=b}catch(e){susAudio=null}
 try{const a=new Audio('media/champ2.m4a');a.preload='auto';a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{a.pause();a.currentTime=0;a.muted=false}).catch(()=>{a.muted=false});else{a.pause();a.muted=false}champAudio=a}catch(e){champAudio=null}}
 function startFinale(){primeChamp();const l=soloPlayers(),all=l.map((x,i)=>({k:x.key,n:x.name,t:titleOfKey(x.key),s:x.score,r:rankOfScore(l,i)}));
-  const topN=3,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
+  const topN=S.pairs.on&&S.pairs.size===3?1:3,top=all.filter(x=>x.r<=topN&&x.s>0),ranks=[...new Set(top.map(x=>x.r))].sort((a,b)=>b-a);
   S.fin={at:Date.now(),topN,all,groups:ranks.map(r=>top.filter(x=>x.r===r)),step:-2,won:false};S.view='finale';closeBuzz();emitState();render();window.scrollTo({top:0})}
 /* timeline: intro → for each place below the top: drum (name hidden) then reveal → dark drum → «القمة لا تتسع للجميع…» → «القمة لـ… فقط» → champions (fireworks + song) → podium */
 const FIN={intro:2500,sus1:3000,sus2:3000,song:25000,pod:23000};
 function finPlan(){const f=S.fin,L=f.groups.length-1,seq=[['intro',-1,FIN.intro]];
-  seq.push(['d1r',L,FIN.sus1]);seq.push(['d2',L,FIN.sus2]);seq.push(['champ',L,FIN.song]);seq.push(['podium',L,FIN.pod]);seq.push(['trans',L,1e12]);return seq}
+  seq.push(['d1r',L,FIN.sus1]);seq.push(['d2',L,FIN.sus2]);if(f.topN===1)seq.push(['champ',L,FIN.song+FIN.pod]);else{seq.push(['champ',L,FIN.song]);seq.push(['podium',L,FIN.pod])}seq.push(['trans',L,1e12]);return seq}
 function finState(){const f=S.fin;if(!f||!f.groups.length)return['none',-1];let e=Date.now()-f.at;for(const[k,i,d] of finPlan()){if(e<d)return[k,i];e-=d}return['trans',f.groups.length-1]}
 const finDone=()=>S.fin&&S.fin.groups.length&&['champ','podium','trans'].includes(finState()[0]);
 const placeName=r=>'المركز '+(ORD[r-1]||r);
@@ -1137,6 +1137,16 @@ function lgView(){const g=S.lg,ph=phonePlayers();
     <div class="ranklist">${rows.map(r=>`<div><button class="rankrow lgrow" data-act="lgOpen" data-k="${esc(r.k)}"><span class="rk">${r.n>0&&r.rk<=3?medal[r.rk-1]:r.rk}</span><span style="flex:1">${withTitle(r.name,r.k)}</span><span class="sc">${r.n} ✓</span>${r.pts?`<span class="ttl">+${r.pts}</span>`:''}</button>
       ${g.open===r.k?`<div class="lgdet">${r.hit.map(i=>`<span class="chip ok">${esc(q.a[i].split('/')[0])}</span>`).join('')}${r.acc.map(x=>`<button class="ok" data-act="lgUnacc" data-k="${esc(r.k)}" data-v="${esc(x)}" title="إلغاء القبول">${esc(x)} ✓</button>`).join('')}${r.bad.map(x=>`<button class="no" data-act="lgAcc" data-k="${esc(r.k)}" data-v="${esc(x)}" title="اقبلها">${esc(x)} ✗</button>`).join('')}${!r.hit.length&&!r.acc.length&&!r.bad.length?'<span class="muted small">ما كتب شي</span>':''}</div>`:''}</div>`).join('')||'<p class="muted" style="margin:0">ما وصلت إجابات.</p>'}</div>
     <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="lgPick">السؤال التالي</button></div></div>`}
+function makeTrios(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName)),n=ph.length,T=Math.floor(n/3);
+  const caps=shuffle(Array.from({length:T},(_,i)=>i<n-3*T?4:3)),teams=caps.map(()=>[]),gC=t=>t.filter(p=>isGirl(p.name)).length;
+  const G=shuffle(ph.filter(p=>isGirl(p.name))),R=shuffle(ph.filter(p=>!isGirl(p.name)&&ng.has(normName(p.name)))),B=shuffle(ph.filter(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));
+  const free=()=>teams.map((t,i)=>i).filter(i=>teams[i].length<caps[i]);
+  const put=(p,score)=>{const f=free();if(!f.length)return;const best=f.map(i=>[score(teams[i],i),Math.random(),i]).sort((a,b)=>a[0]-b[0]||a[1]-b[1])[0][2];teams[best].push(p)};
+  G.forEach(g=>put(g,t=>gC(t)*10+t.length));
+  R.forEach(r=>put(r,t=>(gC(t)?100:0)+t.length));
+  B.forEach(b=>put(b,t=>(t.length-gC(t))*10+t.length));
+  const tn=shuffle(C.pairNames);S.pairs={on:true,size:3,tn:teams.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(teams).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
+  S.view='pairs';emitState();render();window.scrollTo({top:0})}
 function makePairs(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName));
   const G=shuffle(ph.filter(p=>isGirl(p.name))),R=shuffle(ph.filter(p=>!isGirl(p.name)&&ng.has(normName(p.name)))),B=shuffle(ph.filter(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));
   const groups=[],warn=[];
@@ -1144,9 +1154,9 @@ function makePairs(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName));
   const rest=shuffle([...B,...R]);while(rest.length>=2)groups.push([rest.shift(),rest.shift()]);
   if(rest.length){const x=rest[0],bb=groups.find(g=>g.every(p=>!isGirl(p.name)));if(bb)bb.push(x);else if(!ng.has(normName(x.name))&&groups.length)groups[groups.length-1].push(x);else groups.push([x])}
   warn.forEach(g=>{const gb=groups.find(gr=>gr.length===2&&gr.some(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));groups.push([g])});
-  const tn=shuffle(C.pairNames);S.pairs={on:true,tn:groups.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(groups).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
+  const tn=shuffle(C.pairNames);S.pairs={on:true,size:2,tn:groups.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(groups).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
   S.view='pairs';emitState();render();window.scrollTo({top:0});if(warn.length)toast('ما فيه أولاد كفاية للبنات — راجع التوزيع')}
-function pairProblems(g){const girls=g.filter(k=>isGirl(S.pairs.names[k])).length,ng=new Set(C.noGirl.map(normName));const out=[];if(girls>1)out.push('بنتين مع بعض');if(girls&&g.some(k=>!isGirl(S.pairs.names[k])&&ng.has(normName(S.pairs.names[k]))))out.push((S.pairs.names[g.find(k=>ng.has(normName(S.pairs.names[k])))]||'')+' مع بنت');return out}
+function pairProblems(g){const girls=g.filter(k=>isGirl(S.pairs.names[k])).length,ng=new Set(C.noGirl.map(normName)),tri=S.pairs.size===3;const out=[];if(tri?girls===g.length:girls>1)out.push(tri?'كلهم بنات':'بنتين مع بعض');if(girls&&(!tri||g.filter(k=>!isGirl(S.pairs.names[k])&&!ng.has(normName(S.pairs.names[k]))).length===0)&&g.some(k=>!isGirl(S.pairs.names[k])&&ng.has(normName(S.pairs.names[k]))))out.push((S.pairs.names[g.find(k=>ng.has(normName(S.pairs.names[k])))]||'')+' مع بنت');return out}
 const PD={lead:600,name:1300,spin:1900,hold:800,gap:1300};
 function pairPhase(now){const P_=S.pairs;if(!P_.at)return null;let t=now-P_.at-PD.lead;if(t<0)return {gi:0,k:'wait',mi:0};
   for(let i=0;i<P_.groups.length;i++){const L=P_.groups[i].length,D=PD.name+L*(PD.spin+PD.hold)+PD.gap;
@@ -1158,6 +1168,9 @@ function pairReveal(P_){const ph=pairPhase(Date.now());if(!ph||ph.k==='wait'||ph
   const slots=g.map((k,j)=>j<landed?`<span class="pname got ${j===landed-1&&ph.k==='land'?'land':''}">${esc(P_.names[k]||'')}</span>`:j===landed&&ph.k==='spin'?`<span class="pname pspin" data-pool="${esc(JSON.stringify(pool))}">${esc(pool[Math.floor(Math.random()*pool.length)]||'')}</span>`:`<span class="pname ghost">❓</span>`).join('<span class="pand">🤝</span>');
   return `<div class="preveal"><div class="pteam">${esc(pairName(ph.gi))}</div><div class="pslots">${slots}</div></div>`}
 function pairsView(){const P_=S.pairs,n=P_.groups.length,shown=Math.min(n,P_.shown);
+  if(P_.pick||!n){const c=phonePlayers().length;return `<div class="stage"><span class="eyebrow">قرعة الفرق</span><div class="huge">🎲</div><h2 class="big">كيف تبي الفرق؟</h2><p class="muted" style="margin:0">${c} لاعب متصل</p>
+    <div class="row" style="justify-content:center;gap:16px"><button class="btn-ink btn-big" data-act="pairsDraw" data-size="2" data-confirm="1">👥 ثنائيات<br><small style="font-weight:400">${Math.floor(c/2)} فرق · المنصة 🥇🥈🥉</small></button><button class="btn-ink btn-big" data-act="pairsDraw" data-size="3" data-confirm="1">👥👤 ثلاثيات<br><small style="font-weight:400">${Math.floor(c/3)} فرق · بطل واحد 🏆</small></button></div>
+    ${n?'<button class="link" data-act="pairsShow">رجوع للفرق الحالية</button>':''}</div>`}
   if(!n)return `<div class="stage"><span class="eyebrow">الثنائيات</span><div class="huge">👥</div><p class="muted" style="margin:0">ما فيه ثنائيات. اضغط «قسّمهم ثنائيات».</p><button class="btn-ink btn-big" data-act="pairsDraw">قسّمهم ثنائيات 👥</button></div>`;
   const busy=!P_.fin&&!!P_.at&&pairPhase(Date.now()).k!=='end';
   const card=(g,i)=>{const pr=pairProblems(g);return `<div class="rankrow" style="justify-content:center;flex-wrap:wrap;gap:8px"><b style="font-family:var(--display);font-weight:400;font-size:1.3em;min-width:6ch">${esc(pairName(i))}</b>${g.map(k=>`<button class="dn ${S.pairSel===k?'new':''}" data-act="pairPick" data-k="${esc(k)}" ${busy?'disabled':''}>${esc(P_.names[k]||'')}</button>`).join('<span>🤝</span>')}${pr.length?`<span class="muted small" style="color:var(--red)">⚠️ ${pr.join('، ')}</span>`:''}</div>`};
@@ -1382,7 +1395,7 @@ function adminGames(n){
       <p class="muted small" style="margin:0">${S.pairs.on&&S.pairs.groups.length?`<b style="color:var(--green)">مفعّلة</b> — ${S.pairs.groups.length} فرق. النقاط والترتيب وإعلان الفائزين (أول 3) للفرق.`:'<b>غير مفعّلة</b> — اللعب فردي.'} القرعة توزّع اللاعبين المتصلين: كل بنت مع ولد، وما تنحط بنتين مع بعض.</p>
       <div class="field"><label for="a_pn">أسماء الفرق <span class="hint">— كل اسم في سطر، تتوزع عشوائي وقت القرعة</span></label><textarea id="a_pn" data-d="pairNames" style="min-height:120px">${esc(D.pairNames)}</textarea></div>
       <div class="field"><label for="a_ng">أسماء ما تنحط مع بنت <span class="hint">— مفصولة بفاصلة</span></label><input id="a_ng" data-d="noGirl" value="${esc(D.noGirl)}" placeholder="عايد"></div>
-      <div class="row"><button class="btn-ink" data-act="pairsDraw">قسّمهم ثنائيات 👥</button>${S.pairs.on&&S.pairs.groups.length?'<button data-act="pairsShow">اعرض الفرق</button><button data-act="pairsOff">رجّع اللعب فردي</button>':''}</div>
+      <div class="row"><button class="btn-ink" data-act="pairsDraw">قسّمهم فرق 👥</button>${S.pairs.on&&S.pairs.groups.length?'<button data-act="pairsShow">اعرض الفرق</button><button data-act="pairsOff">رجّع اللعب فردي</button>':''}</div>
       <p class="hint" style="margin:0">احفظ أسماء «ما تنحط مع بنت» قبل القرعة.</p>
     </div>
     <div class="panel"><h3>الافتتاح 🎬</h3>
@@ -1847,8 +1860,8 @@ $app.addEventListener('click',e=>{
     case 'lgOpen':S.lg.open=S.lg.open===b.dataset.k?null:b.dataset.k;render();break;
     case 'lgAcc':{const k=b.dataset.k;(S.lg.acc[k]=S.lg.acc[k]||[]).push(b.dataset.v);lgScore();render();break}
     case 'lgUnacc':{const k=b.dataset.k;S.lg.acc[k]=(S.lg.acc[k]||[]).filter(x=>x!==b.dataset.v);lgScore();render();break}
-    case 'pairsDraw':S.menu=false;if(phonePlayers().length<2){toast('تحتاج لاعبين اثنين على الأقل');break}if(b.dataset.confirm!=='1'&&S.pairs.groups.length&&S.view==='pairs'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.pairSel=null;makePairs();break;
-    case 'pairsShow':S.menu=false;S.view='pairs';emitState();render();break;
+    case 'pairsDraw':S.menu=false;if(phonePlayers().length<2){toast('تحتاج لاعبين اثنين على الأقل');break}if(b.dataset.confirm!=='1'&&S.pairs.groups.length&&S.view==='pairs'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.pairSel=null;const sz=+b.dataset.size;if(!sz){S.pairs.pick=true;S.view='pairs';render();break}S.pairs.pick=false;if(sz===3&&phonePlayers().length>=3)makeTrios();else makePairs();break;
+    case 'pairsShow':S.menu=false;S.pairs.pick=false;S.view='pairs';emitState();render();break;
     case 'pairsOff':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ يرجع اللعب فردي';break}S.pairs.on=false;savePairs();S.view='home';emitState();render();toast('رجع اللعب فردي 👤');break;
     case 'pairPick':{const k=b.dataset.k;if(!S.pairSel){S.pairSel=k;render();break}if(S.pairSel===k){S.pairSel=null;render();break}
       const G=S.pairs.groups,ia=G.findIndex(g=>g.includes(S.pairSel)),ib=G.findIndex(g=>g.includes(k));if(ia>=0&&ib>=0){const a=G[ia].indexOf(S.pairSel),c=G[ib].indexOf(k);G[ia][a]=k;G[ib][c]=S.pairSel}
