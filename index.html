@@ -599,6 +599,7 @@ function hostState(){
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
   if(S.view==='finale'&&S.fin)st.fin={topN:S.fin.topN||5,done:!!finDone(),all:finDone()?S.fin.all.slice(0,60):null};
+  else if(S.view==='judging'&&S.fin&&finDone()){st.fin={topN:S.fin.topN||5,done:true,all:S.fin.all.slice(0,60)};st.jgPhase=S.jg&&S.jg.revealedAt&&Date.now()-S.jg.revealedAt>=20000?'closing':'judging'}
   {const tt={};for(const p of phonePlayers()){const t=titleOfKey(p.key);if(t)tt[p.key]=t}if(Object.keys(tt).length)st.titles=tt}
   {const kk={};for(const k of Object.keys(S.cheat.banned))kk[k]='ban';for(const[k,q] of Object.entries(S.cheat.qban))if(q===S.cheat.qn&&!kk[k])kk[k]='q';for(const k of Object.keys(S.cheat.gban||{}))if(gameBlocked(k)&&!kk[k])kk[k]='g';if(Object.keys(kk).length)st.kick=kk}
   return st;
@@ -1630,13 +1631,14 @@ function playerView(){
   else if(mode==='buzz'&&h.buzz)body=buzzer();
   else if(mode==='bell')body=`<h2 class="big">فقرة الجرس 🔔</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`;
   else if(mode==='event'&&h.ev)body=`${h.gold?'<div class="goldtag" style="position:static">⭐ سؤال ذهبي! النقطة بنقطتين</div>':''}<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
-  else if(mode==='finale'&&h.fin){const f=h.fin;
+  else if((mode==='finale'||h.jgPhase)&&h.fin){const f=h.fin;
     if(!f.done)body=`<div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🏆</div><h2 class="big">جاري إعلان الفائزين…</h2><p style="margin:0;font-size:1.15rem">تابعوا الشاشة الكبيرة 👀</p>`;
     else{const all=Array.isArray(f.all)?f.all:[],myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy,pr=myS!==myBy,me=all.find(x=>x.k===myS),g=isGirl(P.name),top=f.topN||5;
       const you=pr?'أنتم':g?'أنتِ':'أنت',mk=pr?'مركزكم':g?'مركزكِ':'مركزك',tk=pr?'ترتيبكم':g?'ترتيبكِ':'ترتيبك',mq=pr?'ما قصرتوا':g?'ما قصرتِ':'ما قصرت';
       body=me&&me.r===1&&me.s>0?`<div class="myres win"><b>🎉 مبروك!</b><span style="font-size:1.25rem">${you} <strong>${pr?'أبطال':g?'بطلة':'بطل'} لمّة سمول ڤاميلي</strong> 🏆</span></div>`
         :me&&me.r<=top&&me.s>0?`<div class="myres win"><b>🎉 مبروك!</b><span style="font-size:1.25rem">${mk} <strong>${ORD[me.r-1]}</strong> ${me.r<=3?MEDAL[me.r-1]:''}</span></div>`
-        :`<div class="myres"><b>${mq} 🤍</b>${me?`<span style="font-size:1.2rem">${tk} <strong>${ORD[me.r-1]||me.r}</strong></span>`:''}<span>نلتقي مرة أخرى 👏⏳🤍</span></div>`}}
+        :`<div class="myres"><b>${mq} 🤍</b>${me?`<span style="font-size:1.2rem">${tk} <strong>${ORD[me.r-1]||me.r}</strong></span>`:''}<span>نلتقي مرة أخرى 👏⏳🤍</span></div>`;
+      if(h.jgPhase)body+=h.jgPhase==='closing'?`<div class="myres" style="margin-top:6px"><b>🤍 شكرًا لمشاركتكم… والجايات أحلى!</b><span>لمة سمول فاميلي 🤍</span></div>`:`<p style="margin:6px 0 0;font-size:1.15rem">🏆 جاري تقييم أفضل لجنة… تابعوا الشاشة 👀</p>`}}
   else if(mode==='lists'&&h.lg&&warnCard&&h.lg.stage==='play')body=warnCard;
   else if(mode==='lists'&&h.lg){const L=h.lg;
     if(L.r!==P.lgR){P.lgR=L.r;P.lgText='';P.lgSent=false;P.lgEnd=0}
@@ -1682,7 +1684,7 @@ function tick(){
     for(const a of S.alerts.slice()){if(now<a.end)continue;if(a.ph==='wait'){alertKick(a);ch=false}else{S.alerts=S.alerts.filter(x=>x!==a);ch=true}}
     if(ch){sirenSync();render()}
     document.querySelectorAll('[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))})}
-  if(role==='host'&&S.view==='judging'&&S.jg&&S.jg.revealedAt&&!S.jg.closed&&now-S.jg.revealedAt>=20000){S.jg.closed=true;saveJg();render()}
+  if(role==='host'&&S.view==='judging'&&S.jg&&S.jg.revealedAt&&!S.jg.closed&&now-S.jg.revealedAt>=20000){S.jg.closed=true;saveJg();emitState();render()}
   if(role==='host'&&S.view==='charades'&&S.ch.stage==='play'&&now>=S.ch.end){S.ch.stage='done';S.teams[S.ch.team].score+=S.ch.got.length;saveTeams();beep(440,.8);emitState();render()}
   if(role==='host'&&S.view==='spy'&&S.spy&&S.spy.stage==='play'&&S.spy.end&&now>=S.spy.end&&!S.spy.beeped){S.spy.beeped=true;beep(440,.8)}
   if(role==='host'&&S.view==='event'&&S.ev&&S.ev.end&&now>=S.ev.end&&!S.ev.beeped){S.ev.beeped=true;beep(440,.8)}
