@@ -519,5 +519,167 @@
     }
    }
   ]
+ },
+ {
+  "id": "2026-11-05-amthal",
+  "title": "أمثال جديدة لخمنوااا + حذف خمّنوا الرياكشن",
+  "desc": "يضيف ١٣ مثل جديد لجولة «خمّنوا المثل» (تصير ٢٠)، ويحذف جولة «خمّنوا الرياكشن».",
+  "ops": [
+   {
+    "op": "addItems",
+    "event": "خمنوااا",
+    "round": "خمّنوا المثل",
+    "items": [
+     {
+      "team": "",
+      "q": "",
+      "a": "اللي ما يعرف الصقر يشويه",
+      "qm": {
+       "url": "media/mt1.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الباب اللي يجيك منه ريح سده واستريح",
+      "qm": {
+       "url": "media/mt3.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "اللي ما يطول العنب حامض عنه يقول",
+      "qm": {
+       "url": "media/mt6.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "من طلع من داره قل مقداره",
+      "qm": {
+       "url": "media/mt7.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "دق الحديد وهو حامي",
+      "qm": {
+       "url": "media/mt11.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "اذا كان الكلام من فضة فالسكوت من ذهب",
+      "qm": {
+       "url": "media/mt13.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "اذا غاب القط العب يا فار",
+      "qm": {
+       "url": "media/mt15.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "اللي يده في الماء مو مثل اللي يده في النار",
+      "qm": {
+       "url": "media/mt17.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "لسانك حصانك ان صنته صانك",
+      "qm": {
+       "url": "media/mt22.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الصبر مفتاح الفرج",
+      "qm": {
+       "url": "media/mt43.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الطول طول نخلة والعقل عقل صخلة",
+      "qm": {
+       "url": "media/mt47.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "اذا طاح الجمل كثرت سكاكينه",
+      "qm": {
+       "url": "media/mt49.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "يا شين السرج على البقر",
+      "qm": {
+       "url": "media/mt57.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     }
+    ]
+   },
+   {
+    "op": "removeRound",
+    "event": "خمنوااا",
+    "round": "خمّنوا الرياكشن"
+   }
+  ]
  }
 ]
