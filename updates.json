@@ -681,5 +681,477 @@
     "round": "خمّنوا الرياكشن"
    }
   ]
+ },
+ {
+  "id": "2026-11-05-khamminha",
+  "title": "خمنوااا: دول وأكلات جديدة + جولة «خمّنوا الاسم»",
+  "desc": "يستبدل أسئلة «خمّنوا البلد» بـ٢٠ دولة جديدة، و«خمّنوا الأكلة» بـ١٠ أكلات جديدة، ويضيف جولة «خمّنوا الاسم» (١٠).",
+  "ops": [
+   {
+    "op": "setItems",
+    "event": "خمنوااا",
+    "round": "خمّنوا البلد",
+    "items": [
+     {
+      "team": "",
+      "q": "",
+      "a": "المغرب",
+      "qm": {
+       "url": "media/kn45.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "لبنان",
+      "qm": {
+       "url": "media/kn47.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "بيروت",
+      "qm": {
+       "url": "media/kn49.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "سوريا",
+      "qm": {
+       "url": "media/kn51.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الكاميرون",
+      "qm": {
+       "url": "media/kn53.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "كوبا",
+      "qm": {
+       "url": "media/kn55.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "موزمبيق",
+      "qm": {
+       "url": "media/kn57.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "فلسطين",
+      "qm": {
+       "url": "media/kn59.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "جزر القمر",
+      "qm": {
+       "url": "media/kn61.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الصومال",
+      "qm": {
+       "url": "media/kn63.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "فيتنام",
+      "qm": {
+       "url": "media/kn65.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "ماليزيا",
+      "qm": {
+       "url": "media/kn67.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "بنما",
+      "qm": {
+       "url": "media/kn69.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "السنغال",
+      "qm": {
+       "url": "media/kn71.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "تايوان",
+      "qm": {
+       "url": "media/kn73.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "تونس",
+      "qm": {
+       "url": "media/kn75.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "قطر",
+      "qm": {
+       "url": "media/kn77.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "البحرين",
+      "qm": {
+       "url": "media/kn79.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "كوريا",
+      "qm": {
+       "url": "media/kn81.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "فرنسا",
+      "qm": {
+       "url": "media/kn83.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     }
+    ]
+   },
+   {
+    "op": "setItems",
+    "event": "خمنوااا",
+    "round": "خمّنوا الأكلة",
+    "items": [
+     {
+      "team": "",
+      "q": "",
+      "a": "سمبوسة",
+      "qm": {
+       "url": "media/kn4.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "جريش",
+      "qm": {
+       "url": "media/kn6.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "لقمة القاضي",
+      "qm": {
+       "url": "media/kn8.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "بسبوسة",
+      "qm": {
+       "url": "media/kn10.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "بيتزا",
+      "qm": {
+       "url": "media/kn12.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "كبسة",
+      "qm": {
+       "url": "media/kn14.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "أم علي",
+      "qm": {
+       "url": "media/kn20.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "ورق عنب",
+      "qm": {
+       "url": "media/kn24.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "شاورما",
+      "qm": {
+       "url": "media/kn34.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "برجر",
+      "qm": {
+       "url": "media/kn36.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     }
+    ]
+   },
+   {
+    "op": "addRound",
+    "event": "خمنوااا",
+    "round": {
+     "title": "خمّنوا الاسم",
+     "desc": "من الصور والحروف طلّعوا الاسم 👤",
+     "timer": 0,
+     "items": [
+      {
+       "team": "",
+       "q": "",
+       "a": "ريتاج",
+       "qm": {
+        "url": "media/kn86.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "حنان",
+       "qm": {
+        "url": "media/kn88.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "زيد",
+       "qm": {
+        "url": "media/kn90.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "منار",
+       "qm": {
+        "url": "media/kn92.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "مالك",
+       "qm": {
+        "url": "media/kn96.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "حسام",
+       "qm": {
+        "url": "media/kn100.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "آدم",
+       "qm": {
+        "url": "media/kn102.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "جمال",
+       "qm": {
+        "url": "media/kn108.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "فارس",
+       "qm": {
+        "url": "media/kn116.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      },
+      {
+       "team": "",
+       "q": "",
+       "a": "وليد",
+       "qm": {
+        "url": "media/kn122.jpg",
+        "kind": "image"
+       },
+       "am": null,
+       "link": ""
+      }
+     ]
+    }
+   }
+  ]
  }
 ]
