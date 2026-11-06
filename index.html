@@ -1024,17 +1024,19 @@ function drawStep(){
   S.draw.assign[k]=t;S.drawLast=k;saveDraw();beep(t?660:520,.18);emitState();render();
   setTimeout(drawStep,900);
 }
+const cntQ=n=>n===1?'سؤال واحد':n===2?'سؤالين':n>=3&&n<=10?n+' أسئلة':n+' سؤال';
+const cntR=n=>n===1?'جولة واحدة':n===2?'جولتين':n>=3&&n<=10?n+' جولات':n+' جولة';
 function homeView(){
   const ph=phonePlayers(),g=C.games;
-  const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">فعالية · ${e.rounds.length} جولة</span><h2>${esc(e.title)}</h2><p>${esc(e.subtitle||(S.mode==='solo'?'جولات بالترتيب، سؤال ثم إجابة.':'جولات بالترتيب، سؤال ثم إجابة، والنقاط للفريقين.'))}</p><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
+  const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">${cntR(e.rounds.length)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}</span><h2>${esc(e.title)}</h2><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
   const tiles=[...evTiles,
-    g.spy&&`<div class="game"><span class="tag">3 لاعبين وأكثر · ${C.spyMin} دقائق</span><h2>برا السالفة</h2><p>الكل يعرف الكلمة إلا واحد. اسألوا بعض واكتشفوه قبل ما يعرف السالفة.</p><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
-    g.charades&&C.teamsOn&&`<div class="game"><span class="tag">فريقين · ${C.chDur} ثانية للجولة</span><h2>مثّلها</h2><p>واحد يمثّل الكلمة بدون كلام وفريقه يخمّن. كل كلمة صح بنقطة.</p><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
-    g.bell&&`<div class="game"><span class="tag">من الجوالات · أي أسئلة</span><h2>فقرة الجرس 🔔</h2><p>أنت تسأل بصوتك، وأول لاعب يضغط الجرس في جواله يطلع اسمه على الشاشة ويجاوب.</p><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
-    g.aunts&&`<div class="game"><span class="tag">للبنات بس · ${C.auntQs.length} أسئلة</span><h2>فقرة الخالات 👩</h2><p>الجرس يشتغل للخالات بس، والرجال يتفرجون. والنقاط لفريقها.</p><button class="btn-green btn-big" data-act="go" data-v="aunts">ابدأ</button></div>`,
-    g.mcq&&`<div class="game"><span class="tag">من الجوالات · ${C.mcq.length} سؤال · ${C.mcqSecs} ثواني</span><h2>تحدي المعلومات 🧠</h2><p>سؤال وخيارات، وكل فريق يختار من جواله. الصح نقطة والأسرع نقطتين ⚡ والتصحيح تلقائي.</p><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
-    g.lists&&`<div class="game"><span class="tag">من الجوالات · ${C.lists.length} سؤال · ${C.lgSecs} ثانية</span><h2>30 ثانية ⏱️</h2><p>سؤال واحد والكل يكتب أكبر عدد من الإجابات في جواله قبل ما يخلص الوقت. والموقع يصحّح.</p><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
-    g.buzz&&`<div class="game"><span class="tag">${S.mode==='solo'?'من الجوالات':'فريقين'} · ${C.quiz.length} سؤال</span><h2>الأسرع</h2><p>المقدّم يقرأ السؤال، وأول من يضغط الجرس في جواله يجاوب.</p><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
+    g.spy&&`<div class="game"><h2>برا السالفة</h2><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
+    g.charades&&C.teamsOn&&`<div class="game"><h2>مثّلها</h2><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
+    g.bell&&`<div class="game"><span class="tag">${cntQ(C.bellQs.length)}</span><h2>فقرة الجرس 🔔</h2><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
+    g.aunts&&`<div class="game"><span class="tag">${cntQ(C.auntQs.length)}</span><h2>فقرة الخالات 👩</h2><button class="btn-green btn-big" data-act="go" data-v="aunts">ابدأ</button></div>`,
+    g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
+    g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
+    g.buzz&&`<div class="game"><span class="tag">${cntQ(C.quiz.length)}</span><h2>الأسرع</h2><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
   ].filter(Boolean);
   return `<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
 }
