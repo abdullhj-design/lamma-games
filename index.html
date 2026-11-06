@@ -918,6 +918,7 @@ function showWelcome(){hideWelcome();const el=document.createElement('div');el.i
 
 /* ---------- render ---------- */
 function render(){
+  if(role==='player'&&document.activeElement&&document.activeElement.id==='lgIn'&&P.host&&P.host.mode==='lists'&&P.host.lg&&P.host.lg.stage==='play'&&P.host.lg.r===P.lgR&&Date.now()<(P.lgEnd||0)&&!P.host.warn?.[myBy])return;
   const a=document.activeElement,id=a&&a.id,sel=a&&a.selectionStart,se=a&&a.selectionEnd,sc=a&&a.scrollTop;
   // keep playing videos playing across re-renders
   const playing={};document.querySelectorAll('video[data-key]').forEach(v=>{if(!v.paused||v.currentTime>0)playing[v.dataset.key]={t:v.currentTime,p:!v.paused}});
