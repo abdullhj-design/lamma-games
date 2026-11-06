@@ -918,6 +918,7 @@ function showWelcome(){hideWelcome();const el=document.createElement('div');el.i
 
 /* ---------- render ---------- */
 function render(){
+  {const ae=document.activeElement;if(role&&role!=='host'&&ae&&(ae.tagName==='TEXTAREA'||(ae.tagName==='INPUT'&&!/^(checkbox|radio|range|button|submit)$/.test(ae.type)))&&ae.id!=='lgIn'&&$app.contains(ae)){P.deferRender=true;return}}
   if(role==='player'&&document.activeElement&&document.activeElement.id==='lgIn'&&P.host&&P.host.mode==='lists'&&P.host.lg&&P.host.lg.stage==='play'&&P.host.lg.r===P.lgR&&Date.now()<(P.lgEnd||0)&&!P.host.warn?.[myBy])return;
   const a=document.activeElement,id=a&&a.id,sel=a&&a.selectionStart,se=a&&a.selectionEnd,sc=a&&a.scrollTop;
   // keep playing videos playing across re-renders
@@ -2008,7 +2009,8 @@ $app.addEventListener('input',e=>{
   if(t.dataset.d.startsWith('events.')||t.dataset.d.startsWith('tx.'))return; // no re-render while typing
   clearTimeout(draftTimer);draftTimer=setTimeout(()=>{if(S.view==='admin')render()},600);
 });
-$app.addEventListener('submit',e=>{
+document.addEventListener('focusout',()=>{if(!P.deferRender)return;setTimeout(()=>{const a=document.activeElement;if(P.deferRender&&!(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&$app.contains(a))){P.deferRender=false;render()}},60)});
+$app.addEventListener('submit',e=>{try{const a=document.activeElement;if(a&&a.blur&&$app.contains(a))a.blur()}catch(_){}
   e.preventDefault();const f=e.target.dataset.form;
   if(f==='addLocal'){const i=document.getElementById('newName');const n=clean(i.value);if(!n)return;if(S.localsExample){S.locals=[];S.localsExample=false}S.locals.push(n);LS.set('locals',S.locals);i.value='';render()}
   if(f==='judge'){J.name='عضو لجنة التقييم';
