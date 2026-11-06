@@ -495,6 +495,7 @@ function normalize(j){
   {const bq=Array.isArray(j.bellQs)?j.bellQs.map(x=>({q:clean(x&&x.q,150),a:clean(x&&x.a,80)})).filter(x=>x.q&&x.a).slice(0,300):[];o.bellQs=bq.length?bq:BELLQ_DEF}
   o.lgSecs=[10,15,20,25,30,45,60].includes(+j.lgSecs)?+j.lgSecs:d.lgSecs;
   {const m=Array.isArray(j.mcq)?j.mcq.map(x=>({q:clean(x&&x.q,200),o:Array.isArray(x&&x.o)?x.o.map(v=>clean(v,60)).filter(Boolean).slice(0,4):[]})).filter(x=>x.q&&x.o.length>=2).slice(0,200):[];o.mcq=m.length?m:MCQ_DEF}
+  o.spamN=[0,2,3,4,5].includes(+j.spamN)?+j.spamN:3;
   o.mcqSecs=Number.isInteger(+j.mcqSecs)&&+j.mcqSecs>=3&&+j.mcqSecs<=60?+j.mcqSecs:7;
   o.lgPts=Array.isArray(j.lgPts)&&j.lgPts.length===3&&j.lgPts.every(x=>Number.isInteger(+x)&&+x>=0&&+x<=20)?j.lgPts.map(Number):d.lgPts;
   const ti=(v,d)=>Number.isInteger(+v)&&+v>=2&&+v<=60&&v!==''&&v!=null?+v:d;
@@ -581,7 +582,7 @@ const warnBlocked=k=>{const t=warnT(k),q=S.warn.q[t];return (q&&q.qn===S.cheat.q
 const gameKey=()=>ARMED.includes(S.view)?(S.view==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:S.view):'';
 const gameBlocked=k=>S.cheat.gban&&S.cheat.gban[k]!=null&&S.cheat.gban[k]===S.cheat.gs;
 function syncGame(){const g=gameKey();if(g&&g!==S.cheat.gk){S.cheat.gk=g;S.cheat.gs=(S.cheat.gs||0)+1;saveCheat();emitState()}}
-const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn||gameBlocked(k)||warnBlocked(k);
+const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn||gameBlocked(k)||warnBlocked(k)||spamBanned(k);
 function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;
   if(n>=3){S.warn.red[t]=Date.now()+60000;S.warn.n[t]=0;delete S.warn.q[t];soloAdd(t,name,-2);lvl=3}
   else{S.warn.n[t]=n;S.warn.q[t]={qn:S.cheat.qn,n};if(n===2)soloAdd(t,name,-1)}
@@ -592,7 +593,12 @@ function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;
   try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();[0,.28].forEach(t0=>{const o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=2600;o.connect(g);g.connect(a.destination);const t=a.currentTime+t0;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+(t0?.55:.22));o.start(t);o.stop(t+.6)})}catch(e){}
   render()}
 const warnBadge=k=>{if((S.warn.red[k]||0)>Date.now())return ' 🟥';const n=S.warn.n[k]||0;return n===2?' 🟨🟨':n===1?' 🟨':''};
-function bumpQ(){S.cheat.qn++;S.cheat.qban={};saveCheat()}
+S.spam=(()=>{const d=LS.get('spam',null);return d&&typeof d==='object'?{st:d.st||{},ban:d.ban||{},pr:d.pr||{}}:{st:{},ban:{},pr:{}}})();const saveSpam=()=>LS.set('spam',S.spam);
+const spamOn=()=>C.spamN>0&&['event','buzz','aunts'].includes(S.view);
+const spamBanned=k=>S.spam.ban[k]!=null&&S.spam.ban[k]===S.cheat.qn;
+function spamFail(o){if(!spamOn()||!o||!o.key)return;const k=o.key,n=(S.spam.st[k]||0)+1;if(n>=C.spamN){S.spam.st[k]=0;S.spam.ban[k]=S.cheat.qn+1;toast('⛔ '+o.name+' موقوف السؤال الجاي (ضغط '+C.spamN+' مرات بدون جواب)')}else S.spam.st[k]=n;saveSpam()}
+function spamOk(o){if(o&&o.key&&S.spam.st[o.key]){S.spam.st[o.key]=0;saveSpam()}}
+function bumpQ(){for(const k of Object.keys(S.spam.st))if(!S.spam.pr[k])delete S.spam.st[k];S.spam.pr={};for(const[k,q] of Object.entries(S.spam.ban))if(q<=S.cheat.qn)delete S.spam.ban[k];saveSpam();S.cheat.qn++;S.cheat.qban={};saveCheat()}
 const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
 function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)&&!isBanned(pKey(p))).map(p=>{const key=pKey(p),name=clean(p.presence.name);if(role==='host')titleFor(key,name);return{peer:p.peer,key,name,team:teamOfKey(key)}})}
 function hostState(){
@@ -601,6 +607,7 @@ function hostState(){
   if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
     st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
+  {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
   if(S.wh.cur){const w=S.wh.cur;st.wh={st:w.stage,who:w.who,id:w.id,res:w.stage==='result'&&w.res?{txt:w.res.txt,sub:w.res.sub,big:w.res.big,team:w.res.team||''}:null}}
   if(S.view==='charades'){st.ch={team:S.ch.team,stage:S.ch.stage}}
   if(S.view==='event'&&S.ev){const e=C.events[S.ev.ei],r=S.ev.ri>=0?e.rounds[S.ev.ri]:null;st.ev={title:e.title,round:S.ev.phase==='rank'?'الترتيب 📊':r?r.title:''}}
@@ -632,6 +639,7 @@ function onHostPeers(ch){readerCmds();whPeers();mqCollect();
     for(const p of [...ch.joined,...ch.updated]){
       const b=p.presence&&p.presence.buzz;
       if(b&&b.r===S.bz.r&&p.presence.role==='player'&&!blocked(pKey(p))&&!(S.view==='aunts'&&!isGirl(p.presence.name))&&!S.bz.order.find(o=>o.peer===p.peer)&&!(pairIdx(pKey(p))>=0&&S.bz.order.find(o=>pairIdx(o.key)===pairIdx(pKey(p))))){
+        if(spamOn()){S.spam.pr[pKey(p)]=1;saveSpam()}
         S.bz.order.push({peer:p.peer,key:pKey(p),name:clean(p.presence.name)||'لاعب',team:teamOfKey(pKey(p))??(p.presence.team===1?1:0),at:performance.now()});
         if(S.bz.order.length===1){if(S.view==='bell')ding();else beep(880,.35)}changed=true;syncTurn();emitState();
       }
@@ -1319,7 +1327,7 @@ function turnSecs(nFailed){return C.turn[Math.min(nFailed,2)]}
 function syncTurn(){const b=S.bz;if(b.awarded){b.curPeer=null;return}const fail=b.fail||[],cur=b.order.find(o=>!fail.includes(o.peer));
   if(!cur){b.curPeer=null;return}if(cur.peer!==b.curPeer){b.curPeer=cur.peer;b.curDur=turnSecs(fail.length)*1000;b.curEnd=Date.now()+b.curDur}}
 function turnTimeout(){const b=S.bz,fail=b.fail||[],cur=b.order.find(o=>o.peer===b.curPeer);if(!cur||b.awarded)return;
-  b.fail=fail.concat(cur.peer);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render()}
+  b.fail=fail.concat(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render()}
 function bzLabel(o){const i=pairIdx(o.key);if(i>=0)return pairName(i);if(S.mode==='solo')return titleOfKey(o.key)||o.name;return o.name}
 function answerer(b){
   if(!b.order.length)return '';const nm=bzLabel;
@@ -1368,7 +1376,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),wheelPool:C.wheelPool.join('، '),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),wheelPool:C.wheelPool.join('، '),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),spamN:String(C.spamN),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
@@ -1390,7 +1398,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,spamN:[0,2,3,4,5].includes(+D.spamN)?+D.spamN:3,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -1529,6 +1537,10 @@ function adminGames(n){
       <p class="muted small" style="margin:0">كل سطر يطلع لحاله. <b>#</b> بأول السطر = عنوان كبير، <b>##</b> = عنوان متوسط، <b>**كلام**</b> = خط عريض، <b>==كلام==</b> = لون ذهبي، <b>{name}</b> = اسم الشخص. لا تنسى «احفظ» تحت.</p>
       ${Object.keys(TXD).map(k=>`<div class="field"><label for="tx_${k}" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>${esc(TXL[k])}</span>${D.tx&&D.tx[k]!==TXD[k]?`<button class="link" data-act="txReset" data-k="${k}">رجّع النص الأصلي</button>`:''}</label><textarea id="tx_${k}" data-d="tx.${k}" style="min-height:${Math.min(320,60+TXD[k].split('\n').length*26)}px">${esc(D.tx?D.tx[k]:'')}</textarea></div>`).join('')}
     </div>
+    <div class="panel"><h3>عقوبة الضغط العشوائي ⛔</h3>
+      <p class="muted small" style="margin:0">اللي يضغط الجرس كذا مرة ورا بعض وكلها غلط أو بدون جواب، يتوقف السؤال اللي بعده. (ما تشتغل بفقرة الجرس 🔔)</p>
+      <div class="field" style="max-width:260px"><label for="a_spam">عدد المرات</label><select id="a_spam" data-d="spamN">${[[0,'مقفلة'],[2,'مرتين'],[3,'3 مرات'],[4,'4 مرات'],[5,'5 مرات']].map(([v,l])=>`<option value="${v}" ${String(D.spamN)===String(v)?'selected':''}>${l}</option>`).join('')}</select></div>
+    </div>
     <div class="panel"><h3>فقرة الخالات 👩</h3>
       <p class="muted small" style="margin:0">الجرس يشتغل للبنات بس. كل سطر: السؤال | الجواب (الجواب يطلع لما تضغط «اكشف الجواب»).</p>
       <div class="field"><textarea id="a_aq" data-d="auntQs" style="min-height:140px">${esc(D.auntQs)}</textarea></div>
@@ -1655,6 +1667,7 @@ function playerView(){
   if(kicked==='g')return head+`<div class="phone stage"><div class="cheat">${txHtml('k2'+kg,kh)}</div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع الجولة الجاية.</p></div>`;
   if(kicked==='q')return head+`<div class="phone stage"><div class="cheat">${txHtml('k1'+kg,kh)}</div><p class="muted small" style="margin:0">${gx(P.name,'ترجع تلعب','ترجعين تلعبين')} مع السؤال الجاي.</p></div>`;
   if(h.wh)return head+whPhone(h);
+  if(h.sb&&myBy&&h.sb.includes(myBy)&&['event','buzz','aunts'].includes(h.mode))return head+`<div class="phone stage"><div class="huge">⛔</div><h2 class="big">${isGirl(P.name)?'ارتاحي':'ارتاح'} هالسؤال 😄</h2><p style="margin:0">${isGirl(P.name)?'ضغطتِ':'ضغطت'} الجرس ${C.spamN} مرات ورا بعض بدون جواب صح.</p><p class="muted" style="margin:0">${isGirl(P.name)?'ترجعين':'ترجع'} مع السؤال الجاي.</p></div>`;
   const wn=h.warn&&myBy?h.warn[myBy]:null,pl=h.pk&&myBy&&h.pk[myBy],gW=isGirl(P.name);
   if(wn&&wn.l===3){const key='r'+Math.round((Date.now()+wn.left)/5000);if(P.redKey!==key){P.redKey=key;P.redEnd=Date.now()+wn.left;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
   const warnCard=!wn?'':wn.l===3?`<div class="cheat"><div class="big" style="color:var(--red)">🟥 كرت أحمر!</div><p>${pl?'محرومين':gW?'محرومة':'محروم'} دقيقة، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطتين</p><div class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="color:var(--red)">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</div></div>`
@@ -1905,10 +1918,10 @@ $app.addEventListener('click',e=>{
     case 'drawRedo':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.draw.assign={};saveDraw();emitState();render();break;
     case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'ansRight':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur||b.awarded)break;
-      const mul=ptsMul();b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
+      spamOk(cur);const mul=ptsMul();b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
       else{S.teams[cur.team].score+=mul;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
       b.awarded=true;b.awardedName=bzLabel(cur);b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
-    case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
+    case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
     case 'rd':readerSend(b.dataset.a);break;
     case 'aqNext':{const adv=()=>{const n=C.auntQs.length;S.aq.i=Math.min(n,S.aq.i+1);S.aq.showA=false;saveAq();bumpQ();closeBuzz();if(S.aq.i<n)openBuzz();emitState();render()};if(S.aq.i+1<C.auntQs.length&&wheelGate(adv))break;adv();break}
     case 'aqShowA':S.aq.showA=true;render();break;
@@ -1959,7 +1972,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.aq={i:-1,showA:false};saveAq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.wh={used:[],c1:false,c2:false,money:null,cnt:{},tg:{},done:{},goldQn:-1,cur:null,id:S.wh.id||0};saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.wh={used:[],c1:false,c2:false,money:null,cnt:{},tg:{},done:{},goldQn:-1,cur:null,id:S.wh.id||0};saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,gs:(S.cheat.gs||0)+1,gk:'',strikes:{},banned:{},qban:{},gban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
