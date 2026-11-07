@@ -611,7 +611,7 @@ function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameT
 function hostState(){
   const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
-  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0}}
+  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:S.view==='bell'}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
     st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
   {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
@@ -1351,7 +1351,7 @@ function answerer(b){
   const left=b.curPeer===cur.peer?Math.max(0,b.curEnd-Date.now()):0,tot=b.curDur||10000;
   return `<div class="answerer"><div class="bzcard${en}"><span class="bztag">🔔 يجاوب الحين</span>
     <div class="bzname">${esc(nm(cur))}</div>${!solo&&pairIdx(cur.key)<0?`<span class="teambadge t${cur.team}">${esc(S.teams[cur.team].name)}</span>`:''}
-    ${b.curPeer===cur.peer?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
+    ${b.curPeer===cur.peer&&S.view!=='bell'?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
     <button class="bzok" data-act="ansRight">✓ صح</button>
     ${next.length?`<div class="bznext">بعده: ${next.map(o=>esc(nm(o))).join(' ← ')}</div>`:''}</div>${fl}</div>`;
 }
@@ -1689,7 +1689,7 @@ function playerView(){
     const q=Array.isArray(bz.q)?bz.q:[],pos=me?q.indexOf(me):-1;
     if(bz.win&&bz.win===me)return `<div class="myturn now"><b>✓ صح ${voc}! 🎉</b><span>${g?'أخذتِ':'أخذت'} النقطة</span></div>`;
     if(pos===0){if(P.turnR!==bz.r+':'+(bz.out||[]).length){P.turnR=bz.r+':'+(bz.out||[]).length;P.turnEnd=Date.now()+(+bz.left||0);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(_){}}
-      return `<div class="myturn now"><b>🎤 ${g?'دوركِ':'دورك'} ${voc}!</b><span>${g?'جاوبي':'جاوب'} الحين</span><div class="turncd" data-pcd="${P.turnEnd}">${Math.max(0,Math.ceil((P.turnEnd-Date.now())/1000))}</div></div>`}
+      return `<div class="myturn now"><b>🎤 ${g?'دوركِ':'دورك'} ${voc}!</b><span>${g?'جاوبي':'جاوب'} الحين</span>${bz.noT?'':`<div class="turncd" data-pcd="${P.turnEnd}">${Math.max(0,Math.ceil((P.turnEnd-Date.now())/1000))}</div>`}</div>`}
     if(pos>0)return `<div class="myturn wait"><b>⏳ ${g?'انتظري':'انتظر'} ${voc}</b><span style="font-size:1.2rem">${g?'دوركِ':'دورك'} <strong>${ORD[pos]||('رقم '+(pos+1))}</strong></span></div>`;
     if(me&&Array.isArray(bz.out)&&bz.out.includes(me))return `<div class="myturn out"><b>انتهى ${g?'وقتكِ':'وقتك'} ${voc} ⏱️</b></div>`;
     return `<button class="buzzer" data-act="buzz" ${!bz.open||done?'disabled':''}>${done?'ضغطت!':'🔔'}</button><p class="muted" style="margin:0">${done?'شوف الشاشة الكبيرة.':bz.open?'اضغط أول ما تعرف الجواب':'استنى السؤال'}</p>`};
@@ -1737,7 +1737,7 @@ function tick(){
   if(role==='host'&&S.loaded)syncGame();
   if(role==='host'){whTick(now);mqTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
-  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&['buzz','bell','aunts','event'].includes(S.view))turnTimeout();
+  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&['buzz','aunts','event'].includes(S.view))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
   if(role==='host')document.querySelectorAll('.bzring[data-cd]').forEach(el=>{const left=Math.max(0,+el.dataset.cd-now),tot=+el.dataset.tot||10000,sec=Math.ceil(left/1000);el.style.setProperty('--p',(left/tot).toFixed(3));
     el.classList.toggle('mid',left/tot<=.5&&sec>3);el.classList.toggle('low',sec<=3);const bb=el.querySelector('b');if(bb&&bb.textContent!==String(sec)){bb.textContent=sec;if(sec<=3&&sec>0)beep(1300,.06)}});
