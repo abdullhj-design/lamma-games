@@ -1171,11 +1171,12 @@ function lgView(){const g=S.lg,ph=phonePlayers();
 function makeFixed(size,list){const ph=phonePlayers(),used=new Set();
   let teams=list.map(t=>{const g=[];for(const nm of t){const p=ph.find(x=>!used.has(x.key)&&normName(x.name)===normName(nm));if(p){used.add(p.key);g.push(p)}}return g}).filter(g=>g.length);
   const rest=shuffle(ph.filter(p=>!used.has(p.key)));
-  for(const p of rest){if(!teams.length){teams.push([p]);continue}teams.slice().sort((a,b)=>a.length-b.length||Math.random()-.5)[0].push(p)}
+  if(rest.length>=size||!teams.length){teams=teams.concat(size===3&&rest.length>=3?makeTrios(rest,true):makePairs(rest,true))}
+  else for(const p of rest)teams.slice().sort((a,b)=>a.length-b.length||Math.random()-.5)[0].push(p);
   for(;;){const lone=teams.find(t=>t.length===1);if(!lone||teams.length<2)break;teams=teams.filter(t=>t!==lone);teams.slice().sort((a,b)=>a.length-b.length)[0].push(lone[0])}
   const tn=shuffle(C.pairNames);S.pairs={on:true,size,fixed:true,tn:teams.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(teams).map(g=>shuffle(g).map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
   S.view='pairs';emitState();render();window.scrollTo({top:0})}
-function makeTrios(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName)),n=ph.length,T=Math.floor(n/3);
+function makeTrios(list,only){const ph=list||phonePlayers(),ng=new Set(C.noGirl.map(normName)),n=ph.length,T=Math.max(1,Math.floor(n/3));
   const caps=shuffle(Array.from({length:T},(_,i)=>i<n-3*T?4:3)),teams=caps.map(()=>[]),gC=t=>t.filter(p=>isGirl(p.name)).length;
   const G=shuffle(ph.filter(p=>isGirl(p.name))),R=shuffle(ph.filter(p=>!isGirl(p.name)&&ng.has(normName(p.name)))),B=shuffle(ph.filter(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));
   const free=()=>teams.map((t,i)=>i).filter(i=>teams[i].length<caps[i]);
@@ -1183,15 +1184,17 @@ function makeTrios(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName)),
   G.forEach(g=>put(g,t=>gC(t)*10+t.length));
   R.forEach(r=>put(r,t=>(gC(t)?100:0)+t.length));
   B.forEach(b=>put(b,t=>(t.length-gC(t))*10+t.length));
+  if(only)return teams.filter(t=>t.length);
   const tn=shuffle(C.pairNames);S.pairs={on:true,size:3,tn:teams.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(teams).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
   S.view='pairs';emitState();render();window.scrollTo({top:0})}
-function makePairs(){const ph=phonePlayers(),ng=new Set(C.noGirl.map(normName));
+function makePairs(list,only){const ph=list||phonePlayers(),ng=new Set(C.noGirl.map(normName));
   const G=shuffle(ph.filter(p=>isGirl(p.name))),R=shuffle(ph.filter(p=>!isGirl(p.name)&&ng.has(normName(p.name)))),B=shuffle(ph.filter(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));
   const groups=[],warn=[];
   G.forEach(g=>{const b=B.shift();if(b)groups.push([g,b]);else warn.push(g)});
   const rest=shuffle([...B,...R]);while(rest.length>=2)groups.push([rest.shift(),rest.shift()]);
   if(rest.length){const x=rest[0],bb=groups.find(g=>g.every(p=>!isGirl(p.name)));if(bb)bb.push(x);else if(!ng.has(normName(x.name))&&groups.length)groups[groups.length-1].push(x);else groups.push([x])}
   warn.forEach(g=>{const gb=groups.find(gr=>gr.length===2&&gr.some(p=>!isGirl(p.name)&&!ng.has(normName(p.name))));groups.push([g])});
+  if(only)return groups;
   const tn=shuffle(C.pairNames);S.pairs={on:true,size:2,tn:groups.map((_,i)=>tn[i]||('فريق '+(i+1))),groups:shuffle(groups).map(g=>g.map(p=>p.key)),names:Object.fromEntries(ph.map(p=>[p.key,p.name])),shown:0,at:Date.now()};savePairs();
   S.view='pairs';emitState();render();window.scrollTo({top:0});if(warn.length)toast('ما فيه أولاد كفاية للبنات — راجع التوزيع')}
 function pairProblems(g){if(S.pairs.fixed)return [];const girls=g.filter(k=>isGirl(S.pairs.names[k])).length,ng=new Set(C.noGirl.map(normName)),tri=S.pairs.size===3;const out=[];if(tri?girls===g.length:girls>1)out.push(tri?'كلهم بنات':'بنتين مع بعض');if(girls&&(!tri||g.filter(k=>!isGirl(S.pairs.names[k])&&!ng.has(normName(S.pairs.names[k]))).length===0)&&g.some(k=>!isGirl(S.pairs.names[k])&&ng.has(normName(S.pairs.names[k]))))out.push((S.pairs.names[g.find(k=>ng.has(normName(S.pairs.names[k])))]||'')+' مع بنت');return out}
