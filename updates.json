@@ -1338,5 +1338,146 @@
     }
    }
   ]
+ },
+ {
+  "id": "2026-11-07-cities",
+  "title": "خمنوااا: 11 لغز مدن ودول + اسم الجولة",
+  "desc": "يضيف ١١ لغز (دبي، عمان، جدة، الدمام، تبوك، الظهران، الخبر، الجزائر، باريس، بريدة، القاهرة) لجولة «خمّنوا البلد»، ويغيّر اسمها إلى «خمّنوا البلد والمدينة».",
+  "ops": [
+   {
+    "op": "addItems",
+    "event": "خمنوااا",
+    "round": "خمّنوا البلد",
+    "items": [
+     {
+      "team": "",
+      "q": "",
+      "a": "دبي",
+      "qm": {
+       "url": "media/kc1.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "عمان",
+      "qm": {
+       "url": "media/kc2.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "جدة",
+      "qm": {
+       "url": "media/kc3.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الدمام",
+      "qm": {
+       "url": "media/kc4.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "تبوك",
+      "qm": {
+       "url": "media/kc5.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الظهران",
+      "qm": {
+       "url": "media/kc6.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الخبر",
+      "qm": {
+       "url": "media/kc7.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "الجزائر",
+      "qm": {
+       "url": "media/kc8.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "باريس",
+      "qm": {
+       "url": "media/kc9.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "بريدة",
+      "qm": {
+       "url": "media/kc10.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     },
+     {
+      "team": "",
+      "q": "",
+      "a": "القاهرة",
+      "qm": {
+       "url": "media/kc11.jpg",
+       "kind": "image"
+      },
+      "am": null,
+      "link": ""
+     }
+    ]
+   },
+   {
+    "op": "renameRound",
+    "event": "خمنوااا",
+    "round": "خمّنوا البلد",
+    "to": "خمّنوا البلد والمدينة"
+   }
+  ]
  }
 ]

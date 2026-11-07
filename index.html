@@ -1391,6 +1391,7 @@ function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
     for(const it of (op.add||[]))if(!out.some(l=>qOf(l)===it.q))out.push(it.q+' | '+it.a);if(out.join('\n')!==L.join('\n')){D.bellQs=out.join('\n');n++}}
   else if(op.op==='setItems'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;if(JSON.stringify(rd.items)!==JSON.stringify(op.items)){rd.items=clone(op.items||[]);n++}}
   else if(op.op==='addRound'&&op.round){const e=D.events.find(x=>x.title===op.event);if(!e||e.rounds.some(x=>x.title===op.round.title))continue;e.rounds.push(clone(op.round));n++}
+  else if(op.op==='renameRound'&&op.to){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(rd&&!e.rounds.some(x=>x.title===op.to)){rd.title=op.to;n++}}
   else if(op.op==='removeRound'){const e=D.events.find(x=>x.title===op.event);if(!e)continue;const i=e.rounds.findIndex(x=>x.title===op.round);if(i>=0){e.rounds.splice(i,1);n++}}
   else if(op.op==='addEvent'&&op.event&&!D.events.find(x=>x.title===op.event.title)){D.events.push(op.event);n++}
   else if(op.op==='replaceEvent'&&op.event){const i=D.events.findIndex(x=>x.title===op.event.title);if(i>=0)D.events[i]=op.event;else D.events.push(op.event);n++}}
