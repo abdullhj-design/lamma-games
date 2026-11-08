@@ -454,8 +454,8 @@ function normEvent(e){
   })).filter(r=>r.title):[];
   return{title:clean(e.title,60)||'فعالية',subtitle:clean(e.subtitle,80),intro:cleanML(e.intro,700),outro:cleanML(e.outro,700),rounds};
 }
-const BELLQ_DEF="وش عاصمة أستراليا؟ | كانبرا\nكم عدد مناطق المملكة الإدارية؟ | 13\nفي أي سنة توحّدت المملكة العربية السعودية؟ | 1932\nوش أعلى قمة جبلية في العالم؟ | إيفرست\nكم عدد قلوب الأخطبوط؟ | 3\nوش أصغر دولة في العالم؟ | الفاتيكان\nوش لون الصندوق الأسود في الطيارة؟ | برتقالي\nكم ساعة في الأسبوع؟ | 168\nوش العنصر اللي رمزه الكيميائي Fe؟ | الحديد\nوش أكبر محيط في العالم؟ | المحيط الهادئ\nمن هو أول مؤذن في الإسلام؟ | بلال بن رباح\nوش أطول سورة في القرآن؟ | البقرة\nوش المدينة اللي يسمونها عروس البحر الأحمر؟ | جدة\nكم عدد أسنان الإنسان البالغ؟ | 32\nوش أسرع حيوان بري؟ | الفهد\nوش الكوكب اللي يسمونه الكوكب الأحمر؟ | المريخ\nوش عاصمة كندا؟ | أوتاوا\nوش أكبر صحراء رملية في السعودية؟ | الربع الخالي\nوش الطائر اللي ما يطير بس يركض بسرعة كبيرة؟ | النعامة\nفي أي سنة فاز المنتخب السعودي على الأرجنتين في كأس العالم؟ | 2022\nوش اسم عملة اليابان؟ | الين\nكم رجل للعنكبوت؟ | 8\nوش أقرب كوكب للشمس؟ | عطارد\nوش أكبر قارة في العالم؟ | آسيا\nوش الغزوة اللي صارت في السنة الثانية للهجرة؟ | بدر\nكم لاعب في فريق كرة القدم داخل الملعب؟ | 11\nوش الحيوان اللي يسمونه سفينة الصحراء؟ | الجمل\nوش ثاني أطول برج في العالم بعد برج خليفة؟ | مرديكا 118 (ماليزيا)".split('\n').map(l=>{const i=l.indexOf('|');return {q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}});
-const TXD={"welBoy": "## أهلًا {name} 🤍\nنورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩\n**بس تذكّر 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "welGirl": "## أهلًا خالتي {name} 🤍\nنورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات 🤩\n**بس تذكّري 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "open": "# 🤍🔥 يا هلا بالجميع!\nعلى بركة الله نعلن عن انطلاق فعاليات **SMALL FAMILY** 🏆🎉\nاستعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏\n**👀⏳ ترى بينكم بطل واحد…**\n==بطل لمة سمول ڤاميلي! 🏆🔥==\nشدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍\n**يلا نبدأ! 🔥🚀**", "post": "# 🇸🇦 دام عزّك يا وطن\nوالحين… خلّونا نشوف مين ==بطل لمّة سمول ڤاميلي== 🏆\n# يلا نبدأ! 🔥", "rules": "# 📜 شروط لمّة سمول ڤاميلي\n1. 📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش\n2. 🚫 الغش:\nأول مرة: طرد من السؤال وتنخصم نقطة وحدة\nثاني مرة: طرد من الجولة وتنخصم 3 نقاط\nثالث مرة: طرد من البطولة وسحب الجوائز\n3. 🟨 الإنذار الأول: ما تجاوب على السؤال\n4. 🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة\n5. 🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين\n6. ⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل\n7. 🤫 الترتيب سري، وما ينكشف إلا بالنهاية\n8. 👨‍⚖️ قرار عبود نهائي 😄", "k1Boy": "## ياغشاش 😤\nتم طردك من السؤال وخصم نقطة وحدة منك\n**والمرة الثانية طرد من الجولة وخصم 3 نقاط**\nلا تغش ياصديقي الجميع فايز 🤍", "k1Girl": "تم طردكِ من السؤال وخصم نقطة وحدة منكِ\n**والمرة الثانية طرد من الجولة وخصم 3 نقاط**\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k2Boy": "## 🚫 تم طردك من الجولة\nوخصم 3 نقاط منك\n**والمرة الثالثة طرد من البطولة وسحب الجوائز**\nلا تغش ياصديقي الجميع فايز 🤍", "k2Girl": "## 🚫 تم طردكِ من الجولة\nوخصم 3 نقاط منكِ\n**والمرة الثالثة طرد من البطولة وسحب الجوائز**\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k3Boy": "## تم طردك من البطولة\nسحب كافة الجوائز اللي أخذتها", "k3Girl": "## تم طردكِ من البطولة\nسحب كافة الجوائز اللي أخذتيها", "fin1": "القمة لا تتسع للجميع…", "fin2": "القمة {name} فقط", "trans": "# 🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!\nوشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥\n# ==بس لحظة… ما خلصنا 👀==\nباقي إعلان أخير ينتظره الكل:\n# 🏆 أفضل لجنة في الطلعة", "closing": "# وبكذا وصلنا لختام فعاليتنا 🤍\nشكرًا من القلب لكل من كان جزءًا منها ❤️\n**ألف مبروك للفائزين 🎉**\nوهاردلك للبقية، والقادم أجمل بإذن الله\nشكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍\nوالجايات أحلى بإذن الله 👏🏻🔥"};
+const BELLQ_DEF="وش عاصمة أستراليا؟ | كانبرا\nكم عدد مناطق المملكة الإدارية؟ | 13\nفي أي سنة توحّدت المملكة العربية السعودية؟ | 1932\nوش أعلى قمة جبلية في العالم؟ | إيفرست\nكم عدد قلوب الأخطبوط؟ | 3\nوش أصغر دولة في العالم؟ | الفاتيكان\nوش لون الصندوق الأسود في الطيارة؟ | برتقالي\nكم ساعة في الأسبوع؟ | 168\nوش العنصر اللي رمزه الكيميائي Fe؟ | الحديد\nوش أكبر محيط في العالم؟ | المحيط الهادئ\nمن هو أول مؤذن في الإسلام؟ | بلال بن رباح\nوش أطول سورة في القرآن؟ | البقرة\nوش المدينة اللي يسمونها عروس البحر الأحمر؟ | جدة\nكم عدد أسنان الإنسان البالغ؟ | 32\nوش أسرع حيوان بري؟ | الفهد\nوش الكوكب اللي يسمونه الكوكب الأحمر؟ | المريخ\nوش عاصمة كندا؟ | أوتاوا\nوش أكبر صحراء رملية في السعودية؟ | الربع الخالي\nوش الطائر اللي ما يطير بس يركض بسرعة كبيرة؟ | النعامة\nفي أي سنة فاز المنتخب السعودي على الأرجنتين في كأس العالم؟ | 2022\nوش اسم عملة اليابان؟ | الين\nكم رجل للعنكبوت؟ | 8\nوش أقرب كوكب للشمس؟ | عطارد\nوش أكبر قارة في العالم؟ | آسيا\nوش الغزوة اللي صارت في السنة الثانية للهجرة؟ | بدر\nكم لاعب في فريق كرة القدم داخل الملعب؟ | 11\nوش الحيوان اللي يسمونه سفينة الصحراء؟ | الجمل\nوش ثاني أطول برج في العالم بعد برج خليفة؟ | مرديكا 118 (ماليزيا)\nبيت أزرق يمين وبيت أحمر يسار، وين البيت الأبيض؟ | في واشنطن 🇺🇸\nوش عاصمة اليابان؟ | طوكيو\nكم يوم في شهر فبراير بالسنة العادية؟ | 28\nوش لون حجر الزمرد؟ | أخضر\nكم عدد الصلوات المفروضة باليوم؟ | 5\nمن هو أول خليفة للمسلمين؟ | أبو بكر الصديق\nوش أطول نهر في الوطن العربي؟ | النيل\nوش عاصمة إيطاليا؟ | روما\nكم لاعب في فريق كرة الطائرة داخل الملعب؟ | 6\nوش الحيوان اللي يسمونه ملك الغابة؟ | الأسد\nوش الكوكب اللي حوله حلقات مشهورة؟ | زحل\nكم ضلع للشكل المثمن؟ | 8\nوش عملة بريطانيا؟ | الجنيه الإسترليني\nوش أكبر حيوان في العالم؟ | الحوت الأزرق\nفي أي مدينة يقع برج إيفل؟ | باريس\nوش اسم الغار اللي نزل فيه الوحي؟ | غار حراء\nكم عدد أجزاء القرآن الكريم؟ | 30\nوش أكثر لغة يتكلمها الناس كلغة أم بالعالم؟ | الصينية\nمن مخترع المصباح الكهربائي المشهور؟ | توماس إديسون\nوش العضو اللي يضخ الدم بالجسم؟ | القلب\nكم سنة في القرن؟ | 100".split('\n').map(l=>{const i=l.indexOf('|');return {q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}});
+const TXD={"welBoy": "## أهلًا {name} 🤍\nنورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩\n**بس تذكّر 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "welGirl": "## أهلًا خالتي {name} 🤍\nنورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات 🤩\n**بس تذكّري 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "open": "# 🤍🔥 يا هلا بالجميع!\nعلى بركة الله نعلن عن انطلاق فعاليات **SMALL FAMILY** 🏆🎉\nاستعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏\n**👀⏳ ترى بينكم بطل واحد…**\n==بطل لمة سمول ڤاميلي! 🏆🔥==\nشدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍\n**يلا نبدأ! 🔥🚀**", "post": "# 🇸🇦 دام عزّك يا وطن\nوالحين… خلّونا نشوف مين ==بطل لمّة سمول ڤاميلي== 🏆\n# يلا نبدأ! 🔥", "rules": "# 📜 شروط لمّة سمول ڤاميلي\n1. 📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش\n2. 🚫 الغش:\nأول مرة: طرد من السؤال (إنذار)\nثاني مرة: طرد من الجولة وتنخصم 3 نقاط\nثالث مرة: طرد من البطولة وسحب الجوائز\n3. 🟨 الإنذار الأول: ما تجاوب على السؤال\n4. 🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة\n5. 🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين\n6. ⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل\n7. 🤫 الترتيب سري، وما ينكشف إلا بالنهاية\n8. 👨‍⚖️ قرار عبود نهائي 😄", "k1Boy": "## 😤\nتم طردك من السؤال\nلا تغش ياصديقي الجميع فايز 🤍", "k1Girl": "## 😤\nتم طردكِ من السؤال\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k2Boy": "## 🚫 تم طردك من الجولة\nوخصم 3 نقاط منك\nلا تغش ياصديقي الجميع فايز 🤍", "k2Girl": "## 🚫 تم طردكِ من الجولة\nوخصم 3 نقاط منكِ\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k3Boy": "## تم طردك من البطولة\nسحب كافة الجوائز اللي أخذتها", "k3Girl": "## تم طردكِ من البطولة\nسحب كافة الجوائز اللي أخذتيها", "fin1": "القمة لا تتسع للجميع…", "fin2": "القمة {name} فقط", "trans": "# 🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!\nوشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥\n# ==بس لحظة… ما خلصنا 👀==\nباقي إعلان أخير ينتظره الكل:\n# 🏆 أفضل لجنة في الطلعة", "closing": "# وبكذا وصلنا لختام فعاليتنا 🤍\nشكرًا من القلب لكل من كان جزءًا منها ❤️\n**ألف مبروك للفائزين 🎉**\nوهاردلك للبقية، والقادم أجمل بإذن الله\nشكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍\nوالجايات أحلى بإذن الله 👏🏻🔥"};
 const TXL={"welBoy": "👋 ترحيب اللاعب (الأولاد)", "welGirl": "👋 ترحيب اللاعبة (البنات)", "open": "🎬 بطاقة الافتتاح (الشاشة الكبيرة)", "post": "🇸🇦 بطاقة بعد النشيد", "rules": "📜 الشروط", "k1Boy": "🚫 الغش أول مرة (الأولاد)", "k1Girl": "🚫 الغش أول مرة (البنات)", "k2Boy": "🚫 الغش ثاني مرة (الأولاد)", "k2Girl": "🚫 الغش ثاني مرة (البنات)", "k3Boy": "🚫 الغش ثالث مرة (الأولاد)", "k3Girl": "🚫 الغش ثالث مرة (البنات)", "fin1": "🏆 إعلان الأبطال: الجملة الأولى", "fin2": "🏆 إعلان الأبطال: الجملة الثانية ({name} = اسم البطل)", "trans": "👀 بطاقة «ما خلصنا» (بعد المنصة)", "closing": "🤍 بطاقة الختام (بعد تقييم اللجان)"};
 const T=k=>(C.texts&&typeof C.texts[k]==='string'&&C.texts[k].trim())?C.texts[k]:TXD[k];
 function txInline(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/==(.+?)==/g,'<b style="color:var(--ochre)">$1</b>')}
@@ -589,13 +589,15 @@ const warnBlocked=k=>{const t=warnT(k),q=S.warn.q[t];return (q&&q.qn===S.cheat.q
 const gameKey=()=>ARMED.includes(S.view)?(S.view==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:S.view):'';
 const gameBlocked=k=>S.cheat.gban&&S.cheat.gban[k]!=null&&S.cheat.gban[k]===S.cheat.gs;
 function syncGame(){const g=gameKey();if(g&&g!==S.cheat.gk){S.cheat.gk=g;S.cheat.gs=(S.cheat.gs||0)+1;saveCheat();emitState()}}
+const freeToLeave=k=>{const i=pairIdx(k);if(i<0)return blocked(k);const g=S.pairs.groups[i]||[];return g.length>0&&g.every(m=>blocked(m))};
 const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn||gameBlocked(k)||warnBlocked(k)||spamBanned(k);
-function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;
+function qLive(){const v=S.view;if(['buzz','bell','aunts','event'].includes(v))return !!(S.bz.open||(S.bz.order.length&&!S.bz.awarded));if(v==='lists')return S.lg&&S.lg.stage==='play';if(v==='mcq')return S.mq.phase==='q';return false}
+function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;const tq=qLive()?S.cheat.qn:S.cheat.qn+1;
   if(n>=3){S.warn.red[t]=Date.now()+60000;S.warn.n[t]=0;delete S.warn.q[t];soloAdd(t,name,-2);lvl=3}
-  else{S.warn.n[t]=n;S.warn.q[t]={qn:S.cheat.qn,n};if(n===2)soloAdd(t,name,-1)}
+  else{S.warn.n[t]=n;S.warn.q[t]={qn:tq,n};if(n===2)soloAdd(t,name,-1)}
   const b=S.bz;for(const o of b.order)if(warnT(o.key)===t&&!b.awarded&&!(b.fail||[]).includes(o.peer)){b.fail=(b.fail||[]).concat(o.peer);if(b.curPeer===o.peer){b.curPeer=null;syncTurn()}}
   saveWarn();emitState();
-  const el=document.createElement('div');el.className='wel';el.style.pointerEvents='none';el.innerHTML=`<div class="wcard" style="width:min(640px,100%);border:4px solid ${lvl===3?'var(--red)':'var(--ochre)'}"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">${lvl===3?'🟥':lvl===2?'🟨🟨':'🟨'}</div><div class="huge" style="font-size:clamp(2rem,6vw,3.6rem)">${lvl===3?'كرت أحمر':lvl===2?'إنذار ثاني':'إنذار'} لـ${esc(name)}</div><p class="mid" style="margin:0">${lvl===3?'محروم دقيقة + خصم نقطتين':lvl===2?'ما يجاوب على هذا السؤال + خصم نقطة':'ما يجاوب على هذا السؤال'}</p></div>`;
+  const el=document.createElement('div');el.className='wel';el.style.pointerEvents='none';el.innerHTML=`<div class="wcard" style="width:min(640px,100%);border:4px solid ${lvl===3?'var(--red)':'var(--ochre)'}"><div class="huge" style="font-size:clamp(3rem,10vw,6rem)">${lvl===3?'🟥':lvl===2?'🟨🟨':'🟨'}</div><div class="huge" style="font-size:clamp(2rem,6vw,3.6rem)">${lvl===3?'كرت أحمر':lvl===2?'إنذار ثاني':'إنذار'} لـ${esc(name)}</div></div>`;
   document.body.appendChild(el);setTimeout(()=>el.remove(),3200);
   try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window.webkitAudioContext)());if(a.state==='suspended')a.resume();[0,.28].forEach(t0=>{const o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=2600;o.connect(g);g.connect(a.destination);const t=a.currentTime+t0;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+(t0?.55:.22));o.start(t);o.stop(t+.6)})}catch(e){}
   render()}
@@ -611,7 +613,7 @@ function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameT
 function hostState(){
   const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
-  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0}}
+  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:S.view==='bell'&&!b.timed}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
     st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',curT:cur&&pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):'',curMem:cur&&pairIdx(cur.key)>=0?pairMembers(pairIdx(cur.key)):'',curBy:cur?cur.name:'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
   {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
@@ -623,7 +625,7 @@ function hostState(){
   if(isGold())st.gold=1;
   if(anthemOn())st.anthem={id:S.anthemId,left:Math.max(0,S.anthem-Date.now())};
   if(S.anthemStop)st.anthemStop=S.anthemStop;
-  {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;if(red>0)w[p.key]={l:3,left:red};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n}}if(Object.keys(w).length)st.warn=w}
+  {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;const nm=t.startsWith('g:')?pairName(+t.slice(2)):p.name;if(red>0)w[p.key]={l:3,left:red,id:'r'+S.warn.red[t],nm};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n,id:q.qn+':'+q.n,nm}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
   if(S.view==='mcq'){const m=S.mq,it=C.mcq[m.i];st.mq={i:m.i,n:C.mcq.length,phase:m.i>=C.mcq.length?'done':m.phase,qid:m.qid,q:it?it.q:'',opts:it?m.ord.map(o=>it.o[o]):[],ord:m.ord,locked:Object.fromEntries(Object.entries(m.subs).map(([k,v])=>[k,v.o])),res:m.phase==='reveal'?m.res:null,gold:isGold()}}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
@@ -636,7 +638,7 @@ function hostState(){
 function emitState(){if(room&&role==='host'&&roomOk&&S.loaded&&hostAllowed())room.emit('state',hostState()).catch(()=>{})}
 function readerCmds(){if(!room||!hostAllowed())return;S.rdSeen=S.rdSeen||{};
   for(const p of room.peers()){const pr=p.presence||{};if(p.sameTab||pr.role!=='reader'||!pr.cmd)continue;const c=pr.cmd;if(S.rdSeen[p.peer]===c.id)continue;const fresh=S.rdSeen[p.peer]!==undefined||Date.now()-Math.floor(c.id)<15000;S.rdSeen[p.peer]=c.id;if(!fresh)continue;
-    const map={right:'ansRight',wrong:'ansWrong',next:'bellNext',reopen:'bellReopen'};const bt=document.createElement('button');bt.hidden=true;
+    const map={right:'ansRight',wrong:'ansWrong',next:'bellNext',reopen:'bellReopen',t5:'bellT5'};const bt=document.createElement('button');bt.hidden=true;
     if(c.a==='go'){if(S.view==='bell')continue;bt.dataset.act='go';bt.dataset.v='bell'}else if(map[c.a]&&S.view==='bell')bt.dataset.act=map[c.a];else continue;
     $app.appendChild(bt);bt.click();bt.remove()}}
 function onHostPeers(ch){readerCmds();whPeers();mqCollect();
@@ -816,7 +818,7 @@ setInterval(()=>{if(role==='host')emitState()},4000);
 function watchAway(){
   if(role!=='host'||!room||!roomOk||!hostAllowed())return false;
   const now=new Map();let ch=false;
-  for(const p of room.peers()){if(p.sameTab||!p.presence||p.presence.role!=='player'||!clean(p.presence.name))continue;const k=pKey(p);if(isBanned(k)||gameBlocked(k))continue;
+  for(const p of room.peers()){if(p.sameTab||!p.presence||p.presence.role!=='player'||!clean(p.presence.name))continue;const k=pKey(p);if(isBanned(k)||gameBlocked(k)||freeToLeave(k))continue;
     const ok=!p.presence.away;now.set(k,{name:clean(p.presence.name),ok:ok||!!(now.get(k)||{}).ok})}
   const armed=ARMED.includes(S.view)&&!anthemOn()&&!S.wh.cur;
   for(const[k,v] of S.pstat){const n=now.get(k);if(v.ok&&!(n&&n.ok)&&armed&&!S.alerts.find(a=>a.k===k&&a.ph==='wait')){S.alerts=S.alerts.filter(a=>a.k!==k);S.alerts.push({k,name:v.name,ph:'wait',end:Date.now()+5000});S.marks[k]=1;ch=true}}
@@ -829,7 +831,7 @@ function strike(k,name,perm){
   const c=S.cheat,prev=c.strikes[k]||0,n=perm?Math.max(3,prev+1):prev+1,u={k,prev,n,solo:null,team:null,ded:0};
   c.strikes[k]=n;c.gban=c.gban||{};syncGame();
   if(n>=3){c.banned[k]=name;delete c.qban[k];delete c.gban[k]}else if(n===2){c.gban[k]=c.gs;delete c.qban[k]}else c.qban[k]=c.qn;
-  u.sk=scoreKey(k);const want=n===1?1:n===2?3:0,sc=S.solo.scores[u.sk];if(want&&sc&&sc.score>0){const d=Math.min(want,sc.score);u.solo=d;sc.score-=d;saveSolo()}
+  u.sk=scoreKey(k);const want=n===2?3:0,sc=S.solo.scores[u.sk];if(want&&sc&&sc.score>0){const d=Math.min(want,sc.score);u.solo=d;sc.score-=d;saveSolo()}
   const t=C.teamsOn?teamOfKey(k):null;if(t!==null){const d=Math.min(C.cheatPenalty,S.teams[t].score);S.teams[t].score-=d;u.team=t;u.ded=d;saveTeams()}
   const b=S.bz,o=b.order.find(o=>o.key===k);if(o&&!b.awarded&&!(b.fail||[]).includes(o.peer)){b.fail=(b.fail||[]).concat(o.peer)}
   saveCheat();emitState();return u;
@@ -854,7 +856,7 @@ function alarmView(){
       <div class="acd" data-cd="${a.end}">${Math.max(0,Math.ceil((a.end-Date.now())/1000))}</div><p class="asub muted">${gx(a.name,'إذا ما رجع ينطرد تلقائي','إذا ما رجعت تنطرد تلقائي')}</p>
       <button class="btn-red btn-big" data-act="alKick" data-k="${k}">${gx(a.name,'اطرده','اطردها')}</button></div>`;
     if(a.ph==='back')return `<div class="acard back"><div class="aicon">✓</div><div class="big">${esc(a.name)} ${gx(a.name,'رجع','رجعت')}</div></div>`;
-    const u=a.u||{};const sub=(u.n>=3?'طرد من البطولة وسحب الجوائز 🚫':u.n===2?'طرد من الجولة + خصم 3 نقاط':'طرد من السؤال + خصم نقطة وحدة')+(u.team!==null&&u.ded?` + ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`:'');
+    const u=a.u||{};const sub=(u.n>=3?'طرد من البطولة وسحب الجوائز 🚫':u.n===2?'طرد من الجولة + خصم 3 نقاط':'طرد من السؤال (إنذار مجاني)')+(u.team!==null&&u.ded?` + ${u.ded} ${u.ded===1?'نقطة':'نقاط'} من ${esc(S.teams[u.team].name)}`:'');
     return `<div class="acard"><div class="aicon">🚫</div><div class="big">تم طرد ${esc(a.name)}</div><p class="asub">${sub}</p>
       <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="alClose" data-k="${k}">تمام</button></div></div>`}).join('')}</div></div>`;
 }
@@ -961,6 +963,7 @@ function readerView(){if(C.hostPin&&!hostAllowed())return pinView();
     <div class="rdq">${esc(it.q)}</div><div class="rda">✅ ${esc(it.a)}</div>${st}
     ${bq.out&&bq.out.length?`<p class="muted small" style="margin:0">✗ ${bq.out.map(esc).join('، ')}</p>`:''}
     <div class="row rdbtns"><button class="rdok" data-act="rd" data-a="right" ${bq.cur?'':'disabled'}>✓ صح</button><button class="rdno" data-act="rd" data-a="wrong" ${bq.cur?'':'disabled'}>✗ غلط</button></div>
+    ${bq.cur?'<button data-act="rd" data-a="t5" style="width:100%;font-size:1.3rem">⏱️ 5 ثواني</button>':''}
     ${bq.aw?'':'<button data-act="rd" data-a="reopen" style="width:100%">افتح الجرس 🔔</button>'}
     <button class="btn-ink btn-big" data-act="rd" data-a="next" style="width:100%">${bq.i>=bq.n-1?'إنهاء الأسئلة 🏁':'السؤال الجاي ▶'}</button></div>`}
 function chooser(){return `
@@ -984,7 +987,7 @@ function topBar(){
   const wp=S.warnPick?`<div class="drawer-bg" data-act="warnClose"></div><div class="drawer" style="inset-inline-end:auto;inset-inline-start:50%;transform:translateX(50%);top:8vh;bottom:auto;max-height:84vh;border-radius:22px;width:min(520px,92vw)" role="dialog" aria-label="التأديب">
     <div class="dhead"><b>التأديب 🟨</b><button class="link" data-act="warnClose" style="font-size:1.4rem;text-decoration:none">✕</button></div>
     <p class="muted small" style="margin:0">🟨 ما يجاوب على السؤال · 🟨🟨 + خصم نقطة · 🟥 محروم دقيقة + خصم نقطتين</p>
-    ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name})):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span>${esc(x.n)}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
+    ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar')):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span>${esc(x.n)}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
   </div>`:'';
   if(!S.menu)return bar+wp;
   const anim=S.menuAnim?' anim':'';S.menuAnim=false;
@@ -1340,7 +1343,7 @@ function ding(){try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window
   [[1318.5,.35],[1975.5,.18],[2637,.1]].forEach(([f,v])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.start(t);o.stop(t+1.5)})}catch(e){}}
 function turnSecs(nFailed){return C.turn[Math.min(nFailed,2)]}
 function syncTurn(){const b=S.bz;if(b.awarded){b.curPeer=null;return}const fail=b.fail||[],cur=b.order.find(o=>!fail.includes(o.peer));
-  if(!cur){b.curPeer=null;return}if(cur.peer!==b.curPeer){b.curPeer=cur.peer;b.curDur=(S.view==='bell'?10:turnSecs(fail.length))*1000;b.curEnd=Date.now()+b.curDur}}
+  if(!cur){b.curPeer=null;return}if(cur.peer!==b.curPeer){b.curPeer=cur.peer;b.timed=false;b.curDur=(S.view==='bell'?5:turnSecs(fail.length))*1000;b.curEnd=Date.now()+b.curDur}}
 function turnTimeout(){const b=S.bz,fail=b.fail||[],cur=b.order.find(o=>o.peer===b.curPeer);if(!cur||b.awarded)return;
   b.fail=fail.concat(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render()}
 function bzLabel(o){const i=pairIdx(o.key);if(i>=0)return pairName(i);if(S.mode==='solo')return titleOfKey(o.key)||o.name;return o.name}
@@ -1355,7 +1358,7 @@ function answerer(b){
   const left=b.curPeer===cur.peer?Math.max(0,b.curEnd-Date.now()):0,tot=b.curDur||10000;
   return `<div class="answerer"><div class="bzcard${en}"><span class="bztag">🔔 يجاوب الحين</span>
     <div class="bzname">${esc(nm(cur))}</div>${!solo&&pairIdx(cur.key)<0?`<span class="teambadge t${cur.team}">${esc(S.teams[cur.team].name)}</span>`:''}
-    ${b.curPeer===cur.peer?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
+    ${b.curPeer===cur.peer&&(S.view!=='bell'||b.timed)?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
     <button class="bzok" data-act="ansRight">✓ صح</button>
     ${next.length?`<div class="bznext">بعده: ${next.map(o=>esc(nm(o))).join(' ← ')}</div>`:''}</div>${fl}</div>`;
 }
@@ -1687,12 +1690,14 @@ function playerView(){
   if(h.sb&&myBy&&h.sb.includes(myBy)&&['event','buzz','aunts'].includes(h.mode))return head+`<div class="phone stage"><div class="huge">⛔</div><h2 class="big">${isGirl(P.name)?'ارتاحي':'ارتاح'} هالسؤال 😄</h2><p style="margin:0">${isGirl(P.name)?'ضغطتِ':'ضغطت'} الجرس ${C.spamN} مرات ورا بعض بدون جواب صح.</p><p class="muted" style="margin:0">${isGirl(P.name)?'ترجعين':'ترجع'} مع السؤال الجاي.</p></div>`;
   const wn=h.warn&&myBy?h.warn[myBy]:null,pl=h.pk&&myBy&&h.pk[myBy],gW=isGirl(P.name);
   if(wn&&wn.l===3){const key='r'+Math.round((Date.now()+wn.left)/5000);if(P.redKey!==key){P.redKey=key;P.redEnd=Date.now()+wn.left;try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
-  const warnCard=!wn?'':wn.l===3?`<div class="cheat"><div class="big" style="color:var(--red)">🟥 كرت أحمر!</div><p>${pl?'محرومين':gW?'محرومة':'محروم'} دقيقة، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطتين</p><div class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="color:var(--red)">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</div></div>`
-    :`<div class="cheat" style="border-color:var(--ochre)"><div class="big" style="color:var(--ochre)">${wn.l===2?'🟨🟨 إنذار ثاني!':'🟨 إنذار!'}</div><p>${pl?'ما تقدرون تجاوبون':gW?'ما تقدرين تجاوبين':'ما تقدر تجاوب'} على هذا السؤال${wn.l===2?`، وانخصمت ${pl?'من فريقكم':gW?'منكِ':'منك'} نقطة`:''}</p></div>`;
+  if(wn&&P.warnSeen!==wn.id){P.warnSeen=wn.id;P.warnUntil=Date.now()+5000;try{navigator.vibrate&&navigator.vibrate([200,80,200])}catch(_){}setTimeout(()=>render(),5100)}
+  const wFresh=wn&&Date.now()<(P.warnUntil||0);
+  const warnCard=!wn?'':wFresh?`<div class="cheat" style="border-color:${wn.l===3?'var(--red)':'var(--ochre)'}"><div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">${wn.l===3?'🟥':wn.l===2?'🟨🟨':'🟨'}</div><div class="big" style="color:${wn.l===3?'var(--red)':'var(--ochre)'}">${wn.l===3?'كرت أحمر':'إنذار'} ${pl?'لفريق ':'لـ'}${esc(wn.nm||P.name)}</div></div>`
+    :`<button class="buzzer" disabled style="background:#8a8580;opacity:.7;filter:grayscale(1)">🚫 ممنوع ${wn.l===3?`<span class="turncd" data-pcd="${P.redEnd||Date.now()+wn.left}" style="display:inline;font-size:inherit;color:inherit">${Math.max(0,Math.ceil(((P.redEnd||Date.now()+wn.left)-Date.now())/1000))}</span> ثانية`:'هالسؤال'}</button>`;
   const buzzer=()=>{if(warnCard)return warnCard;const bz=h.buzz,done=P.buzzedR===bz.r,me=myBy,g=isGirl(P.name),ttl=me&&h.titles?h.titles[me]:'',voc=ttl?vocative(ttl):'يا '+esc(P.name);
     const q=Array.isArray(bz.q)?bz.q:[],pos=me?q.indexOf(me):-1;
     if(bz.win&&bz.win===me)return `<div class="myturn now"><b>✓ صح ${voc}! 🎉</b><span>${g?'أخذتِ':'أخذت'} النقطة</span></div>`;
-    if(pos===0){if(P.turnR!==bz.r+':'+(bz.out||[]).length){P.turnR=bz.r+':'+(bz.out||[]).length;P.turnEnd=Date.now()+(+bz.left||0);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(_){}}
+    if(pos===0){if(P.turnR!==bz.r+':'+(bz.out||[]).length+':'+!!bz.noT){P.turnR=bz.r+':'+(bz.out||[]).length+':'+!!bz.noT;P.turnEnd=Date.now()+(+bz.left||0);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(_){}}
       return `<div class="myturn now"><b>🎤 ${g?'دوركِ':'دورك'} ${voc}!</b><span>${g?'جاوبي':'جاوب'} الحين</span>${bz.noT?'':`<div class="turncd" data-pcd="${P.turnEnd}">${Math.max(0,Math.ceil((P.turnEnd-Date.now())/1000))}</div>`}</div>`}
     if(pos>0)return `<div class="myturn wait"><b>⏳ ${g?'انتظري':'انتظر'} ${voc}</b><span style="font-size:1.2rem">${g?'دوركِ':'دورك'} <strong>${ORD[pos]||('رقم '+(pos+1))}</strong></span></div>`;
     if(me&&Array.isArray(bz.out)&&bz.out.includes(me))return `<div class="myturn out"><b>انتهى ${g?'وقتكِ':'وقتك'} ${voc} ⏱️</b></div>`;
@@ -1741,7 +1746,7 @@ function tick(){
   if(role==='host'&&S.loaded)syncGame();
   if(role==='host'){whTick(now);mqTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
-  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&['buzz','bell','aunts','event'].includes(S.view))turnTimeout();
+  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
   if(role==='host')document.querySelectorAll('.bzring[data-cd]').forEach(el=>{const left=Math.max(0,+el.dataset.cd-now),tot=+el.dataset.tot||10000,sec=Math.ceil(left/1000);el.style.setProperty('--p',(left/tot).toFixed(3));
     el.classList.toggle('mid',left/tot<=.5&&sec>3);el.classList.toggle('low',sec<=3);const bb=el.querySelector('b');if(bb&&bb.textContent!==String(sec)){bb.textContent=sec;if(sec<=3&&sec>0)beep(1300,.06)}});
@@ -1949,6 +1954,7 @@ $app.addEventListener('click',e=>{
     case 'mqPick':{const q=+b.dataset.q,o=+b.dataset.o;P.mqLock={qid:q,o};if(room)room.presence({mq:{qid:q,o}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
     case 'bellNext':{const adv=()=>{const n=C.bellQs.length;S.bq.i=Math.min(n,S.bq.i+1);saveBq();bumpQ();closeBuzz();if(S.bq.i<n)openBuzz();emitState();render()};if(S.bq.i+1<C.bellQs.length&&wheelGate(adv))break;adv();break}
+    case 'bellT5':{const b=S.bz;if(S.view!=='bell'||!b.curPeer||b.awarded)break;b.timed=true;b.curDur=5000;b.curEnd=Date.now()+5000;beep(700,.15);emitState();render();break}
     case 'bellReopen':if(S.view!=='bell'||S.bz.awarded||S.bq.i<0||S.bq.i>=C.bellQs.length)break;closeBuzz();openBuzz();sfx&&beep(880,.2);toast('🔔 انفتح الجرس للكل');emitState();render();break;
     case 'bellReset':S.bq.i=-1;saveBq();closeBuzz();emitState();render();break;
     case 'bzToggle':if(S.bz.open)S.bz.open=false;else openBuzz();emitState();render();break;
