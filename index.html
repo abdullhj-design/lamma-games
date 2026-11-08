@@ -613,7 +613,7 @@ function hostState(){
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
   if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
-    st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
+    st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',curT:cur&&pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):'',curMem:cur&&pairIdx(cur.key)>=0?pairMembers(pairIdx(cur.key)):'',curBy:cur?cur.name:'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
   {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
   if(S.wh.cur){const w=S.wh.cur;st.wh={st:w.stage,who:w.who,id:w.id,res:w.stage==='result'&&w.res?{txt:w.res.txt,sub:w.res.sub,big:w.res.big,team:w.res.team||''}:null}}
   if(S.view==='charades'){st.ch={team:S.ch.team,stage:S.ch.stage}}
@@ -636,7 +636,7 @@ function hostState(){
 function emitState(){if(room&&role==='host'&&roomOk&&S.loaded&&hostAllowed())room.emit('state',hostState()).catch(()=>{})}
 function readerCmds(){if(!room||!hostAllowed())return;S.rdSeen=S.rdSeen||{};
   for(const p of room.peers()){const pr=p.presence||{};if(p.sameTab||pr.role!=='reader'||!pr.cmd)continue;const c=pr.cmd;if(S.rdSeen[p.peer]===c.id)continue;const fresh=S.rdSeen[p.peer]!==undefined||Date.now()-Math.floor(c.id)<15000;S.rdSeen[p.peer]=c.id;if(!fresh)continue;
-    const map={right:'ansRight',wrong:'ansWrong',next:'bellNext'};const bt=document.createElement('button');bt.hidden=true;
+    const map={right:'ansRight',wrong:'ansWrong',next:'bellNext',reopen:'bellReopen'};const bt=document.createElement('button');bt.hidden=true;
     if(c.a==='go'){if(S.view==='bell')continue;bt.dataset.act='go';bt.dataset.v='bell'}else if(map[c.a]&&S.view==='bell')bt.dataset.act=map[c.a];else continue;
     $app.appendChild(bt);bt.click();bt.remove()}}
 function onHostPeers(ch){readerCmds();whPeers();mqCollect();
@@ -871,8 +871,11 @@ function bannedList(){const b=Object.entries(S.cheat.banned);if(!b.length)return
 const kickBtn=(k,n)=>k&&!String(k).startsWith('l:')?`<button class="kickx" data-act="manKick" data-k="${esc(k)}" data-n="${esc(n)}" title="اطرده من البطولة" aria-label="اطرد ${esc(n)}">🚫</button>`:'';
 const markOf=k=>S.marks[k]?'<span class="mark" title="طلع من الموقع">⚠️</span>':'';
 /* ---------- player: report leaving the page ---------- */
-function reportAway(){if(role==='player'&&P.joined&&room)room.presence({away:document.hidden?true:null}).catch(()=>{})}
-document.addEventListener('visibilitychange',reportAway);
+function awayNow(){return document.hidden||!!P.blurred}
+function reportAway(){if(role==='player'&&P.joined&&room){const a=awayNow();if(a===P.lastAway)return;P.lastAway=a;room.presence({away:a?true:null}).catch(()=>{})}}
+window.addEventListener('blur',()=>{P.blurred=true;setTimeout(reportAway,50)});window.addEventListener('focus',()=>{P.blurred=false;setTimeout(reportAway,50)});
+['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if(P.blurred){P.blurred=false;reportAway()}},{passive:true,capture:true}));setInterval(reportAway,1000);
+document.addEventListener('visibilitychange',()=>{P.lastAway=undefined;reportAway()});
 window.addEventListener('pagehide',()=>{if(role==='player'&&P.joined&&room)room.presence({away:true}).catch(()=>{})});
 function queueWelcome(){const c=C.titles.filter(x=>normName(x[0])===normName(P.name));P.title=c.length===1?c[0][1]:'';showWelcome()}
 function fillWelcomeTitle(){const el=document.getElementById('wTitle');if(!el||!P.title)return;el.innerHTML=`${gx(P.name,'لقبك','لقبكِ')}: <b class="ttl" style="font-size:1.15em">${esc(P.title)}</b>`;el.hidden=false}
@@ -953,11 +956,12 @@ function readerView(){if(C.hostPin&&!hostAllowed())return pinView();
   if(bq.i<0)return head+`<div class="phone stage"><h2 class="big">${bq.n} سؤال جاهز</h2><button class="btn-red btn-big" data-act="rd" data-a="next" style="width:100%">ابدأ السؤال الأول 🔔</button></div>`;
   if(bq.i>=bq.n)return head+`<div class="phone stage"><div class="huge">🎉</div><h2 class="big">خلصت الأسئلة</h2></div>`;
   const it=C.bellQs[bq.i]||{q:'',a:''};
-  const st=bq.cur?`<div class="rdst cur">🔔 يجاوب: <b>${esc(bq.cur)}</b></div>`:bq.aw?`<div class="rdst ok">✓ ${esc(bq.aw)} جاوب صح</div>`:`<div class="rdst">${bq.open?'الجرس مفتوح… بانتظار ضغطة':'الجرس مقفل'}</div>`;
+  const st=bq.cur?(bq.curT?`<div class="rdst cur">🔔 يجاوب: <b>فريق ${esc(bq.curT)}</b><div style="font-size:1.05rem;margin-top:4px">${esc(bq.curMem)}</div><div style="font-size:.85rem;opacity:.85">(ضغط: ${esc(bq.curBy)})</div></div>`:`<div class="rdst cur">🔔 يجاوب: <b>${esc(bq.cur)}</b></div>`):bq.aw?`<div class="rdst ok">✓ ${esc(bq.aw)} جاوب صح</div>`:`<div class="rdst">${bq.open?'الجرس مفتوح… بانتظار ضغطة':'الجرس مقفل'}</div>`;
   return head+`<div class="phone stage rd"><span class="eyebrow">سؤال ${bq.i+1} من ${bq.n}</span>
     <div class="rdq">${esc(it.q)}</div><div class="rda">✅ ${esc(it.a)}</div>${st}
     ${bq.out&&bq.out.length?`<p class="muted small" style="margin:0">✗ ${bq.out.map(esc).join('، ')}</p>`:''}
     <div class="row rdbtns"><button class="rdok" data-act="rd" data-a="right" ${bq.cur?'':'disabled'}>✓ صح</button><button class="rdno" data-act="rd" data-a="wrong" ${bq.cur?'':'disabled'}>✗ غلط</button></div>
+    ${bq.aw?'':'<button data-act="rd" data-a="reopen" style="width:100%">افتح الجرس 🔔</button>'}
     <button class="btn-ink btn-big" data-act="rd" data-a="next" style="width:100%">${bq.i>=bq.n-1?'إنهاء الأسئلة 🏁':'السؤال الجاي ▶'}</button></div>`}
 function chooser(){return `
   <div class="top"><div class="brand">${esc(C.title)}<small>لمّتنا أحلى.. يلا نلعب ونتحدى! 🎉</small></div></div>
@@ -1370,7 +1374,7 @@ function bellView(){
     <button class="btn-red btn-big" data-act="bellNext">ابدأ السؤال الأول 🔔</button></div>`;
   if(i>=n)return `<div class="stage"><span class="eyebrow">فقرة الجرس</span><div class="huge">🎉</div><h2 class="big">خلصت الأسئلة</h2>
     <div class="row" style="justify-content:center"><button data-act="bellReset">ابدأ الأسئلة من جديد</button><button class="btn-ink" data-act="go" data-v="home">→ الرئيسية</button></div></div>`;
-  const nx=`<div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="bellNext">${i>=n-1?'إنهاء الأسئلة 🏁':'السؤال الجاي ▶'}</button></div>`;
+  const nx=`<div class="row" style="justify-content:center">${!b.awarded?'<button data-act="bellReopen">افتح الجرس 🔔</button>':''}<button class="btn-ink btn-big" data-act="bellNext">${i>=n-1?'إنهاء الأسئلة 🏁':'السؤال الجاي ▶'}</button></div>`;
   if(!first)return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}<span class="eyebrow">سؤال ${i+1} من ${n}</span><div class="huge">🔔</div><h2 class="big">${b.open?'اسمعوا السؤال… واللي يعرف يضغط الجرس!':'الجرس مقفل'}</h2>${nx}</div>`;
   return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}<span class="eyebrow">سؤال ${i+1} من ${n}</span>${answerer(b)}${nx}</div>`;
 }
@@ -1945,6 +1949,7 @@ $app.addEventListener('click',e=>{
     case 'mqPick':{const q=+b.dataset.q,o=+b.dataset.o;P.mqLock={qid:q,o};if(room)room.presence({mq:{qid:q,o}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
     case 'bellNext':{const adv=()=>{const n=C.bellQs.length;S.bq.i=Math.min(n,S.bq.i+1);saveBq();bumpQ();closeBuzz();if(S.bq.i<n)openBuzz();emitState();render()};if(S.bq.i+1<C.bellQs.length&&wheelGate(adv))break;adv();break}
+    case 'bellReopen':if(S.view!=='bell'||S.bz.awarded||S.bq.i<0||S.bq.i>=C.bellQs.length)break;closeBuzz();openBuzz();sfx&&beep(880,.2);toast('🔔 انفتح الجرس للكل');emitState();render();break;
     case 'bellReset':S.bq.i=-1;saveBq();closeBuzz();emitState();render();break;
     case 'bzToggle':if(S.bz.open)S.bz.open=false;else openBuzz();emitState();render();break;
     case 'bzAward':{const o=S.bz.order[+b.dataset.i];sfx('right');if(S.mode==='solo'){addPoints(o.key||o.peer,o.name,1);S.bz.awarded=true;S.bz.open=false;emitState();toast('نقطة لـ '+o.name);render();break}S.teams[o.team].score++;S.bz.awarded=true;S.bz.open=false;saveTeams();emitState();toast('نقطة لـ '+S.teams[o.team].name);render();break}
