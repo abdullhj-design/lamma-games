@@ -611,7 +611,7 @@ function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameT
 function hostState(){
   const st={mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
-  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:S.view==='bell'}}
+  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
     st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
   {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
@@ -1336,7 +1336,7 @@ function ding(){try{const a=beep.ctx||(beep.ctx=new (window.AudioContext||window
   [[1318.5,.35],[1975.5,.18],[2637,.1]].forEach(([f,v])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+1.4);o.start(t);o.stop(t+1.5)})}catch(e){}}
 function turnSecs(nFailed){return C.turn[Math.min(nFailed,2)]}
 function syncTurn(){const b=S.bz;if(b.awarded){b.curPeer=null;return}const fail=b.fail||[],cur=b.order.find(o=>!fail.includes(o.peer));
-  if(!cur){b.curPeer=null;return}if(cur.peer!==b.curPeer){b.curPeer=cur.peer;b.curDur=turnSecs(fail.length)*1000;b.curEnd=Date.now()+b.curDur}}
+  if(!cur){b.curPeer=null;return}if(cur.peer!==b.curPeer){b.curPeer=cur.peer;b.curDur=(S.view==='bell'?10:turnSecs(fail.length))*1000;b.curEnd=Date.now()+b.curDur}}
 function turnTimeout(){const b=S.bz,fail=b.fail||[],cur=b.order.find(o=>o.peer===b.curPeer);if(!cur||b.awarded)return;
   b.fail=fail.concat(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render()}
 function bzLabel(o){const i=pairIdx(o.key);if(i>=0)return pairName(i);if(S.mode==='solo')return titleOfKey(o.key)||o.name;return o.name}
@@ -1351,7 +1351,7 @@ function answerer(b){
   const left=b.curPeer===cur.peer?Math.max(0,b.curEnd-Date.now()):0,tot=b.curDur||10000;
   return `<div class="answerer"><div class="bzcard${en}"><span class="bztag">🔔 يجاوب الحين</span>
     <div class="bzname">${esc(nm(cur))}</div>${!solo&&pairIdx(cur.key)<0?`<span class="teambadge t${cur.team}">${esc(S.teams[cur.team].name)}</span>`:''}
-    ${b.curPeer===cur.peer&&S.view!=='bell'?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
+    ${b.curPeer===cur.peer?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
     <button class="bzok" data-act="ansRight">✓ صح</button>
     ${next.length?`<div class="bznext">بعده: ${next.map(o=>esc(nm(o))).join(' ← ')}</div>`:''}</div>${fl}</div>`;
 }
@@ -1737,7 +1737,7 @@ function tick(){
   if(role==='host'&&S.loaded)syncGame();
   if(role==='host'){whTick(now);mqTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
-  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&['buzz','aunts','event'].includes(S.view))turnTimeout();
+  if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&['buzz','bell','aunts','event'].includes(S.view))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
   if(role==='host')document.querySelectorAll('.bzring[data-cd]').forEach(el=>{const left=Math.max(0,+el.dataset.cd-now),tot=+el.dataset.tot||10000,sec=Math.ceil(left/1000);el.style.setProperty('--p',(left/tot).toFixed(3));
     el.classList.toggle('mid',left/tot<=.5&&sec>3);el.classList.toggle('low',sec<=3);const bb=el.querySelector('b');if(bb&&bb.textContent!==String(sec)){bb.textContent=sec;if(sec<=3&&sec>0)beep(1300,.06)}});
