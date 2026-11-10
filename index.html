@@ -840,7 +840,7 @@ function watchAway(){
   for(const p of room.peers()){if(p.sameTab||!p.presence||p.presence.role!=='player'||!clean(p.presence.name))continue;const k=pKey(p);if(isBanned(k)||gameBlocked(k)||freeToLeave(k))continue;
     const ok=!p.presence.away;now.set(k,{name:clean(p.presence.name),ok:ok||!!(now.get(k)||{}).ok})}
   const armed=ARMED.includes(S.view)&&!anthemOn()&&!S.wh.cur;
-  for(const[k,v] of S.pstat){const n=now.get(k);if(v.ok&&!(n&&n.ok)&&armed&&!S.alerts.find(a=>a.k===k&&a.ph==='wait')){S.alerts=S.alerts.filter(a=>a.k!==k);S.alerts.push({k,name:v.name,ph:'wait',end:Date.now()+5000});S.marks[k]=1;ch=true}}
+  for(const[k,v] of S.pstat){const n=now.get(k);/* only a phone that is still connected and says it left counts — a dropped connection is not cheating */if(v.ok&&n&&!n.ok&&armed&&!S.alerts.find(a=>a.k===k&&a.ph==='wait')){S.alerts=S.alerts.filter(a=>a.k!==k);S.alerts.push({k,name:v.name,ph:'wait',end:Date.now()+5000});S.marks[k]=1;ch=true}}
   for(const[k,n] of now)if(n.ok){const a=S.alerts.find(a=>a.k===k&&a.ph==='wait');if(a){a.ph='back';a.end=Date.now()+2500;ch=true}}
   const next=new Map();for(const[k,v] of S.pstat)next.set(k,{name:v.name,ok:false});for(const[k,n] of now)next.set(k,n);S.pstat=next;
   if(ch)sirenSync();
@@ -1795,7 +1795,9 @@ function tick(){
 }
 setInterval(tick,250);
 setInterval(()=>{const el=document.querySelector('.pspin');if(!el)return;const ph=pairPhase(Date.now()),p=ph&&ph.k==='spin'?ph.p:1,now=Date.now();if(now-(el._t||0)<50+p*p*320)return;el._t=now;let pool;try{pool=JSON.parse(el.dataset.pool)}catch(e){return}if(!pool.length)return;let n=pool[Math.floor(Math.random()*pool.length)];if(pool.length>1&&n===el.textContent)n=pool[(pool.indexOf(n)+1)%pool.length];el.textContent=n},40);
-let wake=null;async function keepAwake(){try{if(navigator.wakeLock&&!wake){wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>wake=null)}}catch(e){}}
+let wake=null,wakeBusy=false;async function keepAwake(){if(wake||wakeBusy||document.hidden||!navigator.wakeLock)return;wakeBusy=true;try{wake=await navigator.wakeLock.request('screen');wake.addEventListener('release',()=>{wake=null})}catch(e){}wakeBusy=false}
+/* re-take the screen lock every time the page comes back or is touched — the browser drops it whenever the page is hidden */
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&role)keepAwake()});['pointerdown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{if(role&&!wake)keepAwake()},{passive:true,capture:true}));setInterval(()=>{if(role&&!wake)keepAwake()},5000);setTimeout(()=>{if(role)keepAwake()},500);
 
 /* ---------- events ---------- */
 /* ---------- السؤال الذهبي: one random question per event is worth 2 points ---------- */
