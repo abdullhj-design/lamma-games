@@ -1066,7 +1066,7 @@ function topBar(){
   const wp=S.warnPick?`<div class="drawer-bg" data-act="warnClose"></div><div class="drawer" style="inset-inline-end:auto;inset-inline-start:50%;transform:translateX(50%);top:8vh;bottom:auto;max-height:84vh;border-radius:22px;width:min(520px,92vw)" role="dialog" aria-label="التأديب">
     <div class="dhead"><b>التأديب 🟨</b><button class="link" data-act="warnClose" style="font-size:1.4rem;text-decoration:none">✕</button></div>
     <p class="muted small" style="margin:0">🟨 ما يجاوب على السؤال · 🟨🟨 + خصم نقطة · 🟥 محروم دقيقة + خصم نقطتين</p>
-    ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar')):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span>${esc(x.n)}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
+    ${(pairsOn()?soloPlayers().map(x=>({k:x.key,n:x.name,m:whMembers(x.key)})).sort((a,b)=>a.n.localeCompare(b.n,'ar')):phonePlayers().map(p=>({k:p.key,n:p.name})).sort((a,b)=>a.n.localeCompare(b.n,'ar'))).map(x=>`<button class="ditem" data-act="warnGive" data-k="${esc(x.k)}" data-n="${esc(x.n)}"><span style="display:flex;flex-direction:column;align-items:flex-start;gap:2px"><span>${esc(x.n)}</span>${x.m&&x.m!==x.n?`<small class="muted" style="font-weight:400">${esc(x.m)}</small>`:''}</span><small>${warnBadge(x.k)||'—'}</small></button>`).join('')||'<p class="muted" style="margin:0">ما فيه لاعبين.</p>'}
   </div>`:'';
   if(!S.menu)return bar+wp;
   const anim=S.menuAnim?' anim':'';S.menuAnim=false;
