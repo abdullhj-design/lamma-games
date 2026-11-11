@@ -342,6 +342,33 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .wname{font-family:var(--display);font-size:clamp(2.6rem,8vw,5rem);color:#f2c25a;min-height:1.2em}
 .whteams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:1000px}
 html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulation}
+/* ---------- الصفحة الرئيسية: ليلة التتويج ---------- */
+body.luxon{background:#0b0907}
+body.luxon #app{max-width:none;padding:0}
+body.luxon #app>.sadu,body.luxon .top{display:none}
+.lux{--g1:#f7e3a1;--g2:#d4a94a;--g3:#8a6420;min-height:100vh;color:#f3e7cf;background:radial-gradient(ellipse at 50% -10%,#3a2a12 0,#120d08 45%,#0b0907 72%);padding:24px max(22px,4vw) 40px;position:relative;overflow:hidden}
+.lux:before{content:"";position:absolute;inset:0;background-image:radial-gradient(#d4a94a22 1px,transparent 1.5px);background-size:22px 22px;-webkit-mask:linear-gradient(#000,transparent 60%);mask:linear-gradient(#000,transparent 60%);pointer-events:none}
+.lgold{background:linear-gradient(180deg,var(--g1),var(--g2) 55%,var(--g3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:relative}
+.lchip{border:1px solid #d4a94a55;color:#e9d39c;border-radius:99px;padding:7px 16px;font-size:16px;background:#ffffff08}.lchip b{color:var(--g1)}.lsp{flex:1}
+.lmenu{position:relative;width:48px;height:48px;border-radius:14px;border:1px solid #d4a94a66;background:#ffffff06;color:var(--g1);font-size:22px;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:none}
+.lhero{text-align:center;margin:6px 0 24px;position:relative}
+.lcrown{font-size:clamp(34px,4.5vw,46px);filter:drop-shadow(0 4px 14px #d4a94a88)}
+.lhero h1{font-family:var(--display);font-weight:400;font-size:clamp(46px,7.4vw,84px);margin:-4px 0 0;line-height:1.1}
+.lsub{display:flex;align-items:center;justify-content:center;gap:14px;color:#cdb47a;font-size:17px}.lsub i{height:1px;width:min(120px,18vw);background:linear-gradient(90deg,transparent,#d4a94a)}.lsub i:last-child{transform:scaleX(-1)}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:18px;position:relative}
+.lcard{position:relative;border-radius:22px;padding:20px 22px;min-height:172px;background:linear-gradient(160deg,#1e170f,#0f0c09);border:1px solid #d4a94a40;display:flex;gap:18px;align-items:center;box-shadow:inset 0 1px 0 #f7e3a122,0 14px 30px #0008}
+.lcard:after{content:"";position:absolute;inset:6px;border-radius:17px;border:1px solid #d4a94a1a;pointer-events:none}
+.lmed{flex:none;width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:46px;background:radial-gradient(circle at 35% 30%,#3b2c14,#140f0a);border:2px solid #d4a94a;box-shadow:0 0 0 5px #d4a94a14,0 0 24px #d4a94a33}
+.lbody{min-width:0;position:relative;z-index:1}
+.lnum{font-family:var(--display);font-size:20px;color:#d4a94a;opacity:.85;line-height:1}
+.lcard h3{margin:2px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(26px,3vw,34px);line-height:1.2}
+.lmeta{color:#b9a272;font-size:15px;margin-top:2px}
+.lgo{margin-top:12px;background:linear-gradient(180deg,var(--g1),var(--g2));color:#2a1d08;border:0;border-radius:12px;padding:8px 26px;font-weight:700;font-size:16px;box-shadow:0 4px 0 var(--g3);min-height:0;cursor:pointer}
+.lgo:active{transform:translateY(3px);box-shadow:0 1px 0 var(--g3)}
+.lcard.done{opacity:.62}.lgo.again{background:#ffffff14;color:#e9d39c;box-shadow:none}
+.ltick{position:absolute;left:16px;top:14px;color:#9fd8a5;font-size:13px;border:1px solid #9fd8a555;border-radius:99px;padding:2px 10px}
+
 .whswipe{touch-action:none;user-select:none;-webkit-user-select:none;width:100%;min-height:46vh;border-radius:28px;background:#c4851a;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:1.9rem;font-weight:800;animation:pop .6s ease infinite alternate;cursor:grab}
 .whswipe.nudge{animation:none;transform:translateY(-8px)}.whswipe.done{animation:none;opacity:.75}
 .whpopts{display:flex;flex-direction:column;gap:12px;width:100%}
@@ -474,8 +501,8 @@ function normEvent(e){
   return{title:clean(e.title,60)||'فعالية',subtitle:clean(e.subtitle,80),intro:cleanML(e.intro,700),outro:cleanML(e.outro,700),rounds};
 }
 const BELLQ_DEF="وش عاصمة أستراليا؟ | كانبرا\nكم عدد مناطق المملكة الإدارية؟ | 13\nفي أي سنة توحّدت المملكة العربية السعودية؟ | 1932\nوش أعلى قمة جبلية في العالم؟ | إيفرست\nكم عدد قلوب الأخطبوط؟ | 3\nوش أصغر دولة في العالم؟ | الفاتيكان\nوش لون الصندوق الأسود في الطيارة؟ | برتقالي\nكم ساعة في الأسبوع؟ | 168\nوش العنصر اللي رمزه الكيميائي Fe؟ | الحديد\nوش أكبر محيط في العالم؟ | المحيط الهادئ\nمن هو أول مؤذن في الإسلام؟ | بلال بن رباح\nوش أطول سورة في القرآن؟ | البقرة\nوش المدينة اللي يسمونها عروس البحر الأحمر؟ | جدة\nكم عدد أسنان الإنسان البالغ؟ | 32\nوش أسرع حيوان بري؟ | الفهد\nوش الكوكب اللي يسمونه الكوكب الأحمر؟ | المريخ\nوش عاصمة كندا؟ | أوتاوا\nوش أكبر صحراء رملية في السعودية؟ | الربع الخالي\nوش الطائر اللي ما يطير بس يركض بسرعة كبيرة؟ | النعامة\nفي أي سنة فاز المنتخب السعودي على الأرجنتين في كأس العالم؟ | 2022\nوش اسم عملة اليابان؟ | الين\nكم رجل للعنكبوت؟ | 8\nوش أقرب كوكب للشمس؟ | عطارد\nوش أكبر قارة في العالم؟ | آسيا\nوش الغزوة اللي صارت في السنة الثانية للهجرة؟ | بدر\nكم لاعب في فريق كرة القدم داخل الملعب؟ | 11\nوش الحيوان اللي يسمونه سفينة الصحراء؟ | الجمل\nوش ثاني أطول برج في العالم بعد برج خليفة؟ | مرديكا 118 (ماليزيا)\nبيت أزرق يمين وبيت أحمر يسار، وين البيت الأبيض؟ | في واشنطن 🇺🇸\nوش عاصمة اليابان؟ | طوكيو\nكم يوم في شهر فبراير بالسنة العادية؟ | 28\nوش لون حجر الزمرد؟ | أخضر\nكم عدد الصلوات المفروضة باليوم؟ | 5\nمن هو أول خليفة للمسلمين؟ | أبو بكر الصديق\nوش أطول نهر في الوطن العربي؟ | النيل\nوش عاصمة إيطاليا؟ | روما\nكم لاعب في فريق كرة الطائرة داخل الملعب؟ | 6\nوش الحيوان اللي يسمونه ملك الغابة؟ | الأسد\nوش الكوكب اللي حوله حلقات مشهورة؟ | زحل\nكم ضلع للشكل المثمن؟ | 8\nوش عملة بريطانيا؟ | الجنيه الإسترليني\nوش أكبر حيوان في العالم؟ | الحوت الأزرق\nفي أي مدينة يقع برج إيفل؟ | باريس\nوش اسم الغار اللي نزل فيه الوحي؟ | غار حراء\nكم عدد أجزاء القرآن الكريم؟ | 30\nوش أكثر لغة يتكلمها الناس كلغة أم بالعالم؟ | الصينية\nمن مخترع المصباح الكهربائي المشهور؟ | توماس إديسون\nوش العضو اللي يضخ الدم بالجسم؟ | القلب\nكم سنة في القرن؟ | 100".split('\n').map(l=>{const i=l.indexOf('|');return {q:l.slice(0,i).trim(),a:l.slice(i+1).trim()}});
-const TXD={"welBoy": "## أهلًا {name} 🤍\nنورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩\n**بس تذكّر 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "welGirl": "## أهلًا خالتي {name} 🤍\nنورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات 🤩\n**بس تذكّري 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "open": "# 🤍🔥 يا هلا بالجميع!\nعلى بركة الله نعلن عن انطلاق فعاليات **SMALL FAMILY** 🏆🎉\nاستعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏\n**👀⏳ ترى بينكم بطل واحد…**\n==بطل لمة سمول ڤاميلي! 🏆🔥==\nشدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍\n**يلا نبدأ! 🔥🚀**", "post": "# 🇸🇦 دام عزّك يا وطن\nوالحين… خلّونا نشوف مين ==بطل لمّة سمول ڤاميلي== 🏆\n# يلا نبدأ! 🔥", "rules": "# 📜 شروط لمّة سمول ڤاميلي\n1. 📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش\n2. 🚫 الغش:\nأول مرة: طرد من السؤال (إنذار)\nثاني مرة: طرد من الجولة وتنخصم 3 نقاط\nثالث مرة: طرد من البطولة وسحب الجوائز\n3. 🟨 الإنذار الأول: ما تجاوب على السؤال\n4. 🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة\n5. 🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين\n6. ⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل\n7. 🤫 الترتيب سري، وما ينكشف إلا بالنهاية\n8. 👨‍⚖️ قرار عبود نهائي 😄", "k1Boy": "## 😤\nتم طردك من السؤال\nلا تغش ياصديقي الجميع فايز 🤍", "k1Girl": "## 😤\nتم طردكِ من السؤال\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k2Boy": "## 🚫 تم طردك من الجولة\nوخصم 3 نقاط منك\nلا تغش ياصديقي الجميع فايز 🤍", "k2Girl": "## 🚫 تم طردكِ من الجولة\nوخصم 3 نقاط منكِ\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k3Boy": "## تم طردك من البطولة\nسحب كافة الجوائز اللي أخذتها", "k3Girl": "## تم طردكِ من البطولة\nسحب كافة الجوائز اللي أخذتيها", "fin1": "القمة لا تتسع للجميع…", "fin2": "القمة {name} فقط", "trans": "# 🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!\nوشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥\n# ==بس لحظة… ما خلصنا 👀==\nباقي إعلان أخير ينتظره الكل:\n# 🏆 أفضل لجنة في الطلعة", "closing": "# وبكذا وصلنا لختام فعاليتنا 🤍\nشكرًا من القلب لكل من كان جزءًا منها ❤️\n**ألف مبروك للفائزين 🎉**\nوهاردلك للبقية، والقادم أجمل بإذن الله\nشكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍\nوالجايات أحلى بإذن الله 👏🏻🔥"};
-const TXL={"welBoy": "👋 ترحيب اللاعب (الأولاد)", "welGirl": "👋 ترحيب اللاعبة (البنات)", "open": "🎬 بطاقة الافتتاح (الشاشة الكبيرة)", "post": "🇸🇦 بطاقة بعد النشيد", "rules": "📜 الشروط", "k1Boy": "🚫 الغش أول مرة (الأولاد)", "k1Girl": "🚫 الغش أول مرة (البنات)", "k2Boy": "🚫 الغش ثاني مرة (الأولاد)", "k2Girl": "🚫 الغش ثاني مرة (البنات)", "k3Boy": "🚫 الغش ثالث مرة (الأولاد)", "k3Girl": "🚫 الغش ثالث مرة (البنات)", "fin1": "🏆 إعلان الأبطال: الجملة الأولى", "fin2": "🏆 إعلان الأبطال: الجملة الثانية ({name} = اسم البطل)", "trans": "👀 بطاقة «ما خلصنا» (بعد المنصة)", "closing": "🤍 بطاقة الختام (بعد تقييم اللجان)"};
+const TXD={"homeDate": "الأحد 22 نوفمبر · مزرعة سمول فاميلي", "welBoy": "## أهلًا {name} 🤍\nنورت الفعالية، وحضورك هو اللي يكمل الحماس 🤩\n**بس تذكّر 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "welGirl": "## أهلًا خالتي {name} 🤍\nنورتِ الفعالية، وجودكِ يكمل الوناسة، وبدونكِ ما تحلى الفعاليات 🤩\n**بس تذكّري 👀**\nالغش ممنوع، الجميع مراقب 😎😉", "open": "# 🤍🔥 يا هلا بالجميع!\nعلى بركة الله نعلن عن انطلاق فعاليات **SMALL FAMILY** 🏆🎉\nاستعدوا للحماس والتحديات، فاليوم موعدنا مع المنافسة والروح الرياضية، ونبي نشوف مين بيبدع ومين بيخطف البطولة! 😎👏\n**👀⏳ ترى بينكم بطل واحد…**\n==بطل لمة سمول ڤاميلي! 🏆🔥==\nشدّوا حيلكم، واستمتعوا بوقتكم، وتذكروا أن الفوز حلو، لكن الأحلى إننا نجتمع وننبسط ونصنع ذكريات حلوة مع بعض 🤍\n**يلا نبدأ! 🔥🚀**", "post": "# 🇸🇦 دام عزّك يا وطن\nوالحين… خلّونا نشوف مين ==بطل لمّة سمول ڤاميلي== 🏆\n# يلا نبدأ! 🔥", "rules": "# 📜 شروط لمّة سمول ڤاميلي\n1. 📱 لا تطلع من الصفحة أثناء الأسئلة، الطلوع يعتبر غش\n2. 🚫 الغش:\nأول مرة: طرد من السؤال (إنذار)\nثاني مرة: طرد من الجولة وتنخصم 3 نقاط\nثالث مرة: طرد من البطولة وسحب الجوائز\n3. 🟨 الإنذار الأول: ما تجاوب على السؤال\n4. 🟨🟨 الإنذار الثاني: ما تجاوب وينخصم منك نقطة\n5. 🟥 الكرت الأحمر: محروم دقيقة وتنخصم نقطتين\n6. ⭐ فيه سؤال ذهبي بكل فعالية، نقاطه دبل\n7. 🤫 الترتيب سري، وما ينكشف إلا بالنهاية\n8. 👨‍⚖️ قرار عبود نهائي 😄", "k1Boy": "## 😤\nتم طردك من السؤال\nلا تغش ياصديقي الجميع فايز 🤍", "k1Girl": "## 😤\nتم طردكِ من السؤال\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k2Boy": "## 🚫 تم طردك من الجولة\nوخصم 3 نقاط منك\nلا تغش ياصديقي الجميع فايز 🤍", "k2Girl": "## 🚫 تم طردكِ من الجولة\nوخصم 3 نقاط منكِ\n**الله يصلحك ياخالتي 💔**\nللأسف خليتني أسوي شي ما أبي أسويه", "k3Boy": "## تم طردك من البطولة\nسحب كافة الجوائز اللي أخذتها", "k3Girl": "## تم طردكِ من البطولة\nسحب كافة الجوائز اللي أخذتيها", "fin1": "القمة لا تتسع للجميع…", "fin2": "القمة {name} فقط", "trans": "# 🎉 ألف مبروك لأبطال لمّة سمول ڤاميلي!\nوشكراً لكل اللي نافس وتحمّس وخلّى الجو نار 🔥\n# ==بس لحظة… ما خلصنا 👀==\nباقي إعلان أخير ينتظره الكل:\n# 🏆 أفضل لجنة في الطلعة", "closing": "# وبكذا وصلنا لختام فعاليتنا 🤍\nشكرًا من القلب لكل من كان جزءًا منها ❤️\n**ألف مبروك للفائزين 🎉**\nوهاردلك للبقية، والقادم أجمل بإذن الله\nشكرًا لكل من شارك وتعب وساهم في نجاح الفعاليات، وسامحونا إذا حصل أي تقصير 🤍\nوالجايات أحلى بإذن الله 👏🏻🔥"};
+const TXL={"homeDate": "📅 التاريخ والمكان (فوق الصفحة الرئيسية)", "welBoy": "👋 ترحيب اللاعب (الأولاد)", "welGirl": "👋 ترحيب اللاعبة (البنات)", "open": "🎬 بطاقة الافتتاح (الشاشة الكبيرة)", "post": "🇸🇦 بطاقة بعد النشيد", "rules": "📜 الشروط", "k1Boy": "🚫 الغش أول مرة (الأولاد)", "k1Girl": "🚫 الغش أول مرة (البنات)", "k2Boy": "🚫 الغش ثاني مرة (الأولاد)", "k2Girl": "🚫 الغش ثاني مرة (البنات)", "k3Boy": "🚫 الغش ثالث مرة (الأولاد)", "k3Girl": "🚫 الغش ثالث مرة (البنات)", "fin1": "🏆 إعلان الأبطال: الجملة الأولى", "fin2": "🏆 إعلان الأبطال: الجملة الثانية ({name} = اسم البطل)", "trans": "👀 بطاقة «ما خلصنا» (بعد المنصة)", "closing": "🤍 بطاقة الختام (بعد تقييم اللجان)"};
 const T=k=>(C.texts&&typeof C.texts[k]==='string'&&C.texts[k].trim())?C.texts[k]:TXD[k];
 function txInline(t){return esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/==(.+?)==/g,'<b style="color:var(--ochre)">$1</b>')}
 function txHtml(k,o={}){const nm=o.name!=null?o.name:'';return T(k).split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const x=v=>txInline(v).replace(/\{name\}/g,o.rawName?nm:esc(nm));
@@ -967,6 +994,7 @@ function render(){
   document.querySelectorAll('video[data-key]').forEach(v=>{const s=playing[v.dataset.key];if(s){v.currentTime=s.t;if(s.p)v.play().catch(()=>{})}});
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
   if(role==='host'&&lobbyMus&&S.view!=='lobby')lobbyMusicStop(800);
+  document.body.classList.toggle('luxon',role==='host'&&S.loaded&&hostAllowed()&&S.view==='home');
   syncAlarm();syncWheel();tick();
 }
 function readerSend(a){if(!room)return;room.presence({role:'reader',cmd:{id:Date.now()+Math.random(),a}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}}
@@ -1034,7 +1062,7 @@ function hostView(){
   if(S.view==='judging')return '<div class="fullstage judgefull"><button class="fsx" data-act="jgBack" aria-label="رجوع">✕</button>'+body+'</div>';
   if(S.view==='finale')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
   if(S.view==='lobby')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
-  return topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body;
+  return (S.view==='home'?topBar()+homeView():topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body);
 }
 function rankingView(){
   if(S.soloWin)return winnerCard(S.soloWin.map(x=>({n:x.name,m:titleOfKey(x.key)?[titleOfKey(x.key)]:[]})),true,'الفايز','')+`<div class="row" style="justify-content:center;margin-top:14px"><button data-act="soloWinClose">رجوع للترتيب</button></div>`;
@@ -1070,19 +1098,27 @@ function drawStep(){
 }
 const cntQ=n=>n===1?'سؤال واحد':n===2?'سؤالين':n>=3&&n<=10?n+' أسئلة':n+' سؤال';
 const cntR=n=>n===1?'جولة واحدة':n===2?'جولتين':n>=3&&n<=10?n+' جولات':n+' جولة';
+const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+function evIcon(t){t=String(t||'');const m=t.match(/^\p{Extended_Pictographic}/u);if(m)return m[0];return /خم/.test(t)?'🧩':/سعود/.test(t)?'🇸🇦':/مثل|أمثال/.test(t)?'📜':/صور/.test(t)?'🖼️':/مدن|بلد|دول/.test(t)?'🌍':/لغز|ألغاز/.test(t)?'💡':'🎯'}
 function homeView(){
-  const ph=phonePlayers(),g=C.games;
-  const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">${cntR(e.rounds.length)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}</span><h2>${esc(e.title)}</h2><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
-  const tiles=[...evTiles,
-    g.spy&&`<div class="game"><h2>برا السالفة</h2><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
-    g.charades&&C.teamsOn&&`<div class="game"><h2>مثّلها</h2><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
-    g.bell&&`<div class="game"><span class="tag">${cntQ(C.bellQs.length)}</span><h2>فقرة الجرس 🔔</h2><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
-    g.aunts&&`<div class="game"><span class="tag">${cntQ(C.auntQs.length)}</span><h2>فقرة الخالات 👩</h2><button class="btn-green btn-big" data-act="go" data-v="aunts">ابدأ</button></div>`,
-    g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
-    g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
-    g.buzz&&`<div class="game"><span class="tag">${cntQ(C.quiz.length)}</span><h2>الأسرع</h2><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
+  const g=C.games,n=phonePlayers().length;
+  const card=(ic,title,meta,btn,done)=>({ic,title,meta,btn,done});
+  const cards=[...C.events.map((e,i)=>{const tot=e.rounds.length,dn=Object.keys(S.evDone[e.title]||{}).length,done=tot>0&&dn>=tot;
+      return card(evIcon(e.title),String(e.title).replace(/^\p{Extended_Pictographic}\s*/u,''),`${cntR(tot)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}`,`<button class="lgo${done?' again':''}" data-act="evOpen" data-i="${i}">${done?'العب مرة ثانية':'ابدأ'}</button>`,done)}),
+    g.spy&&card('🕵️','برا السالفة','',`<button class="lgo" data-act="go" data-v="spy">ابدأ</button>`),
+    g.charades&&C.teamsOn&&card('🎭','مثّلها','',`<button class="lgo" data-act="go" data-v="charades">ابدأ</button>`),
+    g.bell&&card('🔔','فقرة الجرس',cntQ(C.bellQs.length),`<button class="lgo" data-act="go" data-v="bell">ابدأ</button>`),
+    g.aunts&&card('👩','فقرة الخالات',cntQ(C.auntQs.length),`<button class="lgo" data-act="go" data-v="aunts">ابدأ</button>`),
+    g.mcq&&card('🧠','تحدي المعلومات',cntQ(C.mcq.length),`<button class="lgo" data-act="go" data-v="mcq">ابدأ</button>`),
+    g.lists&&card('⏱️','30 ثانية',cntQ(C.lists.length),`<button class="lgo" data-act="go" data-v="lists">ابدأ</button>`),
+    g.buzz&&card('⚡','الأسرع',cntQ(C.quiz.length),`<button class="lgo" data-act="go" data-v="buzz">ابدأ</button>`)
   ].filter(Boolean);
-  return `<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
+  const mode=pairsOn()?(S.pairs.size===3?'👥 ثلاثيات':'🎲 ثنائيات'):'',st=room?(roomOk?`👥 <b>${n}</b> لاعب متصل`:'⏳ جاري الاتصال…'):'وضع جهاز واحد';
+  return `<div class="lux">
+    <div class="lbar"><button class="lmenu" data-act="menu" aria-label="القائمة" aria-expanded="${!!S.menu}">☰${S.jg&&S.jg.ready?'<span class="mdot"></span>':''}</button><span class="lchip">${st}</span>${mode?`<span class="lchip">${mode}</span>`:''}<span class="lsp"></span><span class="lchip">${esc(T('homeDate'))}</span></div>
+    <div class="lhero"><div class="lcrown">👑</div><h1 class="lgold">${esc(C.title)}</h1><div class="lsub"><i></i>البطولة العائلية الأولى<i></i></div></div>
+    <div class="lgrid">${cards.map((c,i)=>`<div class="lcard${c.done?' done':''}">${c.done?'<span class="ltick">✓ خلصت</span>':''}<div class="lmed">${c.ic}</div><div class="lbody"><div class="lnum">${AR(i+1)}</div><h3 class="lgold">${esc(c.title)}</h3>${c.meta?`<div class="lmeta">${c.meta}</div>`:''}${c.btn}</div></div>`).join('')||'<p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p>'}</div>
+  </div>`;
 }
 function localsEditor(){
   const ph=phonePlayers();
