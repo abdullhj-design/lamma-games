@@ -342,6 +342,19 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .wname{font-family:var(--display);font-size:clamp(2.6rem,8vw,5rem);color:#f2c25a;min-height:1.2em}
 .whteams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:1000px}
 html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulation}
+
+/* ---------- حروف وثواني ---------- */
+.hlcat{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ochre)}
+.hlcat.big,.wname.hlcat{font-size:clamp(2.6rem,7vw,4.6rem)}
+.hlplay{gap:12px}.hltop{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px}
+.hlturn{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}.hlturn span{font-size:1.2rem;opacity:.75}.hlturn b{font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,6.5vw,4.4rem)}
+.hlt{font-family:var(--display);font-size:clamp(3rem,8vw,5rem);line-height:1}
+.hlkb{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;width:100%;max-width:900px;direction:rtl}
+.hlk{font-family:var(--display);font-size:clamp(1.5rem,3.2vw,2.1rem);padding:4px 0;border-radius:12px;min-height:50px}
+.hlmid{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;max-width:900px;flex-wrap:wrap}.hlact{display:flex;flex-direction:column;align-items:center;gap:4px}
+.hlk.used{opacity:.22;text-decoration:line-through}
+.hlx{background:var(--red);color:#fff}
+.hlord{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;font-size:1.05rem}.hlord i{opacity:.4;font-style:normal}.hlord .out{opacity:.35;text-decoration:line-through}.hlord .cur{font-weight:800;color:var(--ochre)}
 /* ---------- الصفحة الرئيسية: ليلة التتويج ---------- */
 body.luxon{background:#0b0907}
 body.luxon #app{max-width:none;padding:0}
@@ -542,7 +555,7 @@ const MCQ_DEF=[{"q": "كم عدد سور القرآن الكريم؟", "o": ["11
 function normalize(j){
   const d=DEFAULTS,o={};j=j&&typeof j==='object'?j:{};
   o.title=clean(j.title,40)||d.title;
-  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
+  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts','letters'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
   o.spyMin=[1,2,3,4,5,6,8,10].includes(+j.spyMin)?+j.spyMin:d.spyMin;
   o.chDur=[30,45,60,90,120].includes(+j.chDur)?+j.chDur:d.chDur;
   const cats=Array.isArray(j.cats)?j.cats.map(c=>({name:clean(c&&c.name,30),words:Array.isArray(c&&c.words)?c.words.map(w=>clean(w,40)).filter(Boolean):[]})).filter(c=>c.name&&c.words.length>=3):[];
@@ -580,7 +593,7 @@ function normalize(j){
   o.lgSecs=[10,15,20,25,30,45,60].includes(+j.lgSecs)?+j.lgSecs:d.lgSecs;
   {const m=Array.isArray(j.mcq)?j.mcq.map(x=>({q:clean(x&&x.q,200),o:Array.isArray(x&&x.o)?x.o.map(v=>clean(v,60)).filter(Boolean).slice(0,4):[]})).filter(x=>x.q&&x.o.length>=2).slice(0,200):[];o.mcq=m.length?m:MCQ_DEF}
   o.spamN=[0,2,3,4,5].includes(+j.spamN)?+j.spamN:3;
-  o.mcqSecs=Number.isInteger(+j.mcqSecs)&&+j.mcqSecs>=3&&+j.mcqSecs<=60?+j.mcqSecs:7;
+  o.hlCats=uniq(j.hlCats,40,60);if(!o.hlCats.length)o.hlCats=['🏙️ مدن سعودية','🌍 دول','🍲 أكلات شعبية','🎮 ألعاب فيديو','🎬 ممثلين','🐪 حيوانات','🍎 فواكه وخضار','👤 أسماء أولاد','👧 أسماء بنات','🚗 ماركات سيارات'];o.mcqSecs=Number.isInteger(+j.mcqSecs)&&+j.mcqSecs>=3&&+j.mcqSecs<=60?+j.mcqSecs:7;
   o.lgPts=Array.isArray(j.lgPts)&&j.lgPts.length===3&&j.lgPts.every(x=>Number.isInteger(+x)&&+x>=0&&+x<=20)?j.lgPts.map(Number):d.lgPts;
   const ti=(v,d)=>Number.isInteger(+v)&&+v>=2&&+v<=60&&v!==''&&v!=null?+v:d;
   o.turn=[ti(j.turn&&j.turn[0],10),ti(j.turn&&j.turn[1],7),ti(j.turn&&j.turn[2],5)];
@@ -704,6 +717,7 @@ function hostState(){
   if(S.anthemStop)st.anthemStop=S.anthemStop;
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;const nm=t.startsWith('g:')?pairName(+t.slice(2)):p.name;if(red>0)w[p.key]={l:3,left:red,id:'r'+S.warn.red[t],nm};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n,id:q.qn+':'+q.n,nm}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
+  if(S.view==='letters'){const h=S.hl;st.hl={st:h.stage,cat:h.cat,turn:h.stage==='play'?h.order[h.cur]:null,tn:h.stage==='play'?hlName(h.order[h.cur]):'',out:h.out,win:h.stage==='end'?hlName(h.winner):'',rw:h.stage==='roundEnd'?h.rw.map(hlName):[]}}
   if(S.view==='mcq'){const m=S.mq,it=C.mcq[m.i];st.mq={i:m.i,n:C.mcq.length,phase:m.i>=C.mcq.length?'done':m.phase,qid:m.qid,q:it?it.q:'',opts:it?m.ord.map(o=>it.o[o]):[],ord:m.ord,locked:Object.fromEntries(Object.entries(m.subs).map(([k,v])=>[k,v.o])),res:m.phase==='reveal'?m.res:null,gold:isGold()}}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
   if(S.view==='finale'&&S.fin)st.fin={topN:S.fin.topN||5,done:!!finDone(),all:finDone()?S.fin.all.slice(0,60):null};
@@ -1090,7 +1104,7 @@ function topBar(){
 function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
-  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
+  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='letters')body=lettersView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
   if(S.view==='judging')return '<div class="fullstage judgefull"><button class="fsx" data-act="jgBack" aria-label="رجوع">✕</button>'+body+'</div>';
   if(S.view==='finale')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
   if(S.view==='lobby')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
@@ -1142,6 +1156,7 @@ function homeView(){
     g.bell&&card('🔔','فقرة الجرس',cntQ(C.bellQs.length),`<button class="lgo" data-act="go" data-v="bell">ابدأ</button>`),
     g.aunts&&card('👩','فقرة الخالات',cntQ(C.auntQs.length),`<button class="lgo" data-act="go" data-v="aunts">ابدأ</button>`),
     g.mcq&&card('🧠','تحدي المعلومات',cntQ(C.mcq.length),`<button class="lgo" data-act="go" data-v="mcq">ابدأ</button>`),
+    g.letters&&card('🔤','حروف وثواني',`${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة`,`<button class="lgo" data-act="go" data-v="letters">ابدأ</button>`),
     g.lists&&card('⏱️','30 ثانية',cntQ(C.lists.length),`<button class="lgo" data-act="go" data-v="lists">ابدأ</button>`),
     g.buzz&&card('⚡','الأسرع',cntQ(C.quiz.length),`<button class="lgo" data-act="go" data-v="buzz">ابدأ</button>`)
   ].filter(Boolean);
@@ -1481,7 +1496,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),wheelPool:C.wheelPool.join('، '),wheelPool3:C.wheelPool3.join('، '),wheelQs:C.wheelQs.map(x=>x.q+' | '+x.a).join('\n'),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),spamN:String(C.spamN),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),hlCats:C.hlCats.join('\n'),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),wheelPool:C.wheelPool.join('، '),wheelPool3:C.wheelPool3.join('، '),wheelQs:C.wheelQs.map(x=>x.q+' | '+x.a).join('\n'),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),spamN:String(C.spamN),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
@@ -1505,7 +1520,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelPool3:String(D.wheelPool3||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelQs:String(D.wheelQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,spamN:[0,2,3,4,5].includes(+D.spamN)?+D.spamN:3,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),hlCats:String(D.hlCats||'').split('\n').map(x=>clean(x,40)).filter(Boolean),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelPool3:String(D.wheelPool3||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelQs:String(D.wheelQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,spamN:[0,2,3,4,5].includes(+D.spamN)?+D.spamN:3,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -1564,7 +1579,7 @@ function adminGames(n){
     <div class="panel"><h3>عام</h3>
       <div class="field"><label for="a_title">اسم الموقع</label><input id="a_title" data-d="title" value="${esc(D.title)}" maxlength="40"></div>
       <div class="lbl">الألعاب الظاهرة</div>
-      <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}</div>
+      <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}</div>
       <div class="lbl">نظام الفرق</div>
       <label class="toggle" for="a_teams"><input type="checkbox" id="a_teams" data-d="teamsOn" ${D.teamsOn?'checked':''}><span>فعّل الفرق 👥</span></label>
       <p class="hint" style="margin:0">${D.teamsOn?'الفرق ظاهرة: القرعة، ونقاط الفرق، ومثّلها، وزر التبديل بين فرق وفردي.':'الفرق مخفية واللعب كله فردي 👤. القرعة ونقاط الفرق ومثّلها ما تطلع، وترجع متى ما فعّلتها.'}</p>
@@ -1653,6 +1668,10 @@ function adminGames(n){
     <div class="panel"><h3>فقرة الخالات 👩</h3>
       <p class="muted small" style="margin:0">الجرس يشتغل للبنات بس. كل سطر: السؤال | الجواب (الجواب يطلع لما تضغط «اكشف الجواب»).</p>
       <div class="field"><textarea id="a_aq" data-d="auntQs" style="min-height:140px">${esc(D.auntQs)}</textarea></div>
+    </div>
+    <div class="panel"><h3>حروف وثواني 🔤</h3>
+      <p class="muted small" style="margin:0">الفئات — كل سطر فئة. القرعة تختار منها كل جولة بدون تكرار.</p>
+      <div class="field"><textarea id="a_hl" data-d="hlCats" style="min-height:180px">${esc(D.hlCats)}</textarea></div>
     </div>
     <div class="panel"><h3>تحدي المعلومات 🧠</h3>
       <p class="muted small" style="margin:0">كل سطر: السؤال | <b>الجواب الصح</b> | خيار غلط | خيار غلط (أول خيار بعد السؤال هو الصح، والموقع يخلط الترتيب).</p>
@@ -1812,6 +1831,10 @@ function playerView(){
         :me&&me.r<=top&&me.s>0?`<div class="myres win"><b>🎉 مبروك!</b><span style="font-size:1.25rem">${mk} <strong>${ORD[me.r-1]}</strong> ${me.r<=3?MEDAL[me.r-1]:''}</span></div>`
         :`<div class="myres"><b>${mq} 🤍</b>${me?`<span style="font-size:1.2rem">${tk} <strong>${ORD[me.r-1]||me.r}</strong></span>`:''}<span>نلتقي مرة أخرى 👏⏳🤍</span></div>`;
       if(h.jgPhase)body+=h.jgPhase==='closing'?`<div class="myres" style="margin-top:6px"><b>🤍 شكرًا لمشاركتكم… والجايات أحلى!</b><span>لمة سمول فاميلي 🤍</span></div>`:`<p style="margin:6px 0 0;font-size:1.15rem">🏆 جاري تقييم أفضل لجنة… تابعوا الشاشة 👀</p>`}}
+  else if(mode==='letters'){const L=h.hl||{},tm=!!(h.pk&&myBy&&h.pk[myBy]),tk=tm?h.pk[myBy]:myBy,mine=L.turn&&tk===L.turn,isOut=(L.out||[]).includes(tk),g=isGirl(P.name);
+    body=L.st==='play'?(mine?`<div class="huge">🎯</div><h2 class="big">${tm?'دوركم!':g?'دوركِ!':'دورك!'}</h2><p style="margin:0;font-size:1.3rem">${esc(L.cat)}</p><p class="muted" style="margin:0">قل حرف وكلمة… بسرعة! ⏱️</p>`:isOut?`<div class="huge">❌</div><h2 class="big">${tm?'طلعتوا من هالجولة':'طلعت من هالجولة'}</h2><p class="muted" style="margin:0">الدور على ${esc(L.tn)}</p>`:`<div class="huge">🔤</div><h2 class="big">الدور على ${esc(L.tn)}</h2><p class="muted" style="margin:0">${esc(L.cat)}</p>`)
+      :L.st==='end'?`<div class="huge">👑</div><h2 class="big">${esc(L.win)}</h2><p class="muted" style="margin:0">فاز بحروف وثواني</p>`:L.st==='roundEnd'?`<div class="huge">🏆</div><h2 class="big">${L.rw&&L.rw.length?'فاز بالجولة: '+esc(L.rw.join(' و ')):'خلصت الجولة'}</h2>`
+      :L.cat&&(L.st==='ready'||L.st==='draw')?`<div class="huge">🔤</div><h2 class="big">${L.st==='draw'?'القرعة…':esc(L.cat)}</h2><p class="muted" style="margin:0">استعدوا!</p>`:`<div class="huge">🔤⏱️</div><h2 class="big">حروف وثواني</h2><p class="muted" style="margin:0">تابعوا الشاشة 👀</p>`}
   else if(mode==='mcq'){if(h.mq&&P.mqLock&&P.mqLock.qid===h.mq.qid&&h.mq.locked){const tk=(h.pk&&myBy&&h.pk[myBy])||myBy;if(h.mq.locked[tk]==null)h.mq.locked[tk]=P.mqLock.o}body=mqPhone(h,warnCard)}
   else if(mode==='lists'&&h.lg&&warnCard&&h.lg.stage==='play')body=warnCard;
   else if(mode==='lists'&&h.lg){const L=h.lg;
@@ -1835,7 +1858,7 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   if(role==='host'&&S.loaded)syncGame();
-  if(role==='host'){whTick(now);mqTick(now)}
+  if(role==='host'){whTick(now);mqTick(now);hlTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
   if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
@@ -1892,6 +1915,51 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
   ok.forEach(([tk],j)=>{const n=(j===0?2:1)*mul;pts[tk]=n;const gi=String(tk).startsWith('g:')?+String(tk).slice(2):-1;const nm=gi>=0?pairName(gi):((soloPlayers().find(x=>x.key===tk)||{}).name||'');soloAdd(tk,nm,n)});
   const fast=ok[0]?ok[0][0]:null,fg=fast&&String(fast).startsWith('g:')?pairName(+String(fast).slice(2)):fast?((soloPlayers().find(x=>x.key===fast)||{}).name||''):'';
   S.mq.res={cnt:ok.length,fast:fg,pts};S.mq.phase='reveal';if(ok.length)sfx('right');else sfx('wrong');emitState();render()}
+/* ---------- حروف وثواني ---------- */
+const HL_LET='أ ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي'.split(' '),HL_SECS=5,HL_ROUNDS=3;
+function hlFresh(){return {stage:'idle',round:0,wins:{},cats:[],cat:'',base:[],order:[],out:[],cur:0,used:[],end:0,hist:[],tie:null,winner:null,rw:[],done:false}}
+S.hl=Object.assign(hlFresh(),LS.get('hl',{}));
+const saveHl=()=>LS.set('hl',S.hl);
+function hlTeams(){return soloPlayers().map(x=>({k:x.key,n:x.name}))}
+const hlName=k=>{const t=hlTeams().find(x=>x.k===k);return t?t.n:'—'};
+const hlAlive=()=>S.hl.order.filter(k=>!S.hl.out.includes(k));
+function hlStartGame(){const t=hlTeams();if(t.length<2){toast('لازم فريقين على الأقل');return}S.hl=hlFresh();S.hl.base=shuffle(t.map(x=>x.k));hlDraw()}
+function hlDraw(){const h=S.hl,all=C.hlCats||[];let pool=all.filter(c=>!h.cats.includes(c));if(!pool.length)pool=all.slice();if(!pool.length){toast('ما فيه فئات — أضفها من الإدارة');return}
+  h.cat=rnd(pool);h.cats=h.cats.concat(h.cat);h.pool=pool;h.stage='draw';h.end=Date.now()+2800;
+  const teams=h.tie?h.tie:h.base,r=h.tie?0:h.round,sh=teams.length?r%teams.length:0;h.order=teams.slice(sh).concat(teams.slice(0,sh));h.out=[];h.cur=0;h.used=[];h.hist=[];h.rw=[];saveHl();emitState();render()}
+function hlTurnNext(){const h=S.hl,a=hlAlive();if(a.length<=1){hlRoundEnd(a);return}let i=h.cur;for(let n=0;n<h.order.length;n++){i=(i+1)%h.order.length;if(!h.out.includes(h.order[i]))break}h.cur=i;h.end=Date.now()+HL_SECS*1000}
+function hlSnap(){const h=S.hl;h.hist.push({used:h.used.slice(),out:h.out.slice(),cur:h.cur});if(h.hist.length>60)h.hist.shift()}
+function hlLetter(L){const h=S.hl;if(h.stage!=='play'||h.used.includes(L))return;hlSnap();h.used=h.used.concat(L);if(h.used.length>=HL_LET.length){hlRoundEnd(hlAlive());return}hlTurnNext();saveHl();emitState();render()}
+function hlOut(){const h=S.hl;if(h.stage!=='play')return;hlSnap();h.out=h.out.concat(h.order[h.cur]);hlTurnNext();saveHl();emitState();render()}
+function hlUndo(){const h=S.hl;if(!h.hist.length)return;const s=h.hist.pop();h.used=s.used;h.out=s.out;h.cur=s.cur;h.stage='play';h.rw=[];h.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}
+function hlRoundEnd(ws){const h=S.hl;h.rw=ws;h.stage='roundEnd';h.end=0;saveHl();emitState();render()}
+function hlNext(){const h=S.hl;if(h.stage!=='roundEnd')return;
+  if(h.tie){if(h.rw.length===1){hlFinish(h.rw[0]);return}h.tie=h.rw.slice();hlDraw();return}
+  h.rw.forEach(k=>h.wins[k]=(h.wins[k]||0)+1);h.round++;
+  if(h.round<HL_ROUNDS){hlDraw();return}
+  const mx=Math.max(...Object.values(h.wins)),top=Object.keys(h.wins).filter(k=>h.wins[k]===mx);
+  if(top.length===1){hlFinish(top[0]);return}
+  h.tie=top;h.stage='tie';saveHl();emitState();render()}
+function hlFinish(k){const h=S.hl;h.winner=k;h.stage='end';if(!h.done){h.done=true;soloAdd(k,hlName(k),3)}saveHl();fwStart();emitState();render()}
+function hlTick(now){const h=S.hl;if(role!=='host'||S.view!=='letters')return;if(h.stage==='draw'&&now>=h.end){h.stage='ready';h.end=0;saveHl();emitState();render()}}
+function lettersView(){const h=S.hl,tl=k=>esc(hlName(k)),nT=hlTeams().length;
+  const rl=h.tie?'⚔️ جولة فاصلة':`الجولة ${AR(Math.min(h.round+1,HL_ROUNDS))} من ${AR(HL_ROUNDS)}`;
+  const ordH=()=>`<div class="hlord">${h.order.map((k,i)=>`<span class="${h.out.includes(k)?'out':''}${h.stage==='play'&&i===h.cur?' cur':''}">${tl(k)}</span>`).join('<i>←</i>')}</div>`;
+  const kb=(on)=>`<div class="hlkb">${HL_LET.map(L=>`<button class="hlk${h.used.includes(L)?' used':''}" ${on&&!h.used.includes(L)?`data-act="hlL" data-l="${L}"`:'disabled'}>${L}</button>`).join('')}</div>`;
+  if(h.stage==='idle')return `<div class="stage"><span class="eyebrow">حروف وثواني</span><div class="huge">🔤⏱️</div><h2 class="big">${AR(HL_ROUNDS)} جولات · ${AR(HL_SECS)} ثواني لكل دور</h2>
+    <p class="muted" style="margin:0">القرعة تختار فئة، والفرق بالدور: كل فريق يقول حرف وكلمة من الفئة. الحرف ينقفل بعد ما ينقال. اللي ما يلحق يطلع، وآخر فريق يبقى يفوز بالجولة.<br>اللي يفوز بأكثر جولات ياخذ <b>+3</b>.</p>
+    <p class="muted small" style="margin:0">${nT} ${pairsOn()?'فرق':'لاعبين'} · ${(C.hlCats||[]).length} فئة</p><button class="btn-big" data-act="hlGo">🎲 ابدأ اللعبة</button></div>`;
+  if(h.stage==='draw')return `<div class="stage"><span class="eyebrow">${rl}</span><div class="mid">الفئة…</div><div class="wname wspin hlcat" data-pool="${esc(JSON.stringify(h.pool||[h.cat]))}" data-wend="${h.end-300}">${esc(h.cat)}</div></div>`;
+  if(h.stage==='ready')return `<div class="stage"><span class="eyebrow">${rl}</span><div class="hlcat big">${esc(h.cat)}</div>${ordH()}${kb(false)}<button class="btn-big" data-act="hlStart">▶ ابدأ</button></div>`;
+  if(h.stage==='play'){const k=h.order[h.cur];return `<div class="stage hlplay"><div class="hltop"><span class="eyebrow">${rl}</span><span class="hlcat">${esc(h.cat)}</span></div>
+    <div class="hlmid"><div class="hlturn"><span>🎯 الدور على</span><b>${tl(k)}</b></div><div class="hlt timer" data-end="${h.end}">0:0${HL_SECS}</div><div class="hlact"><button class="btn-big hlx" data-act="hlOut">❌ ما لحقوا / غلط</button>${h.hist.length?'<button class="link" data-act="hlUndo">↩️ تراجع</button>':''}</div></div>
+    ${kb(true)}${ordH()}</div>`}
+  if(h.stage==='roundEnd'){const w=h.rw,lastRound=!h.tie&&h.round+1>=HL_ROUNDS;return `<div class="stage"><span class="eyebrow">${rl} · ${esc(h.cat)}</span><div class="huge">🏆</div>
+    <h2 class="big">${w.length?'فاز بالجولة: '+w.map(tl).join(' و '):'ما أحد بقى!'}</h2>${h.used.length>=HL_LET.length?'<p class="muted" style="margin:0">خلصت الحروف كلها! 😮</p>':''}
+    <div class="row" style="justify-content:center;gap:14px"><button class="btn-big" data-act="hlNext">${h.tie?(w.length===1?'🏆 النتيجة':'⚔️ جولة فاصلة ثانية'):lastRound?'🏆 النتيجة':'🎲 الجولة الجاية'}</button><button class="link" data-act="hlUndo">↩️ تراجع</button></div></div>`}
+  if(h.stage==='tie')return `<div class="stage"><span class="eyebrow">حروف وثواني</span><div class="huge">⚔️</div><h2 class="big">تعادل!</h2><p class="mid" style="margin:0">${h.tie.map(tl).join(' · ')}</p><p class="muted" style="margin:0">جولة فاصلة بينهم بفئة جديدة</p><button class="btn-big" data-act="hlTieGo">⚔️ ابدأ الجولة الفاصلة</button></div>`;
+  if(h.stage==='end')return `<div class="stage"><span class="eyebrow">حروف وثواني</span><div class="huge">👑</div><h2 class="big">${tl(h.winner)}</h2><p class="mid" style="margin:0">+٣ نقاط 🎉</p><button class="link" data-act="hlReset">ابدأ من جديد</button></div>`;
+  return ''}
 function mqTick(now){if(role!=='host'||S.view!=='mcq'||S.mq.phase!=='q')return;const left=S.mq.at+C.mcqSecs*1000-now;const s=Math.ceil(left/1000);
   if(s!==S.mq.tk){S.mq.tk=s;if(s>0&&s<=3)beep(520,.08);const el=document.getElementById('mqLeft');if(el)el.textContent=Math.max(0,s)}if(left<=-700)mqReveal()}
 function mcqView(){const n=C.mcq.length,i=S.mq.i,ph=S.mq.phase,net=room&&roomOk?`<p class="muted" style="margin:0">${mqTeams()} ${pairsOn()?'فريق':'لاعب'} · ${C.mcqSecs} ثواني لكل سؤال · الإجابة من الجوالات</p>`:'';
@@ -2109,6 +2177,7 @@ $app.addEventListener('click',e=>{
     case 'aqReset':S.aq={i:-1,showA:false};saveAq();closeBuzz();emitState();render();break;
     case 'mqNext':{if(S.mq.phase==='q')break;const adv=()=>mqStart();if(S.mq.i+1<C.mcq.length&&wheelGate(adv))break;adv();break}
     case 'mqShow':mqReveal();break;
+    case 'hlGo':hlStartGame();break;case 'hlStart':if(S.hl.stage==='ready'){S.hl.stage='play';S.hl.cur=0;S.hl.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}break;case 'hlL':hlLetter(b.dataset.l);break;case 'hlOut':hlOut();break;case 'hlUndo':hlUndo();break;case 'hlNext':hlNext();break;case 'hlTieGo':hlDraw();break;case 'hlReset':S.hl=hlFresh();saveHl();emitState();render();break;
     case 'mqReset':S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();emitState();render();break;
     case 'mqPick':{const q=+b.dataset.q,o=+b.dataset.o;P.mqLock={qid:q,o};if(room)room.presence({mq:{qid:q,o}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
@@ -2155,7 +2224,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,gs:(S.cheat.gs||0)+1,gk:'',strikes:{},banned:{},qban:{},gban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
