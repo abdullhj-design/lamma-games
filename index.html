@@ -343,6 +343,7 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .whteams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:1000px}
 html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulation}
 
+.homedate{text-align:center;margin:0 0 14px;font-size:1.05rem;color:var(--muted,#6b5f55)}
 /* ---------- حروف وثواني ---------- */
 .hlcat{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ochre)}
 .hlcat.big,.wname.hlcat{font-size:clamp(2.6rem,7vw,4.6rem)}
@@ -1039,8 +1040,7 @@ function render(){
   document.querySelectorAll('video[data-key]').forEach(v=>{const s=playing[v.dataset.key];if(s){v.currentTime=s.t;if(s.p)v.play().catch(()=>{})}});
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
   if(role==='host'&&lobbyMus&&S.view!=='lobby')lobbyMusicStop(800);
-  document.body.classList.toggle('luxon',role==='host'&&S.loaded&&hostAllowed()&&S.view==='home');
-  document.body.classList.toggle('luxp',role==='player'&&!!$app.querySelector('.pjoin,.pbell'));
+
   syncAlarm();syncWheel();tick();
 }
 function readerSend(a){if(!room)return;room.presence({role:'reader',cmd:{id:Date.now()+Math.random(),a}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}}
@@ -1108,7 +1108,7 @@ function hostView(){
   if(S.view==='judging')return '<div class="fullstage judgefull"><button class="fsx" data-act="jgBack" aria-label="رجوع">✕</button>'+body+'</div>';
   if(S.view==='finale')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
   if(S.view==='lobby')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
-  return (S.view==='home'?topBar()+homeView():topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body);
+  return (topBar()+scoreBar()+(S.view!=='home'?`<button class="back" data-act="go" data-v="home">→ رجوع للصفحة الرئيسية</button>`:'')+body);
 }
 function rankingView(){
   if(S.soloWin)return winnerCard(S.soloWin.map(x=>({n:x.name,m:titleOfKey(x.key)?[titleOfKey(x.key)]:[]})),true,'الفايز','')+`<div class="row" style="justify-content:center;margin-top:14px"><button data-act="soloWinClose">رجوع للترتيب</button></div>`;
@@ -1147,25 +1147,19 @@ const cntR=n=>n===1?'جولة واحدة':n===2?'جولتين':n>=3&&n<=10?n+' �
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 function evIcon(t){t=String(t||'');const m=t.match(/^\p{Extended_Pictographic}/u);if(m)return m[0];return /خم/.test(t)?'🧩':/سعود/.test(t)?'🇸🇦':/مثل|أمثال/.test(t)?'📜':/صور/.test(t)?'🖼️':/مدن|بلد|دول/.test(t)?'🌍':/لغز|ألغاز/.test(t)?'💡':'🎯'}
 function homeView(){
-  const g=C.games,n=phonePlayers().length;
-  const card=(ic,title,meta,btn,done)=>({ic,title,meta,btn,done});
-  const cards=[...C.events.map((e,i)=>{const tot=e.rounds.length,dn=Object.keys(S.evDone[e.title]||{}).length,done=tot>0&&dn>=tot;
-      return card(evIcon(e.title),String(e.title).replace(/^\p{Extended_Pictographic}\s*/u,''),`${cntR(tot)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}`,`<button class="lgo${done?' again':''}" data-act="evOpen" data-i="${i}">${done?'العب مرة ثانية':'ابدأ'}</button>`,done)}),
-    g.spy&&card('🕵️','برا السالفة','',`<button class="lgo" data-act="go" data-v="spy">ابدأ</button>`),
-    g.charades&&C.teamsOn&&card('🎭','مثّلها','',`<button class="lgo" data-act="go" data-v="charades">ابدأ</button>`),
-    g.bell&&card('🔔','فقرة الجرس',cntQ(C.bellQs.length),`<button class="lgo" data-act="go" data-v="bell">ابدأ</button>`),
-    g.aunts&&card('👩','فقرة الخالات',cntQ(C.auntQs.length),`<button class="lgo" data-act="go" data-v="aunts">ابدأ</button>`),
-    g.mcq&&card('🧠','تحدي المعلومات',cntQ(C.mcq.length),`<button class="lgo" data-act="go" data-v="mcq">ابدأ</button>`),
-    g.letters&&card('🔤','حروف وثواني',`${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة`,`<button class="lgo" data-act="go" data-v="letters">ابدأ</button>`),
-    g.lists&&card('⏱️','30 ثانية',cntQ(C.lists.length),`<button class="lgo" data-act="go" data-v="lists">ابدأ</button>`),
-    g.buzz&&card('⚡','الأسرع',cntQ(C.quiz.length),`<button class="lgo" data-act="go" data-v="buzz">ابدأ</button>`)
+  const ph=phonePlayers(),g=C.games;
+  const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">${cntR(e.rounds.length)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}</span><h2>${esc(e.title)}</h2><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
+  const tiles=[...evTiles,
+    g.spy&&`<div class="game"><h2>برا السالفة</h2><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
+    g.charades&&C.teamsOn&&`<div class="game"><h2>مثّلها</h2><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
+    g.bell&&`<div class="game"><span class="tag">${cntQ(C.bellQs.length)}</span><h2>فقرة الجرس 🔔</h2><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
+    g.aunts&&`<div class="game"><span class="tag">${cntQ(C.auntQs.length)}</span><h2>فقرة الخالات 👩</h2><button class="btn-green btn-big" data-act="go" data-v="aunts">ابدأ</button></div>`,
+    g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
+    g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
+    g.letters&&`<div class="game"><span class="tag">${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة</span><h2>حروف وثواني 🔤</h2><button class="btn-red btn-big" data-act="go" data-v="letters">ابدأ</button></div>`,
+    g.buzz&&`<div class="game"><span class="tag">${cntQ(C.quiz.length)}</span><h2>الأسرع</h2><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
   ].filter(Boolean);
-  const mode=pairsOn()?(S.pairs.size===3?'👥 ثلاثيات':'🎲 ثنائيات'):'',st=room?(roomOk?`👥 <b>${n}</b> لاعب متصل`:'⏳ جاري الاتصال…'):'وضع جهاز واحد';
-  return `<div class="lux">
-    <div class="lbar"><button class="lmenu" data-act="menu" aria-label="القائمة" aria-expanded="${!!S.menu}">☰${S.jg&&S.jg.ready?'<span class="mdot"></span>':''}</button><span class="lchip">${st}</span>${mode?`<span class="lchip">${mode}</span>`:''}<span class="lsp"></span><span class="lchip">${esc(T('homeDate'))}</span></div>
-    <div class="lhero"><div class="lcrown">👑</div><h1 class="lgold">${esc(C.title)}</h1><div class="lsub"><i></i>البطولة العائلية الأولى<i></i></div></div>
-    <div class="lgrid">${cards.map((c,i)=>`<div class="lcard${c.done?' done':''}">${c.done?'<span class="ltick">✓ خلصت</span>':''}<div class="lmed">${c.ic}</div><div class="lbody"><div class="lnum">${AR(i+1)}</div><h3 class="lgold">${esc(c.title)}</h3>${c.meta?`<div class="lmeta">${c.meta}</div>`:''}${c.btn}</div></div>`).join('')||'<p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p>'}</div>
-  </div>`;
+  return `${T('homeDate')?`<p class="homedate">📅 ${esc(T('homeDate'))}</p>`:''}<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
 }
 function localsEditor(){
   const ph=phonePlayers();
@@ -1780,13 +1774,13 @@ function playerView(){
   if(!room&&roomTried)return head+`<div class="phone stage"><h2 class="big">الجوال ما قدر يتصل</h2><p class="muted" style="margin:0">افتح الرابط اللي أرسله عبود وأنت مسجل دخول.</p></div>`;
   if(!S.loaded)return head+`<div class="phone stage"><p class="muted" style="margin:0">جاري التحميل…</p></div>`;
   const needPin=!playerAllowed(),wait=S.pinLockUntil>Date.now();
-  if(!P.joined)return `<button hidden id="roleBtn" data-act="role" data-v=""></button><form class="pjoin" data-form="join"><div class="lcrown">👑</div><h1 class="lgold" data-lp="1">${esc(clean(P.host&&P.host.title,40)||C.title)}</h1>
-    <div class="pcard"><div class="plbl">اكتب اسمك وادخل… وبينكم بطل واحد 👀</div>
-    <input id="pname" placeholder="اسمك" maxlength="20" value="${esc(P.draft)}" autocomplete="off" aria-label="اسمك">
-    ${needPin?`<input id="ppinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز الدخول" aria-label="رمز الدخول" value="${esc(P.pinDraft)}" style="text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`:''}
+  if(!P.joined)return head+`<form class="phone stage" data-form="join"><div class="huge" style="font-size:clamp(1.7rem,7.5vw,2.4rem);line-height:1.3">🏆 بطولة لمّة سمول ڤاميلي 🏆</div>
+    <p style="margin:0;font-size:1.15rem">اكتب اسمك وادخل، وبينكم بطل واحد 👀</p><h2 class="big">انضم للعب</h2>
+    <input id="pname" placeholder="اسمك" maxlength="20" value="${esc(P.draft)}" autocomplete="off" style="width:100%;font-size:1.2rem" aria-label="اسمك">
+    ${needPin?`<input id="ppinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز الدخول" aria-label="رمز الدخول" value="${esc(P.pinDraft)}" style="width:100%;font-size:1.2rem;text-align:center;letter-spacing:.2em" ${wait?'disabled':''}>`:''}
     ${S.pinMsg?`<p class="msg err" role="alert" style="margin:0">${esc(S.pinMsg)}</p>`:''}
-    <button class="pgo" type="submit">انضم 👑</button></div>
-    <div class="pgift">🎁 لكل واحد لقب خاص… بتعرفه أول ما تدخل!</div></form>`;
+    <button class="btn-ink btn-big" type="submit" style="width:100%">انضم</button>
+    <p style="margin:0;font-size:1.1rem;opacity:.85">🎁 لكل واحد لقب خاص… بتعرفه أول ما تدخل!</p></form>`;
   const h=P.host||{},mode=h.mode;let body='';
   const kicked=h.kick&&myBy?h.kick[myBy]:null;
   if(kicked!==P.kickedSeen){P.kickedSeen=kicked;if(kicked){hideWelcome();try{navigator.vibrate&&navigator.vibrate([300,100,300])}catch(_){}}}
@@ -1819,9 +1813,7 @@ function playerView(){
       if(h.spy.reveal)body+=`<p style="margin:0">برا السالفة: <b>${esc(h.spy.reveal.spy)}</b> · السالفة: <b>${esc(h.spy.reveal.word)}</b></p>`;}}
   else if(mode==='buzz'&&h.buzz)body=buzzer();
   else if(mode==='aunts')body=isGirl(P.name)?`<h2 class="big">👩 فقرة الخالات</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استني السؤال…</p>'}`:`<div class="huge">🚫</div><h2 class="big">هالفقرة للخالات بس 😄</h2><p class="muted" style="margin:0">تابع الشاشة وشجّع ${h.pk&&myBy&&h.pk[myBy]?'خالتك اللي بفريقك':'الخالات'} 👏</p>`;
-  else if(mode==='bell'){const tm=myBy&&h.pt&&h.pt[myBy],mm=myBy&&h.pm&&h.pm[myBy];return `<button hidden id="roleBtn" data-act="role" data-v=""></button><div class="pbell"><div class="ptop"><span class="pme lgold" data-lp="1">${esc(P.name)}</span>${tm||mm?`<span class="pmyteam">${tm?esc(clean(tm,30)):''}${tm&&mm?' · ':''}${mm?'مع '+esc(clean(mm,60)):''}</span>`:''}</div>
-    <div class="pttl">🔔 <span class="lgold">فقرة الجرس</span></div>${h.bqn?`<div class="pqn">سؤال ${AR(h.bqn)}</div>`:''}
-    <div class="pbz">${h.buzz?buzzer():'<p class="pqn" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}</div></div>`}
+  else if(mode==='bell'){const tm=myBy&&h.pt&&h.pt[myBy],mm=myBy&&h.pm&&h.pm[myBy];body=`<p style="margin:0;font-size:1.1rem"><b data-lp="1">${esc(P.name)}</b>${tm?` · ${esc(clean(tm,30))}`:''}${mm?` · مع ${esc(clean(mm,60))}`:''}</p><h2 class="big">فقرة الجرس 🔔</h2>${h.bqn?`<p class="muted" style="margin:0">سؤال ${AR(h.bqn)}</p>`:''}${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`}
   else if(mode==='event'&&h.ev)body=`${h.gold?'<div class="goldtag" style="position:static">⭐ سؤال ذهبي! النقطة بنقطتين</div>':''}<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
   else if((mode==='finale'||h.jgPhase)&&h.fin){const f=h.fin;
     if(!f.done)body=`<div class="huge" style="font-size:clamp(3rem,14vw,4.5rem)">🏆</div><h2 class="big">جاري إعلان الفائزين…</h2><p style="margin:0;font-size:1.15rem">تابعوا الشاشة الكبيرة 👀</p>`;
