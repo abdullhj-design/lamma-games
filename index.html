@@ -717,7 +717,7 @@ function hostState(){
   if(S.anthemStop)st.anthemStop=S.anthemStop;
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;const nm=t.startsWith('g:')?pairName(+t.slice(2)):p.name;if(red>0)w[p.key]={l:3,left:red,id:'r'+S.warn.red[t],nm};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n,id:q.qn+':'+q.n,nm}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
-  if(S.view==='letters'){const h=S.hl;st.hl={st:h.stage,cat:h.cat,turn:h.stage==='play'?h.order[h.cur]:null,tn:h.stage==='play'?hlName(h.order[h.cur]):'',out:h.out,win:h.stage==='end'?hlName(h.winner):'',rw:h.stage==='roundEnd'?h.rw.map(hlName):[]}}
+  if(S.view==='letters'){const h=S.hl;st.hl={st:h.stage,cat:h.cat,turn:h.stage==='play'?h.order[h.cur]:null,who:h.stage==='play'?h.who:null,whoN:h.stage==='play'?h.whoN:'',tn:h.stage==='play'?hlName(h.order[h.cur]):'',out:h.out,win:h.stage==='end'?hlName(h.winner):'',rw:h.stage==='roundEnd'?h.rw.map(hlName):[]}}
   if(S.view==='mcq'){const m=S.mq,it=C.mcq[m.i];st.mq={i:m.i,n:C.mcq.length,phase:m.i>=C.mcq.length?'done':m.phase,qid:m.qid,q:it?it.q:'',opts:it?m.ord.map(o=>it.o[o]):[],ord:m.ord,locked:Object.fromEntries(Object.entries(m.subs).map(([k,v])=>[k,v.o])),res:m.phase==='reveal'?m.res:null,gold:isGold()}}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
   if(S.view==='finale'&&S.fin)st.fin={topN:S.fin.topN||5,done:!!finDone(),all:finDone()?S.fin.all.slice(0,60):null};
@@ -1832,7 +1832,8 @@ function playerView(){
         :`<div class="myres"><b>${mq} 🤍</b>${me?`<span style="font-size:1.2rem">${tk} <strong>${ORD[me.r-1]||me.r}</strong></span>`:''}<span>نلتقي مرة أخرى 👏⏳🤍</span></div>`;
       if(h.jgPhase)body+=h.jgPhase==='closing'?`<div class="myres" style="margin-top:6px"><b>🤍 شكرًا لمشاركتكم… والجايات أحلى!</b><span>لمة سمول فاميلي 🤍</span></div>`:`<p style="margin:6px 0 0;font-size:1.15rem">🏆 جاري تقييم أفضل لجنة… تابعوا الشاشة 👀</p>`}}
   else if(mode==='letters'){const L=h.hl||{},tm=!!(h.pk&&myBy&&h.pk[myBy]),tk=tm?h.pk[myBy]:myBy,mine=L.turn&&tk===L.turn,isOut=(L.out||[]).includes(tk),g=isGirl(P.name);
-    body=L.st==='play'?(mine?`<div class="huge">🎯</div><h2 class="big">${tm?'دوركم!':g?'دوركِ!':'دورك!'}</h2><p style="margin:0;font-size:1.3rem">${esc(L.cat)}</p><p class="muted" style="margin:0">قل حرف وكلمة… بسرعة! ⏱️</p>`:isOut?`<div class="huge">❌</div><h2 class="big">${tm?'طلعتوا من هالجولة':'طلعت من هالجولة'}</h2><p class="muted" style="margin:0">الدور على ${esc(L.tn)}</p>`:`<div class="huge">🔤</div><h2 class="big">الدور على ${esc(L.tn)}</h2><p class="muted" style="margin:0">${esc(L.cat)}</p>`)
+    const meNow=L.who&&myBy===L.who,wg=isGirl(L.whoN||'');
+    body=L.st==='play'?(mine&&L.who&&!meNow?`<div class="huge">🤫</div><h2 class="big">دور ${esc(L.whoN)}…</h2><p style="margin:0;font-size:1.2rem">لا ${g?'تساعدين':'تساعد'}${wg?'ها':'ه'}!</p><p class="muted" style="margin:0">${esc(L.cat)}</p>`:mine?`<div class="huge">🎯</div><h2 class="big">${meNow?(g?'دوركِ يا ':'دورك يا ')+esc(P.name)+'!':tm?'دوركم!':g?'دوركِ!':'دورك!'}</h2><p style="margin:0;font-size:1.3rem">${esc(L.cat)}</p><p class="muted" style="margin:0">قل حرف وكلمة… بسرعة! ⏱️</p>`:isOut?`<div class="huge">❌</div><h2 class="big">${tm?'طلعتوا من هالجولة':'طلعت من هالجولة'}</h2><p class="muted" style="margin:0">الدور على ${esc(L.tn)}</p>`:`<div class="huge">🔤</div><h2 class="big">الدور على ${esc(L.tn)}${L.whoN?' — '+esc(L.whoN):''}</h2><p class="muted" style="margin:0">${esc(L.cat)}</p>`)
       :L.st==='end'?`<div class="huge">👑</div><h2 class="big">${esc(L.win)}</h2><p class="muted" style="margin:0">فاز بحروف وثواني</p>`:L.st==='roundEnd'?`<div class="huge">🏆</div><h2 class="big">${L.rw&&L.rw.length?'فاز بالجولة: '+esc(L.rw.join(' و ')):'خلصت الجولة'}</h2>`
       :L.cat&&(L.st==='ready'||L.st==='draw')?`<div class="huge">🔤</div><h2 class="big">${L.st==='draw'?'القرعة…':esc(L.cat)}</h2><p class="muted" style="margin:0">استعدوا!</p>`:`<div class="huge">🔤⏱️</div><h2 class="big">حروف وثواني</h2><p class="muted" style="margin:0">تابعوا الشاشة 👀</p>`}
   else if(mode==='mcq'){if(h.mq&&P.mqLock&&P.mqLock.qid===h.mq.qid&&h.mq.locked){const tk=(h.pk&&myBy&&h.pk[myBy])||myBy;if(h.mq.locked[tk]==null)h.mq.locked[tk]=P.mqLock.o}body=mqPhone(h,warnCard)}
@@ -1917,7 +1918,7 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
   S.mq.res={cnt:ok.length,fast:fg,pts};S.mq.phase='reveal';if(ok.length)sfx('right');else sfx('wrong');emitState();render()}
 /* ---------- حروف وثواني ---------- */
 const HL_LET='أ ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي'.split(' '),HL_SECS=5,HL_ROUNDS=3;
-function hlFresh(){return {stage:'idle',round:0,wins:{},cats:[],cat:'',base:[],order:[],out:[],cur:0,used:[],end:0,hist:[],tie:null,winner:null,rw:[],done:false}}
+function hlFresh(){return {mem:{},who:null,whoN:'',stage:'idle',round:0,wins:{},cats:[],cat:'',base:[],order:[],out:[],cur:0,used:[],end:0,hist:[],tie:null,winner:null,rw:[],done:false}}
 S.hl=Object.assign(hlFresh(),LS.get('hl',{}));
 const saveHl=()=>LS.set('hl',S.hl);
 function hlTeams(){return soloPlayers().map(x=>({k:x.key,n:x.name}))}
@@ -1927,11 +1928,16 @@ function hlStartGame(){const t=hlTeams();if(t.length<2){toast('لازم فريق
 function hlDraw(){const h=S.hl,all=C.hlCats||[];let pool=all.filter(c=>!h.cats.includes(c));if(!pool.length)pool=all.slice();if(!pool.length){toast('ما فيه فئات — أضفها من الإدارة');return}
   h.cat=rnd(pool);h.cats=h.cats.concat(h.cat);h.pool=pool;h.stage='draw';h.end=Date.now()+2800;
   const teams=h.tie?h.tie:h.base,r=h.tie?0:h.round,sh=teams.length?r%teams.length:0;h.order=teams.slice(sh).concat(teams.slice(0,sh));h.out=[];h.cur=0;h.used=[];h.hist=[];h.rw=[];saveHl();emitState();render()}
-function hlTurnNext(){const h=S.hl,a=hlAlive();if(a.length<=1){hlRoundEnd(a);return}let i=h.cur;for(let n=0;n<h.order.length;n++){i=(i+1)%h.order.length;if(!h.out.includes(h.order[i]))break}h.cur=i;h.end=Date.now()+HL_SECS*1000}
-function hlSnap(){const h=S.hl;h.hist.push({used:h.used.slice(),out:h.out.slice(),cur:h.cur});if(h.hist.length>60)h.hist.shift()}
+/* who in the team answers this turn: members take turns, skipping anyone not connected */
+function hlPick(){const h=S.hl,t=h.order[h.cur];h.who=null;h.whoN='';if(!t||!String(t).startsWith('g:'))return;const g=S.pairs.groups[+String(t).slice(2)]||[];if(!g.length)return;
+  const on=new Set(phonePlayers().map(p=>p.key)),n=g.length;let i=h.mem[t];if(typeof i!=='number')i=Math.floor(Math.random()*n);
+  let pick=-1;for(let j=0;j<n;j++){const c=(i+j)%n;if(on.has(g[c])){pick=c;break}}if(pick<0)pick=i%n;
+  h.who=g[pick];h.whoN=S.pairs.names[g[pick]]||'';h.mem={...h.mem,[t]:(pick+1)%n}}
+function hlTurnNext(){const h=S.hl,a=hlAlive();if(a.length<=1){hlRoundEnd(a);return}let i=h.cur;for(let n=0;n<h.order.length;n++){i=(i+1)%h.order.length;if(!h.out.includes(h.order[i]))break}h.cur=i;hlPick();h.end=Date.now()+HL_SECS*1000}
+function hlSnap(){const h=S.hl;h.hist.push({used:h.used.slice(),out:h.out.slice(),cur:h.cur,mem:{...h.mem},who:h.who,whoN:h.whoN});if(h.hist.length>60)h.hist.shift()}
 function hlLetter(L){const h=S.hl;if(h.stage!=='play'||h.used.includes(L))return;hlSnap();h.used=h.used.concat(L);if(h.used.length>=HL_LET.length){hlRoundEnd(hlAlive());return}hlTurnNext();saveHl();emitState();render()}
 function hlOut(){const h=S.hl;if(h.stage!=='play')return;hlSnap();h.out=h.out.concat(h.order[h.cur]);hlTurnNext();saveHl();emitState();render()}
-function hlUndo(){const h=S.hl;if(!h.hist.length)return;const s=h.hist.pop();h.used=s.used;h.out=s.out;h.cur=s.cur;h.stage='play';h.rw=[];h.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}
+function hlUndo(){const h=S.hl;if(!h.hist.length)return;const s=h.hist.pop();h.used=s.used;h.out=s.out;h.cur=s.cur;if(s.mem){h.mem=s.mem;h.who=s.who;h.whoN=s.whoN}h.stage='play';h.rw=[];h.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}
 function hlRoundEnd(ws){const h=S.hl;h.rw=ws;h.stage='roundEnd';h.end=0;saveHl();emitState();render()}
 function hlNext(){const h=S.hl;if(h.stage!=='roundEnd')return;
   if(h.tie){if(h.rw.length===1){hlFinish(h.rw[0]);return}h.tie=h.rw.slice();hlDraw();return}
@@ -1952,7 +1958,7 @@ function lettersView(){const h=S.hl,tl=k=>esc(hlName(k)),nT=hlTeams().length;
   if(h.stage==='draw')return `<div class="stage"><span class="eyebrow">${rl}</span><div class="mid">الفئة…</div><div class="wname wspin hlcat" data-pool="${esc(JSON.stringify(h.pool||[h.cat]))}" data-wend="${h.end-300}">${esc(h.cat)}</div></div>`;
   if(h.stage==='ready')return `<div class="stage"><span class="eyebrow">${rl}</span><div class="hlcat big">${esc(h.cat)}</div>${ordH()}${kb(false)}<button class="btn-big" data-act="hlStart">▶ ابدأ</button></div>`;
   if(h.stage==='play'){const k=h.order[h.cur];return `<div class="stage hlplay"><div class="hltop"><span class="eyebrow">${rl}</span><span class="hlcat">${esc(h.cat)}</span></div>
-    <div class="hlmid"><div class="hlturn"><span>🎯 الدور على</span><b>${tl(k)}</b></div><div class="hlt timer" data-end="${h.end}">0:0${HL_SECS}</div><div class="hlact"><button class="btn-big hlx" data-act="hlOut">❌ ما لحقوا / غلط</button>${h.hist.length?'<button class="link" data-act="hlUndo">↩️ تراجع</button>':''}</div></div>
+    <div class="hlmid"><div class="hlturn">${h.who?`<span>🎯 الدور على ${tl(k)}</span><b>${esc(h.whoN)}</b>`:`<span>🎯 الدور على</span><b>${tl(k)}</b>`}</div><div class="hlt timer" data-end="${h.end}">0:0${HL_SECS}</div><div class="hlact"><button class="btn-big hlx" data-act="hlOut">❌ ما لحقوا / غلط</button>${h.hist.length?'<button class="link" data-act="hlUndo">↩️ تراجع</button>':''}</div></div>
     ${kb(true)}${ordH()}</div>`}
   if(h.stage==='roundEnd'){const w=h.rw,lastRound=!h.tie&&h.round+1>=HL_ROUNDS;return `<div class="stage"><span class="eyebrow">${rl} · ${esc(h.cat)}</span><div class="huge">🏆</div>
     <h2 class="big">${w.length?'فاز بالجولة: '+w.map(tl).join(' و '):'ما أحد بقى!'}</h2>${h.used.length>=HL_LET.length?'<p class="muted" style="margin:0">خلصت الحروف كلها! 😮</p>':''}
@@ -2177,7 +2183,7 @@ $app.addEventListener('click',e=>{
     case 'aqReset':S.aq={i:-1,showA:false};saveAq();closeBuzz();emitState();render();break;
     case 'mqNext':{if(S.mq.phase==='q')break;const adv=()=>mqStart();if(S.mq.i+1<C.mcq.length&&wheelGate(adv))break;adv();break}
     case 'mqShow':mqReveal();break;
-    case 'hlGo':hlStartGame();break;case 'hlStart':if(S.hl.stage==='ready'){S.hl.stage='play';S.hl.cur=0;S.hl.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}break;case 'hlL':hlLetter(b.dataset.l);break;case 'hlOut':hlOut();break;case 'hlUndo':hlUndo();break;case 'hlNext':hlNext();break;case 'hlTieGo':hlDraw();break;case 'hlReset':S.hl=hlFresh();saveHl();emitState();render();break;
+    case 'hlGo':hlStartGame();break;case 'hlStart':if(S.hl.stage==='ready'){S.hl.stage='play';S.hl.cur=0;hlPick();S.hl.end=Date.now()+HL_SECS*1000;saveHl();emitState();render()}break;case 'hlL':hlLetter(b.dataset.l);break;case 'hlOut':hlOut();break;case 'hlUndo':hlUndo();break;case 'hlNext':hlNext();break;case 'hlTieGo':hlDraw();break;case 'hlReset':S.hl=hlFresh();saveHl();emitState();render();break;
     case 'mqReset':S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();emitState();render();break;
     case 'mqPick':{const q=+b.dataset.q,o=+b.dataset.o;P.mqLock={qid:q,o};if(room)room.presence({mq:{qid:q,o}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
