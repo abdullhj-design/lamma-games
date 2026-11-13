@@ -1088,7 +1088,7 @@ function topBar(){
     <div class="dhead"><b>القائمة</b><button class="link" data-act="menuClose" aria-label="سكّر القائمة" style="font-size:1.4rem;text-decoration:none">✕</button></div>
     ${C.teamsOn?`<button class="ditem" data-act="go" data-v="draw"><span>القرعة 🎲</span>${un?`<small>${un} بانتظار</small>`:''}</button>
     <button class="ditem" data-act="modeToggle"><span>نظام النقاط</span><small>${S.mode==='solo'?'👤 فردي':'👥 فرق'} ← بدّل</small></button>`:''}
-    ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الفرق 👥</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم فرق 👥</span></button>'):''}
+    ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الفرق 👥</span></button><button class="ditem" data-act="pairsDraw"><span>أعد القرعة 🔁</span></button><button class="ditem" data-act="pairsOff"><span>رجّع اللعب فردي 👤</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم فرق 👥</span></button>'):''}
     ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
     <button class="ditem" data-act="go" data-v="lobby"><span>👥 شاشة الانتظار والافتتاح</span></button>
@@ -1331,8 +1331,7 @@ function pairsView(){const P_=S.pairs,n=P_.groups.length,shown=Math.min(n,P_.sho
     ${busy?pairReveal(P_):`<div class="huge" style="font-size:clamp(2.4rem,7vw,4.4rem)">${n} ${n===1?'فريق':'فرق'} 👥</div>`}
     <div class="ranklist">${P_.groups.slice(0,shown).map(card).join('')}</div>
     ${late.length&&!busy?`<p class="muted" style="margin:0">انضموا بعد القرعة: ${late.map(p=>esc(p.name)).join('، ')}</p>`:''}
-    ${!busy?`<p class="muted small" style="margin:0">${S.pairSel?'اختر اللاعب اللي تبي تبدّله معه':'تبي تبدّل؟ اضغط اسمين وبيتبادلون.'}</p>
-    <div class="row" style="justify-content:center"><button data-act="pairsDraw">أعد القرعة</button><button data-act="pairsOff">رجّع اللعب فردي</button><button class="btn-ink" data-act="go" data-v="home">ابدأ اللعب</button></div>`:''}</div>`}
+    ${!busy?`<div class="row" style="justify-content:center"><button class="btn-ink" data-act="go" data-v="home">ابدأ اللعب</button></div>`:''}</div>`}
 S.lobbySeen=new Set();
 function lobbyView(){const ph=phonePlayers().slice().sort((a,b)=>a.name.localeCompare(b.name,'ar')),n=ph.length,min=C.lobbyMin,ok=n>=min;
   let qr='';try{const q=qrcode(0,'M');q.addData(location.origin+location.pathname+'?join=1');q.make();qr=q.createSvgTag({cellSize:4,margin:0,scalable:true})}catch(e){}
