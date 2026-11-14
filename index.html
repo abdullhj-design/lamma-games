@@ -343,6 +343,11 @@ label.up input{position:absolute;opacity:0;width:1px;height:1px}
 .whteams{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:1000px}
 html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulation}
 
+.whocl{list-style:none;counter-reset:c;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;width:100%;max-width:900px}
+.whocl li{counter-increment:c;font-size:clamp(1.3rem,3.2vw,2rem);font-weight:700;line-height:1.4;padding:12px 18px;border-radius:16px;background:color-mix(in srgb,var(--ochre) 10%,transparent);opacity:.7;display:flex;gap:12px;align-items:baseline}
+.whocl li:before{content:counter(c,arabic-indic);font-family:var(--display);color:var(--ochre);font-size:1.3em}
+.whocl li.new{opacity:1;background:color-mix(in srgb,var(--ochre) 22%,transparent);animation:pop .5s ease}
+.whoans{font-family:var(--display);font-size:clamp(2.6rem,7vw,4.6rem);line-height:1.2;animation:pop .6s ease}
 .homedate{text-align:center;margin:0 0 14px;font-size:1.05rem;color:var(--muted,#6b5f55)}
 /* ---------- حروف وثواني ---------- */
 .hlcat{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ochre)}
@@ -556,7 +561,7 @@ const MCQ_DEF=[{"q": "كم عدد سور القرآن الكريم؟", "o": ["11
 function normalize(j){
   const d=DEFAULTS,o={};j=j&&typeof j==='object'?j:{};
   o.title=clean(j.title,40)||d.title;
-  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts','letters'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
+  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts','letters','who'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
   o.spyMin=[1,2,3,4,5,6,8,10].includes(+j.spyMin)?+j.spyMin:d.spyMin;
   o.chDur=[30,45,60,90,120].includes(+j.chDur)?+j.chDur:d.chDur;
   const cats=Array.isArray(j.cats)?j.cats.map(c=>({name:clean(c&&c.name,30),words:Array.isArray(c&&c.words)?c.words.map(w=>clean(w,40)).filter(Boolean):[]})).filter(c=>c.name&&c.words.length>=3):[];
@@ -594,7 +599,7 @@ function normalize(j){
   o.lgSecs=[10,15,20,25,30,45,60].includes(+j.lgSecs)?+j.lgSecs:d.lgSecs;
   {const m=Array.isArray(j.mcq)?j.mcq.map(x=>({q:clean(x&&x.q,200),o:Array.isArray(x&&x.o)?x.o.map(v=>clean(v,60)).filter(Boolean).slice(0,4):[]})).filter(x=>x.q&&x.o.length>=2).slice(0,200):[];o.mcq=m.length?m:MCQ_DEF}
   o.spamN=[0,2,3,4,5].includes(+j.spamN)?+j.spamN:3;
-  o.hlCats=uniq(j.hlCats,40,60);if(!o.hlCats.length)o.hlCats=['🏙️ مدن سعودية','🌍 دول','🍲 أكلات شعبية','🎮 ألعاب فيديو','🎬 ممثلين','🐪 حيوانات','🍎 فواكه وخضار','👤 أسماء أولاد','👧 أسماء بنات','🚗 ماركات سيارات'];o.mcqSecs=Number.isInteger(+j.mcqSecs)&&+j.mcqSecs>=3&&+j.mcqSecs<=60?+j.mcqSecs:7;
+  {const w=Array.isArray(j.whoQs)?j.whoQs.map(x=>({n:clean(x&&x.n,60),c:(Array.isArray(x&&x.c)?x.c:[]).map(t=>clean(t,160)).filter(Boolean).slice(0,6)})).filter(x=>x.n&&x.c.length).slice(0,100):null;o.whoQs=w&&w.length?w:[{"n": "👑 الملك عبدالعزيز", "c": ["استرجعت مدينة وأنا شاب، ومنها بدأت القصة", "استرجعت الرياض سنة 1902", "وحّدت البلاد وسمّيتها المملكة سنة 1932", "أنا مؤسس المملكة"]}, {"n": "👑 الملك سعود", "c": ["أسست أول جامعة في المملكة", "جامعة كبيرة في الرياض تحمل اسمي", "أكبر أبناء المؤسس اللي صاروا ملوك", "أنا ثاني ملوك المملكة"]}, {"n": "👑 الملك فيصل", "c": ["مثّلت بلادي في تأسيس الأمم المتحدة وأنا شاب", "أوقفت تصدير النفط سنة 1973", "جائزة عالمية ومستشفى تخصصي يحملون اسمي", "أنا ثالث ملوك المملكة"]}, {"n": "👑 الملك خالد", "c": ["حكمت من 1975 إلى 1982", "معروف بالبساطة وحب البر", "مطار الرياض الدولي يحمل اسمي", "أنا رابع ملوك المملكة"]}, {"n": "👑 الملك فهد", "c": ["صارت في عهدي أكبر توسعة للحرمين", "أول ملك تلقّب بخادم الحرمين الشريفين", "جسر البحرين يحمل اسمي", "أنا خامس ملوك المملكة"]}, {"n": "👑 الملك عبدالله", "c": ["كنت رئيس الحرس الوطني سنين طويلة", "أطلقت برنامج ابتعاث كبير", "جامعة كاوست تحمل اسمي", "أنا سادس ملوك المملكة"]}, {"n": "👑 الملك سلمان", "c": ["كنت أمير الرياض قرابة 50 سنة", "صرت ولي عهد سنة 2012", "صرت ملك سنة 2015", "أنا خادم الحرمين الشريفين الحالي"]}, {"n": "👑 الأمير محمد بن سلمان", "c": ["أنا رئيس مجلس الوزراء", "أطلقت مشروع نيوم", "أطلقت رؤية 2030", "أنا ولي العهد"]}, {"n": "⭐ كريستيانو رونالدو", "c": ["ولدت في جزيرة ماديرا", "فزت بالكرة الذهبية 5 مرات", "انتقلت للنصر سنة 2023", "احتفالي المشهور «سيووو!»"]}, {"n": "⭐ ليونيل ميسي", "c": ["ولدت في روزاريو", "لعبت أغلب مسيرتي في برشلونة", "فزت بكأس العالم 2022", "أكثر لاعب فاز بالكرة الذهبية"]}, {"n": "⭐ محمد عبده", "c": ["ولدت في الدرب", "من أغانيّ «الأماكن»", "لقبي «فنان العرب»", "فنان سعودي اسمي محمد"]}, {"n": "⭐ ناصر القصبي", "c": ["مثّلت مسلسل «العاصوف»", "اشتغلت سنين طويلة مع عبدالله السدحان", "مثّلت «طاش ما طاش»", "ممثل كوميدي اسمي ناصر"]}, {"n": "⭐ سالم الدوسري", "c": ["فزت بجائزة أفضل لاعب في آسيا", "لعبت أغلب مسيرتي في الهلال", "سجلت هدف الفوز على الأرجنتين في كأس العالم 2022", "لاعب سعودي اسمي سالم"]}, {"n": "⭐ ألبرت أينشتاين", "c": ["ولدت في ألمانيا سنة 1879", "فزت بجائزة نوبل في الفيزياء", "صورتي المشهورة وأنا مطلّع لساني", "صاحب النظرية النسبية"]}, {"n": "⭐ ستيف جوبز", "c": ["تركت الجامعة بعد فصل واحد", "انطردت من شركتي ورجعت لها", "قدّمت أول آيفون سنة 2007", "مؤسس شركة أبل"]}]}o.hlCats=uniq(j.hlCats,40,60);if(!o.hlCats.length)o.hlCats=['🏙️ مدن سعودية','🌍 دول','🍲 أكلات شعبية','🎮 ألعاب فيديو','🎬 ممثلين','🐪 حيوانات','🍎 فواكه وخضار','👤 أسماء أولاد','👧 أسماء بنات','🚗 ماركات سيارات'];o.mcqSecs=Number.isInteger(+j.mcqSecs)&&+j.mcqSecs>=3&&+j.mcqSecs<=60?+j.mcqSecs:7;
   o.lgPts=Array.isArray(j.lgPts)&&j.lgPts.length===3&&j.lgPts.every(x=>Number.isInteger(+x)&&+x>=0&&+x<=20)?j.lgPts.map(Number):d.lgPts;
   const ti=(v,d)=>Number.isInteger(+v)&&+v>=2&&+v<=60&&v!==''&&v!=null?+v:d;
   o.turn=[ti(j.turn&&j.turn[0],10),ti(j.turn&&j.turn[1],7),ti(j.turn&&j.turn[2],5)];
@@ -671,7 +676,7 @@ S.bq=(()=>{const d=LS.get('bq',null);return d&&typeof d.i==='number'?d:{i:-1}})(
 S.cheat=(()=>{const d=LS.get('cheat',null);return d&&typeof d==='object'&&d.strikes&&d.banned&&d.qban?{qn:+d.qn||0,gs:+d.gs||0,gk:d.gk||'',gban:{},...d}:{qn:0,gs:0,gk:'',strikes:{},banned:{},qban:{},gban:{}}})();
 const saveCheat=()=>LS.set('cheat',S.cheat);
 S.alerts=[];S.pstat=new Map();S.marks={};
-const ARMED=['spy','charades','buzz','bell','event','lists','mcq','aunts'];
+const ARMED=['spy','charades','buzz','bell','event','lists','mcq','aunts','who'];
 const isBanned=k=>!!S.cheat.banned[k];
 /* ---------- الإنذارات: 🟨 no answer this question, 🟨🟨 + −1 point, 🟥 one minute out + −2, then reset ---------- */
 S.warn=(()=>{const d=LS.get('warn',null);return d&&d.n&&d.q&&d.red?d:{n:{},q:{},red:{}}})();const saveWarn=()=>LS.set('warn',S.warn);
@@ -682,7 +687,7 @@ const gameBlocked=k=>S.cheat.gban&&S.cheat.gban[k]!=null&&S.cheat.gban[k]===S.ch
 function syncGame(){const g=gameKey();if(g&&g!==S.cheat.gk){S.cheat.gk=g;S.cheat.gs=(S.cheat.gs||0)+1;saveCheat();emitState()}}
 const freeToLeave=k=>{const i=pairIdx(k);if(i<0)return blocked(k);const g=S.pairs.groups[i]||[];return g.length>0&&g.every(m=>blocked(m))};
 const blocked=k=>isBanned(k)||S.cheat.qban[k]===S.cheat.qn||gameBlocked(k)||warnBlocked(k)||spamBanned(k);
-function qLive(){const v=S.view;if(['buzz','bell','aunts','event'].includes(v))return !!(S.bz.open||(S.bz.order.length&&!S.bz.awarded));if(v==='lists')return S.lg&&S.lg.stage==='play';if(v==='mcq')return S.mq.phase==='q';return false}
+function qLive(){const v=S.view;if(['buzz','bell','aunts','event','who'].includes(v))return !!(S.bz.open||(S.bz.order.length&&!S.bz.awarded));if(v==='lists')return S.lg&&S.lg.stage==='play';if(v==='mcq')return S.mq.phase==='q';return false}
 function giveWarn(t,name){const n=(S.warn.n[t]||0)+1;let lvl=n;const tq=qLive()?S.cheat.qn:S.cheat.qn+1;
   if(n>=3){S.warn.red[t]=Date.now()+60000;S.warn.n[t]=0;delete S.warn.q[t];soloAdd(t,name,-2);lvl=3}
   else{S.warn.n[t]=n;S.warn.q[t]={qn:tq,n};if(n===2)soloAdd(t,name,-1)}
@@ -704,7 +709,7 @@ function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameT
 function hostState(){
   const st={bqn:S.view==='bell'&&S.bq&&S.bq.i>=0?S.bq.i+1:0,mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
-  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:S.view==='bell'&&!b.timed}}
+  if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||S.view==='who'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:(S.view==='bell'&&!b.timed)||S.view==='who'}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
     st.bq={i:S.bq.i,n:C.bellQs.length,cur:cur?lab(cur):'',curT:cur&&pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):'',curMem:cur&&pairIdx(cur.key)>=0?pairMembers(pairIdx(cur.key)):'',curBy:cur?cur.name:'',aw:b.awarded?b.awardedName:'',open:!!b.open,out:b.order.filter(o=>fail.includes(o.peer)).map(lab)}}
   {const sb=Object.keys(S.spam.ban).filter(spamBanned);if(sb.length)st.sb=sb}
@@ -736,7 +741,7 @@ function readerCmds(){if(!room||!hostAllowed())return;S.rdSeen=S.rdSeen||{};
 function onHostPeers(ch){readerCmds();whPeers();mqCollect();
   {S.pnames=S.pnames||{};let em=ch.joined.length>0;for(const p of ch.updated){const pr=p.presence||{},k=pKey(p),sig=(pr.role||'')+'|'+(pr.name||'');if(S.pnames[k]!==sig){S.pnames[k]=sig;if(pr.role==='player')em=true}}if(em)emitState()}
   let changed=ch.joined.length||ch.left.length;
-  if((S.view==='buzz'||S.view==='bell'||S.view==='aunts'||S.view==='event')&&S.bz.open&&!S.wh.cur){
+  if((S.view==='buzz'||S.view==='bell'||S.view==='aunts'||S.view==='who'||S.view==='event')&&S.bz.open&&!S.wh.cur){
     for(const p of [...ch.joined,...ch.updated]){
       const b=p.presence&&p.presence.buzz;
       if(b&&b.r===S.bz.r&&p.presence.role==='player'&&!blocked(pKey(p))&&!(S.view==='aunts'&&!isGirl(p.presence.name))&&!S.bz.order.find(o=>o.peer===p.peer)&&!(pairIdx(pKey(p))>=0&&S.bz.order.find(o=>pairIdx(o.key)===pairIdx(pKey(p))))){
@@ -1104,7 +1109,7 @@ function topBar(){
 function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
-  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='letters')body=lettersView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
+  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='letters')body=lettersView();else if(S.view==='who')body=whoView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
   if(S.view==='judging')return '<div class="fullstage judgefull"><button class="fsx" data-act="jgBack" aria-label="رجوع">✕</button>'+body+'</div>';
   if(S.view==='finale')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
   if(S.view==='lobby')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
@@ -1157,6 +1162,7 @@ function homeView(){
     g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
     g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
     g.letters&&`<div class="game"><span class="tag">${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة</span><h2>حروف وثواني 🔤</h2><button class="btn-red btn-big" data-act="go" data-v="letters">ابدأ</button></div>`,
+    g.who&&`<div class="game"><span class="tag">${C.whoQs.length} شخصية</span><h2>من أكون؟ 🎭</h2><button class="btn-green btn-big" data-act="go" data-v="who">ابدأ</button></div>`,
     g.buzz&&`<div class="game"><span class="tag">${cntQ(C.quiz.length)}</span><h2>الأسرع</h2><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
   ].filter(Boolean);
   return `${T('homeDate')?`<p class="homedate">📅 ${esc(T('homeDate'))}</p>`:''}<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
@@ -1453,8 +1459,8 @@ function answerer(b){
   const left=b.curPeer===cur.peer?Math.max(0,b.curEnd-Date.now()):0,tot=b.curDur||10000;
   return `<div class="answerer"><div class="bzcard${en}"><span class="bztag">🔔 يجاوب الحين</span>
     <div class="bzname">${esc(nm(cur))}</div>${!solo&&pairIdx(cur.key)<0?`<span class="teambadge t${cur.team}">${esc(S.teams[cur.team].name)}</span>`:''}
-    ${b.curPeer===cur.peer&&(S.view!=='bell'||b.timed)?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
-    <button class="bzok" data-act="ansRight">✓ صح</button>
+    ${b.curPeer===cur.peer&&((S.view!=='bell'&&S.view!=='who')||b.timed)?`<div class="bzring" data-cd="${b.curEnd}" data-tot="${tot}" style="--p:${(left/tot).toFixed(3)}"><b>${Math.ceil(left/1000)}</b></div>`:''}
+    <button class="bzok" data-act="ansRight">✓ صح</button>${S.view==='who'?'<button class="bzok" data-act="ansWrong" style="background:var(--red);margin-top:8px">✗ غلط</button>':''}
     ${next.length?`<div class="bznext">بعده: ${next.map(o=>esc(nm(o))).join(' ← ')}</div>`:''}</div>${fl}</div>`;
 }
 function auntsView(){const b=S.bz,first=b.order[0],n=C.auntQs.length,i=S.aq.i,gold=isGold();
@@ -1489,7 +1495,7 @@ function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,p
 }
 /* ---- admin ---- */
 function gamesDraft(src){return{title:src.title,games:{...src.games},spyMin:src.spyMin,chDur:src.chDur,cats:src.cats.map(c=>({name:c.name,words:c.words.join('\n')})),charades:src.charades.join('\n'),quiz:src.quiz.map(q=>q[0]+' | '+q[1]).join('\n')}}
-function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),hlCats:C.hlCats.join('\n'),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),wheelPool:C.wheelPool.join('، '),wheelPool3:C.wheelPool3.join('، '),wheelQs:C.wheelQs.map(x=>x.q+' | '+x.a).join('\n'),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),spamN:String(C.spamN),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
+function openAdmin(){D={...gamesDraft(C),events:clone(C.events),hostPin:C.hostPin,pinNew:'',playerPin:C.playerPin,ppinNew:'',applied:[...C.applied],judgePin:C.judgePin,jpinNew:'',teamsOn:C.teamsOn,lobbyMin:String(C.lobbyMin),hlCats:C.hlCats.join('\n'),pairNames:C.pairNames.join('\n'),noGirl:C.noGirl.join('، '),fixedTeams:C.fixedTeams.map(t=>t.join(' + ')).join('\n'),fixedTeams3:C.fixedTeams3.map(t=>t.join(' + ')).join('\n'),auntQs:C.auntQs.map(x=>x.q+' | '+x.a).join('\n'),whoQs:C.whoQs.map(x=>[x.n,...x.c].join(' | ')).join('\n'),wheelPool:C.wheelPool.join('، '),wheelPool3:C.wheelPool3.join('، '),wheelQs:C.wheelQs.map(x=>x.q+' | '+x.a).join('\n'),wheelC1:C.wheelC1,wheelC2:C.wheelC2,wheelMoney:String(C.wheelMoney),spamN:String(C.spamN),mcq:C.mcq.map(x=>[x.q,...x.o].join(' | ')).join('\n'),mcqSecs:String(C.mcqSecs),tx:Object.fromEntries(Object.keys(TXD).map(k=>[k,T(k)])),bellQs:C.bellQs.map(x=>x.q+' | '+x.a).join('\n'),lists:C.lists.map(x=>x.q+' | '+x.a.join('، ')).join('\n'),lgSecs:String(C.lgSecs),lgPts:C.lgPts.join('، '),turn:C.turn.map(String),titles:C.titles.map(x=>x[0]+' | '+x[1]).join('\n'),judgeCount:String(C.judgeCount),cheatPenalty:String(C.cheatPenalty),girls:C.girls.join('، '),judgeNames:C.judgeNames.join('، '),prizeNote:C.prizeNote,winSound:C.winSound,comms:C.comms.map((n,i)=>C.commMem[i]&&C.commMem[i].length?n+' | '+C.commMem[i].join('، '):n).join('\n'),crit:C.crit.join('\n')};S.view='admin';S.saveMsg='';if(S.edEv>=D.events.length)S.edEv=0;emitState();render();loadAssets();loadUpdates()}
 async function loadUpdates(){S.updates=[];try{const r=await fetch('updates.json',{cache:'no-store'});if(r.ok){const u=await r.json();S.updates=Array.isArray(u)?u:[]}}catch(e){}if(S.view==='admin')render()}
 function applyUpdate(u){let n=0;for(const op of (u.ops||[])){
   if(op.op==='eventMedia'){const e=D.events.find(x=>x.title===op.event);const rd=e&&e.rounds.find(x=>x.title===op.round);if(!rd)continue;(op.items||[]).forEach((m,j)=>{const it=rd.items[j];if(!it)return;if(m.qm){it.qm=m.qm;n++}if(m.am){it.am=m.am;n++}})}
@@ -1513,7 +1519,7 @@ function fromDraft(){
     cats:D.cats.map(c=>({name:clean(c.name,30),words:[...new Set(lines(c.words).map(w=>clean(w,40)))]})).filter(c=>c.name||c.words.length),
     charades:lines(D.charades).map(w=>clean(w,40)),
     quiz:String(D.quiz||'').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const i=l.indexOf('|');return i<0?[l,'']:[clean(l.slice(0,i),200),clean(l.slice(i+1),100)]}),
-    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),hlCats:String(D.hlCats||'').split('\n').map(x=>clean(x,40)).filter(Boolean),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelPool3:String(D.wheelPool3||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelQs:String(D.wheelQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,spamN:[0,2,3,4,5].includes(+D.spamN)?+D.spamN:3,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
+    events:D.events,applied:D.applied,hostPin:D.hostPin,playerPin:D.playerPin,judgePin:D.judgePin,judgeCount:parseInt(D.judgeCount,10)||0,teamsOn:!!D.teamsOn,lobbyMin:parseInt(D.lobbyMin,10),hlCats:String(D.hlCats||'').split('\n').map(x=>clean(x,40)).filter(Boolean),pairNames:String(D.pairNames||'').split(/[،,\n]/).map(x=>clean(x,30)).filter(Boolean),noGirl:String(D.noGirl||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),fixedTeams:String(D.fixedTeams||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),fixedTeams3:String(D.fixedTeams3||'').split('\n').map(l=>l.split(/[+،,]/).map(x=>clean(x,20)).filter(Boolean)).filter(t=>t.length),whoQs:String(D.whoQs||'').split('\n').map(l=>{const a=l.split('|').map(x=>clean(x,160)).filter(Boolean);return a.length>=2?{n:a[0].slice(0,60),c:a.slice(1,7)}:null}).filter(Boolean),auntQs:String(D.auntQs||'').split('\n').map(l=>{const i=l.indexOf('|');return {q:clean(i<0?l:l.slice(0,i),200),a:clean(i<0?'':l.slice(i+1),150)}}).filter(x=>x.q),wheelPool:String(D.wheelPool||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelPool3:String(D.wheelPool3||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),wheelQs:String(D.wheelQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),wheelC1:clean(D.wheelC1,80),wheelC2:clean(D.wheelC2,80),wheelMoney:parseInt(D.wheelMoney,10)||50,mcq:String(D.mcq||'').split('\n').map(l=>l.split('|').map(x=>clean(x,200))).filter(a=>a.length>=3&&a.every(Boolean)).map(a=>({q:a[0],o:a.slice(1,5)})),mcqSecs:parseInt(D.mcqSecs,10)||7,spamN:[0,2,3,4,5].includes(+D.spamN)?+D.spamN:3,texts:Object.fromEntries(Object.keys(TXD).filter(k=>D.tx&&typeof D.tx[k]==='string'&&D.tx[k].trim()&&D.tx[k].trim()!==TXD[k]).map(k=>[k,D.tx[k]])),bellQs:String(D.bellQs||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),150),a:clean(l.slice(i+1),80)}}).filter(x=>x&&x.q&&x.a),lists:String(D.lists||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:{q:clean(l.slice(0,i),80),a:l.slice(i+1).split(/[،,]/).map(x=>clean(x,80)).filter(Boolean)}}).filter(x=>x&&x.q&&x.a.length),lgSecs:+D.lgSecs,lgPts:String(D.lgPts||'').split(/[،,\s]+/).filter(Boolean).map(x=>parseInt(x,10)),turn:D.turn.map(x=>parseInt(x,10)),titles:String(D.titles||'').split('\n').map(l=>{const i=l.indexOf('|');return i<0?null:[clean(l.slice(0,i),20),clean(l.slice(i+1),30)]}).filter(x=>x&&x[0]&&x[1]),cheatPenalty:parseInt(D.cheatPenalty,10),girls:String(D.girls||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),judgeNames:String(D.judgeNames||'').split(/[،,\n]/).map(x=>clean(x,20)).filter(Boolean),prizeNote:D.prizeNote,winSound:D.winSound,
     comms:String(D.comms||'').split('\n').map(l=>{const i=l.indexOf('|');const n=clean(i<0?l:l.slice(0,i),40);const m=i<0?[]:l.slice(i+1).split(/[،,]/).map(x=>clean(x,30)).filter(Boolean);return{n,m}}).filter(c=>c.n),crit:String(D.crit||'').split('\n').map(x=>clean(x,30)).filter(Boolean)};
 }
 function problems(n){
@@ -1572,7 +1578,7 @@ function adminGames(n){
     <div class="panel"><h3>عام</h3>
       <div class="field"><label for="a_title">اسم الموقع</label><input id="a_title" data-d="title" value="${esc(D.title)}" maxlength="40"></div>
       <div class="lbl">الألعاب الظاهرة</div>
-      <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}</div>
+      <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}${tg('who','من أكون؟ 🎭')}</div>
       <div class="lbl">نظام الفرق</div>
       <label class="toggle" for="a_teams"><input type="checkbox" id="a_teams" data-d="teamsOn" ${D.teamsOn?'checked':''}><span>فعّل الفرق 👥</span></label>
       <p class="hint" style="margin:0">${D.teamsOn?'الفرق ظاهرة: القرعة، ونقاط الفرق، ومثّلها، وزر التبديل بين فرق وفردي.':'الفرق مخفية واللعب كله فردي 👤. القرعة ونقاط الفرق ومثّلها ما تطلع، وترجع متى ما فعّلتها.'}</p>
@@ -1661,6 +1667,10 @@ function adminGames(n){
     <div class="panel"><h3>فقرة الخالات 👩</h3>
       <p class="muted small" style="margin:0">الجرس يشتغل للبنات بس. كل سطر: السؤال | الجواب (الجواب يطلع لما تضغط «اكشف الجواب»).</p>
       <div class="field"><textarea id="a_aq" data-d="auntQs" style="min-height:140px">${esc(D.auntQs)}</textarea></div>
+    </div>
+    <div class="panel"><h3>من أكون؟ 🎭</h3>
+      <p class="muted small" style="margin:0">كل سطر: الاسم | تلميحة ١ (الأصعب) | تلميحة ٢ | تلميحة ٣ | تلميحة ٤. التلميحات تطلع وحدة وحدة كل ${WHO_SECS} ثواني. من التلميحة الأولى +2، وبعدها +1.</p>
+      <div class="field"><textarea id="a_who" data-d="whoQs" style="min-height:220px">${esc(D.whoQs)}</textarea></div>
     </div>
     <div class="panel"><h3>حروف وثواني 🔤</h3>
       <p class="muted small" style="margin:0">الفئات — كل سطر فئة. القرعة تختار منها كل جولة بدون تكرار.</p>
@@ -1811,6 +1821,7 @@ function playerView(){
         :`<button class="reveal-card" data-act="flip"><span class="big">دورك جاهز</span><span class="muted">اضغط وغطِّ الشاشة عن اللي جنبك</span></button>`);
       if(h.spy.reveal)body+=`<p style="margin:0">برا السالفة: <b>${esc(h.spy.reveal.spy)}</b> · السالفة: <b>${esc(h.spy.reveal.word)}</b></p>`;}}
   else if(mode==='buzz'&&h.buzz)body=buzzer();
+  else if(mode==='who')body=`<h2 class="big">من أكون؟ 🎭</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابع التلميحات على الشاشة 👀</p>'}`;
   else if(mode==='aunts')body=isGirl(P.name)?`<h2 class="big">👩 فقرة الخالات</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استني السؤال…</p>'}`:`<div class="huge">🚫</div><h2 class="big">هالفقرة للخالات بس 😄</h2><p class="muted" style="margin:0">تابع الشاشة وشجّع ${h.pk&&myBy&&h.pk[myBy]?'خالتك اللي بفريقك':'الخالات'} 👏</p>`;
   else if(mode==='bell'){const tm=myBy&&h.pt&&h.pt[myBy],mm=myBy&&h.pm&&h.pm[myBy];body=`<p style="margin:0;font-size:1.1rem"><b data-lp="1">${esc(P.name)}</b>${tm?` · ${esc(clean(tm,30))}`:''}${mm?` · مع ${esc(clean(mm,60))}`:''}</p><h2 class="big">فقرة الجرس 🔔</h2>${h.bqn?`<p class="muted" style="margin:0">سؤال ${AR(h.bqn)}</p>`:''}${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`}
   else if(mode==='event'&&h.ev)body=`${h.gold?'<div class="goldtag" style="position:static">⭐ سؤال ذهبي! النقطة بنقطتين</div>':''}<span class="eyebrow">${esc(clean(h.ev.title,60))}</span><h2 class="big">${esc(clean(h.ev.round,60))||'تابعوا الشاشة'}</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابعوا الشاشة الكبيرة.</p>'}`;
@@ -1850,7 +1861,7 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   if(role==='host'&&S.loaded)syncGame();
-  if(role==='host'){whTick(now);mqTick(now);hlTick(now)}
+  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
   if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
@@ -1907,6 +1918,25 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
   ok.forEach(([tk],j)=>{const n=(j===0?2:1)*mul;pts[tk]=n;const gi=String(tk).startsWith('g:')?+String(tk).slice(2):-1;const nm=gi>=0?pairName(gi):((soloPlayers().find(x=>x.key===tk)||{}).name||'');soloAdd(tk,nm,n)});
   const fast=ok[0]?ok[0][0]:null,fg=fast&&String(fast).startsWith('g:')?pairName(+String(fast).slice(2)):fast?((soloPlayers().find(x=>x.key===fast)||{}).name||''):'';
   S.mq.res={cnt:ok.length,fast:fg,pts};S.mq.phase='reveal';if(ok.length)sfx('right');else sfx('wrong');emitState();render()}
+/* ---------- من أكون؟ ---------- */
+const WHO_SECS=10;
+S.wq=(()=>{const d=LS.get('wq',null);return {i:d&&typeof d.i==='number'?d.i:-1,ord:d&&Array.isArray(d.ord)?d.ord:[],c:0,at:0,pz:0,showA:false}})();
+const saveWq=()=>LS.set('wq',{i:S.wq.i,ord:S.wq.ord});
+function whoCur(){const w=S.wq;return C.whoQs[w.ord[w.i]]||null}
+function whoNext(){const w=S.wq,n=C.whoQs.length;if(w.i<0||w.ord.length!==n)w.ord=shuffle([...Array(n).keys()]);w.i=Math.min(n,w.i+1);w.c=0;w.at=Date.now();w.pz=0;w.showA=false;saveWq();bumpQ();closeBuzz();if(w.i<n)openBuzz();emitState();render()}
+function whoBusy(){const b=S.bz;return !b.awarded&&b.order.some(o=>!(b.fail||[]).includes(o.peer))}
+function whoTick(now){const w=S.wq,it=whoCur();if(role!=='host'||S.view!=='who'||!it||w.showA)return;
+  if(whoBusy()){if(!w.pz)w.pz=now;return}if(w.pz){w.at+=now-w.pz;w.pz=0}
+  if(w.c<it.c.length-1&&now-w.at>=WHO_SECS*1000){w.c++;w.at=now;emitState();render()}}
+function whoView(){const b=S.bz,w=S.wq,n=C.whoQs.length,first=b.order[0];
+  if(w.i<0)return `<div class="stage"><span class="eyebrow">من أكون؟ 🎭</span><div class="huge">🎭</div><h2 class="big">${n} شخصية</h2><p style="margin:0">تطلع تلميحة كل ${WHO_SECS} ثواني… اللي يعرف يضغط الجرس!</p><p class="muted" style="margin:0">من التلميحة الأولى <b>+2</b> · بعدها <b>+1</b></p><button class="btn-red btn-big" data-act="whoNext">ابدأ 🎭</button></div>`;
+  if(w.i>=n)return `<div class="stage"><span class="eyebrow">من أكون؟ 🎭</span><div class="huge">🎭</div><h2 class="big">خلصت الشخصيات</h2><div class="row" style="justify-content:center"><button data-act="whoReset">من جديد</button><button class="btn-ink" data-act="go" data-v="home">→ الرئيسية</button></div></div>`;
+  const it=whoCur(),last=w.c>=it.c.length-1,left=Math.max(0,Math.ceil((w.at+WHO_SECS*1000-Date.now())/1000));
+  return `<div class="stage"><span class="eyebrow">🎭 من أكون؟ · ${w.i+1} من ${n} · ${w.c===0?'الجواب الحين بـ<b>+2</b>':'الجواب الحين بـ<b>+1</b>'}</span>
+    <ol class="whocl">${it.c.slice(0,w.c+1).map((t,j)=>`<li class="${j===w.c?'new':''}">${esc(t)}</li>`).join('')}</ol>
+    ${w.showA?`<div class="whoans">${esc(it.n)}</div>${b.awarded?`<p style="margin:0;font-size:1.3rem">✓ ${esc(b.awardedName||'')} <b>+${b.mul||1}</b> 🎉</p>`:''}`:first?answerer(b):`<h2 class="big">${b.open?'🔔 الجرس مفتوح!':'الجرس مقفل'}</h2>${!last?`<p class="muted" style="margin:0">التلميحة الجاية بعد <span class="whocd" data-wend="${w.at+WHO_SECS*1000}">${left}</span> ث</p>`:''}`}
+    <div class="row" style="justify-content:center">${!w.showA&&!last?'<button data-act="whoClue">التلميحة الجاية ⏭️</button>':''}${!w.showA?'<button data-act="whoShow">اكشف 👀</button>':''}<button class="btn-ink btn-big" data-act="whoNext">${w.i>=n-1?'إنهاء 🏁':'الشخصية الجاية ▶'}</button></div></div>`}
+setInterval(()=>{document.querySelectorAll('.whocd').forEach(el=>{const v=Math.max(0,Math.ceil((+el.dataset.wend-Date.now())/1000));if(S.wq.pz)return;if(el.textContent!==String(v))el.textContent=v})},250);
 /* ---------- حروف وثواني ---------- */
 const HL_LET='أ ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي'.split(' '),HL_SECS=5,HL_ROUNDS=3;
 function hlFresh(){return {mem:{},who:null,whoN:'',stage:'idle',round:0,wins:{},cats:[],cat:'',base:[],order:[],out:[],cur:0,used:[],end:0,hist:[],tie:null,winner:null,rw:[],done:false}}
@@ -2164,13 +2194,14 @@ $app.addEventListener('click',e=>{
     case 'drawRedo':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.draw.assign={};saveDraw();emitState();render();break;
     case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'ansRight':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur||b.awarded)break;
-      spamOk(cur);const mul=ptsMul();b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
+      spamOk(cur);const mul=ptsMul()*(S.view==='who'&&S.wq.c===0?2:1);b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
       else{S.teams[cur.team].score+=mul;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
-      b.awarded=true;b.awardedName=bzLabel(cur);b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;if(S.view==='event'&&S.ev&&S.ev.phase==='q'){const it=((C.events[S.ev.ei]||{}).rounds||[])[S.ev.ri];const x=it&&it.items[S.ev.ii];if(x&&(x.a||x.am))S.ev.phase='a'}sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
+      b.awarded=true;b.awardedName=bzLabel(cur);b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;if(S.view==='who')S.wq.showA=true;if(S.view==='event'&&S.ev&&S.ev.phase==='q'){const it=((C.events[S.ev.ei]||{}).rounds||[])[S.ev.ri];const x=it&&it.items[S.ev.ii];if(x&&(x.a||x.am))S.ev.phase='a'}sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
     case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
     case 'rd':readerSend(b.dataset.a);break;
     case 'aqNext':{const adv=()=>{const n=C.auntQs.length;S.aq.i=Math.min(n,S.aq.i+1);S.aq.showA=false;saveAq();bumpQ();closeBuzz();if(S.aq.i<n)openBuzz();emitState();render()};if(S.aq.i+1<C.auntQs.length&&wheelGate(adv))break;adv();break}
     case 'aqShowA':S.aq.showA=true;render();break;
+    case 'whoNext':whoNext();break;case 'whoClue':{const it=whoCur();if(it&&S.wq.c<it.c.length-1){S.wq.c++;S.wq.at=Date.now();S.wq.pz=0;emitState();render()}break}case 'whoShow':S.wq.showA=true;closeBuzz();emitState();render();break;case 'whoReset':S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();closeBuzz();emitState();render();break;
     case 'aqReset':S.aq={i:-1,showA:false};saveAq();closeBuzz();emitState();render();break;
     case 'mqNext':{if(S.mq.phase==='q')break;const adv=()=>mqStart();if(S.mq.i+1<C.mcq.length&&wheelGate(adv))break;adv();break}
     case 'mqShow':mqReveal();break;
@@ -2221,7 +2252,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,gs:(S.cheat.gs||0)+1,gk:'',strikes:{},banned:{},qban:{},gban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
