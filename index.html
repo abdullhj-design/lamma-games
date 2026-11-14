@@ -2005,7 +2005,7 @@ function wheelMusicStop(ms=2000){const m=wheelMus;if(!m)return;wheelMus=null;
 function wheelDuck(low){const m=wheelMus;if(!m)return;const v=low?.18:1;
   if(m.g){try{const t=m.a.currentTime;m.g.gain.cancelScheduledValues(t);m.g.gain.setValueAtTime(Math.max(.0001,m.g.gain.value),t);m.g.gain.linearRampToValueAtTime(v,t+.8)}catch(e){}}else{try{m.el.volume=v}catch(e){}}}
 /* 15 equal slices; the two coupons leave once won, the money prize stays */
-const WH_ALL=[{k:'p1',l:'⭐ +1'},{k:'c1',l:'🎁 هدية',big:1},{k:'bomb',l:'💣 صاعقة'},{k:'dice',l:'🎲 رقم الحظ'},{k:'none',l:'😅 حظ أوفر'},{k:'sing',l:'🎤 غنّ مقطع'},{k:'money',l:'💵 مكافأة',big:1},{k:'again',l:'🔁 لفّة ثانية'},{k:'meteor',l:'☄️ النيزك'},{k:'joker',l:'🃏 الجوكر'},{k:'selfie',l:'🤳 سيلفي اللمّة'},{k:'c2',l:'🎁 هدية',big:1},{k:'risk',l:'🔴 المخاطرة'},{k:'p3',l:'🔥 +3'},{k:'env',l:'✉️ الظرف السري'},{k:'chal',l:'⚡ تحدي خاطف'},{k:'mimic',l:'🗣️ قلّد واحد'},{k:'karam',l:'💝 كرم آل بندر'}];
+const WH_ALL=[{k:'p1',l:'⭐ +1'},{k:'c1',l:'🎁 هدية',big:1},{k:'bomb',l:'💣 صاعقة'},{k:'dice',l:'🎲 رقم الحظ'},{k:'none',l:'😅 حظ أوفر'},{k:'sing',l:'🎤 غنّ مقطع'},{k:'money',l:'💵 مكافأة',big:1},{k:'again',l:'🔁 لفّة ثانية'},{k:'meteor',l:'☄️ النيزك'},{k:'joker',l:'🃏 الجوكر'},{k:'c2',l:'🎁 هدية',big:1},{k:'risk',l:'🔴 المخاطرة'},{k:'p3',l:'🔥 +3'},{k:'env',l:'✉️ الظرف السري'},{k:'chal',l:'⚡ تحدي خاطف'},{k:'mimic',l:'🗣️ قلّد واحد'},{k:'karam',l:'💝 كرم آل بندر'}];
 function whSlices(){return WH_ALL.filter(s=>!(s.k==='c1'&&S.wh.c1)&&!(s.k==='c2'&&S.wh.c2))}
 /* the wheel no longer interrupts games by itself — it runs once, from the menu */
 function wheelGate(fn){return false}
@@ -2045,7 +2045,7 @@ function whLand(){const w=S.wh.cur,k=w.slice.k,t=w.team,tl=whTL(t.name),me=pairs
     return whRes('🎉 مبروك!',k==='money'?`${whWon()} بمكافأة مالية 💵`:`${whWon()} بهدية 🎁`,{big:true})}
   if(k==='dice'){w.val=1+Math.floor(Math.random()*5);w.stage='dice';w.until=Date.now()+2600;return void(emitState(),render())}
   if(k==='meteor'){const o=whTeams().filter(x=>x.key!==t.key);if(!o.length)return whRes('☄️ النيزك!','ما فيه أحد ينزل عليه 😅');w.vic=rnd(o);w.tpool=o.map(x=>x.name);w.stage='meteor';w.until=Date.now()+3000;return void(emitState(),render())}
-  if(k==='sing'||k==='selfie'||k==='mimic'){const g=isGirl(w.nm||''),nm=w.nm||t.name;w.dare=k==='sing'?`🎤 ${nm} ${g?'تغني':'يغني'} مقطع قدام الكل!`:k==='selfie'?`🤳 ${nm} ${g?'تصوّر':'يصوّر'} سيلفي مع اللمّة كلها!`:`🗣️ ${nm} ${g?'تقلّد':'يقلّد'} واحد من الحضور… والباقين يخمّنون مين!`;w.stage='dare';wheelDuck(k!=='selfie');return void(emitState(),render())}
+  if(k==='sing'||k==='mimic'){const g=isGirl(w.nm||''),nm=w.nm||t.name;w.dare=k==='sing'?`🎤 ${nm} ${g?'تغني':'يغني'} مقطع قدام الكل!`:`🗣️ ${nm} ${g?'تقلّد':'يقلّد'} واحد من الحضور… والباقين يخمّنون مين!`;w.stage='dare';wheelDuck(true);return void(emitState(),render())}
   if(k==='chal'){const L=C.wheelQs||[];let idx=L.map((_,j)=>j).filter(j=>!(S.wh.qUsed||[]).includes(j));if(!idx.length){S.wh.qUsed=[];idx=L.map((_,j)=>j)}if(!idx.length){whPts(2);return whRes('⚡ تحدي خاطف!','ما فيه أسئلة، فخذوا +2 ⭐')}
     const j=rnd(idx);S.wh.qUsed=(S.wh.qUsed||[]).concat(j);saveWh();w.q=L[j];w.stage='chal';w.until=Date.now()+10000;wheelDuck(true);return void(emitState(),render())}
   whAsk(k)}
