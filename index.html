@@ -1155,15 +1155,12 @@ function homeView(){
   const ph=phonePlayers(),g=C.games;
   const evTiles=C.events.map((e,i)=>`<div class="game ev"><span class="tag">${cntR(e.rounds.length)} · ${cntQ(e.rounds.reduce((a,r)=>a+r.items.length,0))}</span><h2>${esc(e.title)}</h2><button class="btn-big" data-act="evOpen" data-i="${i}">ابدأ الفعالية</button></div>`);
   const tiles=[...evTiles,
-    g.spy&&`<div class="game"><h2>برا السالفة</h2><button class="btn-red btn-big" data-act="go" data-v="spy">ابدأ</button></div>`,
-    g.charades&&C.teamsOn&&`<div class="game"><h2>مثّلها</h2><button class="btn-green btn-big" data-act="go" data-v="charades">ابدأ</button></div>`,
     g.bell&&`<div class="game"><span class="tag">${cntQ(C.bellQs.length)}</span><h2>فقرة الجرس 🔔</h2><button class="btn-red btn-big" data-act="go" data-v="bell">ابدأ</button></div>`,
     g.aunts&&`<div class="game"><span class="tag">${cntQ(C.auntQs.length)}</span><h2>فقرة الخالات 👩</h2><button class="btn-green btn-big" data-act="go" data-v="aunts">ابدأ</button></div>`,
     g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
     g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
     g.letters&&`<div class="game"><span class="tag">${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة</span><h2>حروف وثواني 🔤</h2><button class="btn-red btn-big" data-act="go" data-v="letters">ابدأ</button></div>`,
     g.who&&`<div class="game"><span class="tag">${C.whoQs.length} شخصية</span><h2>من أكون؟ 🎭</h2><button class="btn-green btn-big" data-act="go" data-v="who">ابدأ</button></div>`,
-    g.buzz&&`<div class="game"><span class="tag">${cntQ(C.quiz.length)}</span><h2>الأسرع</h2><button class="btn-ink btn-big" data-act="go" data-v="buzz">ابدأ</button></div>`
   ].filter(Boolean);
   return `${T('homeDate')?`<p class="homedate">📅 ${esc(T('homeDate'))}</p>`:''}<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
 }
@@ -1578,7 +1575,7 @@ function adminGames(n){
     <div class="panel"><h3>عام</h3>
       <div class="field"><label for="a_title">اسم الموقع</label><input id="a_title" data-d="title" value="${esc(D.title)}" maxlength="40"></div>
       <div class="lbl">الألعاب الظاهرة</div>
-      <div class="row">${tg('spy','برا السالفة')}${tg('charades','مثّلها')}${tg('buzz','الأسرع')}${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}${tg('who','من أكون؟ 🎭')}</div>
+      <div class="row">${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}${tg('who','من أكون؟ 🎭')}</div>
       <div class="lbl">نظام الفرق</div>
       <label class="toggle" for="a_teams"><input type="checkbox" id="a_teams" data-d="teamsOn" ${D.teamsOn?'checked':''}><span>فعّل الفرق 👥</span></label>
       <p class="hint" style="margin:0">${D.teamsOn?'الفرق ظاهرة: القرعة، ونقاط الفرق، ومثّلها، وزر التبديل بين فرق وفردي.':'الفرق مخفية واللعب كله فردي 👤. القرعة ونقاط الفرق ومثّلها ما تطلع، وترجع متى ما فعّلتها.'}</p>
@@ -1626,19 +1623,6 @@ function adminGames(n){
       <p class="muted small" style="margin:0">${D.judgePin?'<b style="color:var(--green)">مفعّل</b> — يطلع خيار «لجنة التقييم» في أول شاشة، وما يدخله إلا اللي معه الرمز.':'<b>غير مفعّل</b> — خيار «لجنة التقييم» مخفي عن الكل لين تحدد رمز.'}</p>
       <div class="row"><div class="field" style="max-width:260px"><label for="a_jpin">${D.judgePin?'غيّر الرمز':'حدد رمز'} <span class="hint">— 4 إلى 8 أرقام</span></label><input id="a_jpin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" data-d="jpinNew" value="${esc(D.jpinNew)}" placeholder="••••"></div>
       ${D.judgePin?'<button class="link danger" data-act="jpinOff" style="align-self:flex-end">شيل الرمز</button>':''}</div>
-    </div>
-    <div class="panel"><h3>برا السالفة</h3>
-      <div class="field" style="max-width:260px"><label for="a_spyMin">وقت الأسئلة</label><select id="a_spyMin" data-d="spyMin">${[1,2,3,4,5,6,8,10].map(m=>`<option value="${m}" ${+D.spyMin===m?'selected':''}>${m} دقائق</option>`).join('')}</select></div>
-      <div class="lbl">الفئات <span class="hint">— كل كلمة في سطر، أو افصلها بفاصلة</span></div>
-      <div class="cats">${D.cats.map((c,i)=>{const w=lines(c.words).length;return `<div class="cat">
-        <div class="row"><input id="a_cn${i}" data-d="cats.${i}.name" value="${esc(c.name)}" placeholder="اسم الفئة" maxlength="30" style="flex:1" aria-label="اسم الفئة"><button class="link danger" data-act="catDel" data-i="${i}">حذف</button></div>
-        <textarea id="a_cw${i}" data-d="cats.${i}.words" aria-label="كلمات ${esc(c.name)}">${esc(c.words)}</textarea>
-        <span class="hint">${w} كلمة</span></div>`}).join('')}</div>
-      <button data-act="catAdd" style="width:fit-content">+ فئة جديدة</button>
-    </div>
-    <div class="panel"><h3>مثّلها</h3>
-      <div class="field" style="max-width:260px"><label for="a_chDur">مدة الجولة الافتراضية</label><select id="a_chDur" data-d="chDur">${[30,45,60,90,120].map(d=>`<option value="${d}" ${+D.chDur===d?'selected':''}>${d} ثانية</option>`).join('')}</select></div>
-      <div class="field"><label for="a_ch">الكلمات <span class="hint">— ${n.charades.length} كلمة</span></label><textarea id="a_ch" data-d="charades" style="min-height:200px">${esc(D.charades)}</textarea></div>
     </div>
     <div class="panel"><h3>الفرق الجاهزة 🤫</h3>
       <p class="muted small" style="margin:0">إذا كتبت هنا فرق، القرعة تطلع بالتشويق كأنها عشوائية بس توقف على هالفرق بالضبط. كل فريق بسطر والأسماء بينها + (لازم نفس الاسم اللي يكتبونه بالجوال). اللي يدخل وهو مو مكتوب ينضاف لأصغر فريق. خلّها فاضية عشان ترجع القرعة عشوائية.</p>
@@ -1691,9 +1675,7 @@ function adminGames(n){
       <div class="field" style="max-width:240px"><label for="a_lgp">النقاط <span class="hint">— الأول، الثاني، الثالث</span></label><input id="a_lgp" data-d="lgPts" value="${esc(D.lgPts)}" placeholder="3، 2، 1"></div></div>
       <div class="field"><label for="a_lg">الأسئلة</label><textarea id="a_lg" data-d="lists" style="min-height:220px">${esc(D.lists)}</textarea></div>
     </div>
-    <div class="panel"><h3>الأسرع</h3>
-      <div class="field"><label for="a_qz">الأسئلة <span class="hint">— ${qn} سؤال · كل سؤال في سطر: السؤال | الجواب</span></label><textarea id="a_qz" data-d="quiz" style="min-height:240px">${esc(D.quiz)}</textarea></div>
-    </div>`;
+`;
 }
 function mediaSlot(path,m,label){
   const key=path.join('.');const up=S.uploading[key];
