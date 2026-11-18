@@ -391,6 +391,14 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 #leadOv .ldbell{position:absolute;bottom:7vh;left:0;right:0;font-family:var(--display);font-size:clamp(2rem,6vw,4rem);color:#f2c25a;opacity:0;transform:scale(.6);transition:all .7s cubic-bezier(.2,1.5,.4,1)}#leadOv.s6 .ldbell{opacity:1;transform:none}
 #leadOv .ldbell i{display:inline-block;font-style:normal;animation:ldRing .5s ease-in-out infinite}
 #leadOv.out{opacity:0;transition:opacity .7s}
+#nxOv{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:#0b0a10e6;cursor:pointer;animation:nxIn .45s ease both}
+#nxOv .nxc{text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px;animation:nxPop .6s cubic-bezier(.2,1.5,.4,1) both}
+#nxOv .nxs{font-size:clamp(1.4rem,4vw,2.4rem);font-weight:700;opacity:.8;letter-spacing:.02em}
+#nxOv .nxe{font-size:clamp(5rem,16vw,10rem);line-height:1.1}
+#nxOv .nxn{font-family:var(--display);font-size:clamp(3rem,10vw,6.5rem);color:#f2c25a;line-height:1.15}
+#nxOv .nxh{font-size:1rem;opacity:.45;margin-top:18px}
+#nxOv.out{opacity:0;transition:opacity .35s}
+@keyframes nxIn{from{opacity:0}}@keyframes nxPop{from{opacity:0;transform:scale(.6)}}
 @keyframes ldBlink{50%{opacity:.35}}
 @keyframes ldBoom{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
 @keyframes ldTick{to{transform:translateX(100%)}}
@@ -761,7 +769,7 @@ function bumpQ(){for(const k of Object.keys(S.spam.st))if(!S.spam.pr[k])delete S
 const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
 function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)&&!isBanned(pKey(p))).map(p=>{const key=pKey(p),name=clean(p.presence.name);if(role==='host')titleFor(key,name);return{peer:p.peer,key,name,team:teamOfKey(key)}})}
 function hostState(){
-  const st={bqn:S.view==='bell'&&S.bq&&S.bq.i>=0?S.bq.i+1:0,mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,lead:S.leadOn||null,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
+  const st={bqn:S.view==='bell'&&S.bq&&S.bq.i>=0?S.bq.i+1:0,mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,lead:S.leadOn||null,nx:NX.on!=null?PROG[NX.on].n+' '+PROG[NX.on].e:null,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
   if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||S.view==='who'||S.view==='pic'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:(S.view==='bell'&&!b.timed)||S.view==='who'||S.view==='pic',lock:!!S.bzLock}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
@@ -1102,7 +1110,7 @@ function render(){
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
   if(role==='host'&&lobbyMus&&S.view!=='lobby')lobbyMusicStop(800);
 
-  syncAlarm();syncWheel();tick();leadCheck();bgSync();
+  syncAlarm();syncWheel();nxWatch();tick();leadCheck();bgSync();
 }
 function readerSend(a){if(!room)return;room.presence({role:'reader',cmd:{id:Date.now()+Math.random(),a}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}}
 function readerView(){if(C.hostPin&&!hostAllowed())return pinView();
@@ -1903,7 +1911,7 @@ function playerView(){
     else body=`<h2 class="big">30 ثانية ⏱️</h2><p class="muted" style="margin:0">استعد… المقدّم يختار السؤال.</p>`}
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
   else body=h.pm&&myBy&&h.pm[myBy]!=null?`<div class="myteam t0" style="background:var(--ochre)">${esc(P.name)}، ${isGirl(P.name)?'أنتِ':'أنت'} مع<b>${esc(clean(h.pm[myBy],60))} 🤝</b>${h.pt&&h.pt[myBy]?`<span>في فريق <strong>${esc(clean(h.pt[myBy],30))}</strong></span>`:''}</div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`;
-  const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy;if(h.lead&&Array.isArray(h.lead.k))body=leadPhone(h.lead,myS);const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
+  const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy;if(h.lead&&Array.isArray(h.lead.k))body=leadPhone(h.lead,myS);else if(h.nx&&mode==='home')body=`<div class="myteam t0" style="background:var(--ochre);text-align:center;font-size:1.3rem"><span>الفقرة التالية</span><b style="font-size:1.9rem">${esc(clean(h.nx,40))}</b><span>استعدوا 👀</span></div>`;const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
   const sc=true?'':h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>${myS!==myBy?'نقاط فريقكم':'نقاطك'}</span><b>${Number(h.solo[mine].s)||0}</b><span>${myS!==myBy?'ترتيبكم':'ترتيبك'} ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
   return head+`<div class="phone stage"><span class="eyebrow">${P.team===null||h.mode2==='solo'?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null||h.mode2==='solo'?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
@@ -1913,7 +1921,7 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   if(role==='host'&&S.loaded)syncGame();
-  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now);mnTick(now);bgSync()}
+  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now);mnTick(now);bgSync();nxTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
   if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
@@ -1974,7 +1982,7 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
 S.lead=Object.assign({played:[],shown:false},LS.get('lead',{}));const saveLead=()=>LS.set('lead',S.lead);
 function leadMark(){if(role!=='host'||S.wh.cur)return;const v=S.view;if(['home','pairs','admin','ranking','finale'].includes(v))return;const k=v==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:v;if(!S.lead.played.includes(k)){S.lead.played=S.lead.played.concat(k);saveLead()}}
 const LEAD_LINES={'الصقور':'يحلّقون عاليًا','الذيابة':'ينقضّون على الفريسة','الفرسان':'يمتطون صهوة المجد','النشامى':'يشمّرون عن سواعدهم','العباقرة':'يخططون بدهاء','البرق':'يضربون بسرعة البرق','الأساطير':'يكتبون التاريخ','الكواسر':'يزأرون بقوة','النجوم':'يتألقون بلا حدود','الإعصار':'يجتاحون الميدان'};
-function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&S.lead.played.length>=4&&!document.getElementById('leadOv')&&!S.wh.cur){S.lead.shown=true;saveLead();setTimeout(leadShow,600)}}
+function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&S.lead.played.length>=4&&!document.getElementById('leadOv')&&!S.wh.cur){S.lead.shown=true;saveLead();leadPend=true;setTimeout(()=>{leadPend=false;leadShow()},600)}}
 
 /* ---------- background music ---------- */
 S.bgOn=LS.get('bgOn',true)!==false;var BG={src:null,g:null,lvl:-1,loading:false,started:false};var MEDIA_ON=new Set();
@@ -1985,6 +1993,18 @@ function bgStart(){if(BG.started||BG.loading||BG.fail||role!=='host'||!S.bgOn)re
   fetch('media/bg.m4a').then(r=>r.arrayBuffer()).then(b=>a.decodeAudioData(b)).then(buf=>{const src=a.createBufferSource();src.buffer=buf;src.loop=true;src.connect(g);src.start();BG.src=src;BG.started=true;BG.loading=false;BG.lvl=-1;bgSync()}).catch(()=>{BG.loading=false;BG.fail=true})}catch(e){BG.loading=false;BG.fail=true}}
 function bgSync(){if(!BG||!MEDIA_ON)return;if(!BG.started){if(BG.gest&&bgWant()>0)bgStart();return}const w=bgWant();if(w===BG.lvl)return;BG.lvl=w;try{const a=BG.g.context,t=a.currentTime;if(a.state==='suspended')a.resume();BG.g.gain.cancelScheduledValues(t);BG.g.gain.setValueAtTime(BG.g.gain.value,t);BG.g.gain.setTargetAtTime(w,t,w>BG.g.gain.value?1.2:.25)}catch(e){}}
 try{document.addEventListener('pointerdown',()=>{BG.gest=true;if(role==='host')setTimeout(bgSync,50)},true)}catch(e){}
+
+/* ---------- tournament program / next card ---------- */
+const PROG=[{ev:'تحديات سعودية',n:'تحديات سعودية',e:'🇸🇦'},{ev:'خمنو',n:'خمنوااا',e:'🤔'},{v:'mcq',n:'تحدي المعلومات',e:'🧠'},{v:'lists',n:'30 ثانية',e:'⏱️'},{v:'letters',n:'حروف وثواني',e:'🔤'},{v:'pic',n:'اكشف الصورة',e:'🔍'},{v:'mines',n:'حقل الألغام',e:'💣'},{v:'who',n:'من أكون؟',e:'🎭'},{v:'bell',n:'فقرة الجرس',e:'🔔'}];
+const NX={prev:null,pend:null,on:null,at:0};var leadPend=false;
+const progEv=it=>(C.events||[]).findIndex(e=>it.ev==='خمنو'?String(e.title||'').startsWith('خمنو'):e.title===it.ev);
+function progIdx(){if(S.view==='event'&&S.ev&&C.events[S.ev.ei]){const t=C.events[S.ev.ei].title;return PROG.findIndex(it=>it.ev&&progEv(it)===S.ev.ei)}return PROG.findIndex(it=>it.v===S.view)}
+function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null}
+function nxTick(now){if(role!=='host')return;if(NX.on!=null){if(S.view!=='home'){nxClose();return}if(now-NX.at>=5000)nxGo();return}
+  if(NX.pend==null||S.view!=='home'||leadPend||now-(NX.pAt||0)<400||(S.wh&&S.wh.cur)||document.getElementById('leadOv'))return;const j=NX.pend;NX.pend=null;NX.on=j;NX.at=now;const it=PROG[j];
+  const el=document.createElement('div');el.id='nxOv';el.innerHTML=`<div class="nxc"><div class="nxs">الفقرة التالية</div><div class="nxe">${it.e}</div><div class="nxn">${esc(it.n)}</div><div class="nxh">اضغط للإلغاء</div></div>`;el.onclick=()=>nxClose();document.body.appendChild(el);emitState()}
+function nxClose(){NX.on=null;const el=document.getElementById('nxOv');if(el){el.classList.add('out');setTimeout(()=>el.remove(),400)}emitState()}
+function nxGo(){const it=PROG[NX.on];nxClose();const t=document.createElement('button');t.hidden=true;if(it.ev){const i=progEv(it);if(i<0)return;t.dataset.act='evOpen';t.dataset.i=i}else{t.dataset.act='go';t.dataset.v=it.v}$app.appendChild(t);t.click();t.remove()}
 let leadAud=null;S.leadOn=null;
 function leadSound(){const A={stop(){}};try{const a=actx(),g=a.createGain();g.gain.value=1;g.connect(a.destination);A.g=g;A.a=a;
   fetch('media/lead.m4a').then(r=>r.arrayBuffer()).then(buf=>a.decodeAudioData(buf)).then(b=>{if(A.dead)return;const src=a.createBufferSource();src.buffer=b;src.loop=true;src.loopStart=10.5;src.loopEnd=Math.min(b.duration,20.2);src.connect(g);src.start();A.src=src}).catch(()=>{});
