@@ -1168,7 +1168,7 @@ function homeView(){
     g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
     g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
     g.letters&&`<div class="game"><span class="tag">${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة</span><h2>حروف وثواني 🔤</h2><button class="btn-red btn-big" data-act="go" data-v="letters">ابدأ</button></div>`,
-    g.mines&&`<div class="game"><span class="tag">${MN_BOX} صناديق · قنبلتين</span><h2>حقل الألغام 💣</h2><button class="btn-red btn-big" data-act="go" data-v="mines">ابدأ</button></div>`,
+    g.mines&&`<div class="game"><span class="tag">${MN_BOX} صناديق · 💣</span><h2>حقل الألغام 💣</h2><button class="btn-red btn-big" data-act="go" data-v="mines">ابدأ</button></div>`,
     g.who&&`<div class="game"><span class="tag">${C.whoQs.length} شخصية</span><h2>من أكون؟ 🎭</h2><button class="btn-green btn-big" data-act="go" data-v="who">ابدأ</button></div>`,
   ].filter(Boolean);
   return `${T('homeDate')?`<p class="homedate">📅 ${esc(T('homeDate'))}</p>`:''}<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
@@ -1929,26 +1929,26 @@ function mnBox(i){const m=S.mn;if(m.stage!=='play'||m.open.includes(i))return;mn
   saveMn();emitState();render()}
 function mnStop(){const m=S.mn;if(m.stage!=='play'||!m.pot)return;mnSnap();const k=m.order[m.cur];m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'stop'};m.stage='turnEnd';saveMn();emitState();render()}
 function mnUndo(){const m=S.mn;if(!m.hist.length)return;const s=m.hist.pop();Object.assign(m,s);saveMn();emitState();render()}
-function mnNext(){const m=S.mn;if(m.stage!=='turnEnd')return;if(m.cur<m.order.length-1){m.cur++;mnTurn();return}m.stage='reveal';m.rv=0;saveMn();emitState();render()}
-function mnReveal(){const m=S.mn;if(m.stage!=='reveal')return;if(m.rv<m.order.length){m.rv++;saveMn();emitState();render();return}
+function mnNext(){const m=S.mn;if(m.stage!=='turnEnd')return;if(m.cur<m.order.length-1){m.cur++;mnTurn();return}m.stage='reveal';m.rv=m.order.length;mnReveal()}
+function mnReveal(){const m=S.mn;if(m.stage!=='reveal')return;
   const mx=Math.max(0,...m.order.map(k=>m.banks[k]||0));m.winners=mx>0?m.order.filter(k=>(m.banks[k]||0)===mx):[];m.stage='end';
   if(!m.done){m.done=true;m.winners.forEach(k=>soloAdd(k,mnName(k),3))}if(m.winners.length)fwStart();saveMn();emitState();render()}
 function minesView(){const m=S.mn,tl=k=>esc(mnName(k));
-  if(m.stage==='idle')return `<div class="stage"><span class="eyebrow">حقل الألغام</span><div class="huge">💣</div><h2 class="big">${MN_BOX} صناديق… فيها قنبلتين!</h2>
+  if(m.stage==='idle')return `<div class="stage"><span class="eyebrow">حقل الألغام</span><div class="huge">💣</div><h2 class="big">${MN_BOX} صناديق… وفيها قنابل 💣</h2>
     <p class="muted" style="margin:0">كل فريق ياخذ لوحة جديدة. كل صندوق آمن = +1 بالحصالة 🏦<br>وبعد كل صندوق: تكمّلون؟ ولا توقفون وتحفظون؟ القنبلة 💥 تصفّر الحصالة.<br>الحصالات سرية لين النهاية… وأعلى حصالة تاخذ <b>+3</b>.</p>
     <button class="btn-red btn-big" data-act="mnStart">🎲 القرعة وابدأ</button></div>`;
   const ord=`<div class="hlord">${m.order.map((k,i)=>`<span class="${i<m.cur||(i===m.cur&&m.stage!=='play')?'out':''}${i===m.cur&&m.stage==='play'?' cur':''}">${tl(k)}</span>`).join('<i>←</i>')}</div>`;
   const grid=(rev)=>`<div class="mngrid">${m.board.map((bomb,i)=>{const o=m.open.includes(i),show=o||rev;return `<button class="mnb${show?(bomb?' bomb':' safe'):''}${o?' opened':''}" ${m.stage==='play'&&!o?`data-act="mnBox" data-i="${i}"`:'disabled'}>${show?(bomb?'💣':'✅'):AR(i+1)}</button>`}).join('')}</div>`;
-  if(m.stage==='play'){const k=m.order[m.cur],safeLeft=MN_BOX-MN_BOMB-m.pot,boxLeft=MN_BOX-m.open.length,risk=Math.round(MN_BOMB/boxLeft*100);
+  if(m.stage==='play'){const k=m.order[m.cur],safeLeft=MN_BOX-MN_BOMB-m.pot;
     return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · ${AR(m.cur+1)} من ${AR(m.order.length)}</span><h2 class="big" style="margin:0">🎯 الدور على ${tl(k)}</h2>
-    <div class="mnpot">🏦 ${AR(m.pot)}</div><p class="muted" style="margin:0">فرصة القنبلة بالصندوق الجاي: <b>${AR(risk)}٪</b></p>${grid(false)}
+    <div class="mnpot">🏦 ${AR(m.pot)}</div>${grid(false)}
     <div class="row" style="justify-content:center;gap:14px">${m.pot?`<button class="btn-ink btn-big" data-act="mnStop">✋ وقّفوا واحفظوا</button>`:''}${m.hist.length?'<button class="link" data-act="mnUndo">↩️ تراجع</button>':''}</div>${ord}</div>`}
   if(m.stage==='turnEnd'){const k=m.order[m.cur],r=m.res[k];return `<div class="stage"><span class="eyebrow">💣 حقل الألغام</span><div class="huge">${r==='bust'?'💥':'🤫'}</div>
-    <h2 class="big">${r==='bust'?tl(k)+' انفجروا!':tl(k)+' وقفوا… والحصالة سرية 🤫'}</h2>${grid(true)}
-    <div class="row" style="justify-content:center;gap:14px"><button class="btn-red btn-big" data-act="mnNext">${m.cur<m.order.length-1?'الفريق الجاي ▶':'🏦 اكشف الحصالات'}</button><button class="link" data-act="mnUndo">↩️ تراجع</button></div></div>`}
-  if(m.stage==='reveal'||m.stage==='end'){const shown=m.stage==='end'?m.order.length:m.rv;
-    return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · الحصالات</span><div class="mnrev">${m.order.map((k,i)=>`<div class="${i<shown?'on':''}${m.stage==='end'&&m.winners.includes(k)?' win':''}"><span>${tl(k)}</span><b>${i<shown?(m.res[k]==='bust'?'💥 ٠':'🏦 '+AR(m.banks[k]||0)):'❓'}</b></div>`).join('')}</div>
-    ${m.stage==='end'?`<h2 class="big">${m.winners.length?'👑 '+m.winners.map(tl).join(' و ')+' +٣':'كلهم انفجروا 😅 ما أحد ياخذ شي'}</h2><button class="link" data-act="mnReset">ابدأ من جديد</button>`:`<button class="btn-red btn-big" data-act="mnReveal">${shown<m.order.length?'اكشف الجاي 🏦':'👑 الفائز'}</button>`}</div>`}
+    <h2 class="big">${r==='bust'?tl(k)+' انفجروا!':tl(k)+' وقفوا… والحصالة سرية 🤫'}</h2>${grid(false)}
+    <div class="row" style="justify-content:center;gap:14px"><button class="btn-red btn-big" data-act="mnNext">${m.cur<m.order.length-1?'الفريق الجاي ▶':'🏆 اكشف الترتيب'}</button><button class="link" data-act="mnUndo">↩️ تراجع</button></div></div>`}
+  if(m.stage==='reveal'||m.stage==='end'){const rows=m.order.slice().sort((x,y)=>(m.banks[y]||0)-(m.banks[x]||0));
+    return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · الترتيب</span><div class="mnrev">${rows.map((k,i)=>`<div class="on${m.winners.includes(k)?' win':''}"><span>${m.winners.includes(k)?'👑':AR(i+1)}&nbsp; ${tl(k)}</span><b>${m.res[k]==='bust'?'💥 ٠':'🏦 '+AR(m.banks[k]||0)}</b></div>`).join('')}</div>
+    <h2 class="big">${m.winners.length?'👑 '+m.winners.map(tl).join(' و ')+' +٣':'كلهم انفجروا 😅 ما أحد ياخذ شي'}</h2><button class="link" data-act="mnReset">ابدأ من جديد</button></div>`}
   return ''}
 /* ---------- من أكون؟ ---------- */
 const WHO_SECS=10;
