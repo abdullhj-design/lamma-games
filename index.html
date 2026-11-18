@@ -1998,16 +1998,16 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
   let dt='';try{dt=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){}
   const old=document.getElementById('leadOv');if(old){if(old._close)old._close(true);else old.remove()}const el=document.createElement('div');el.id='leadOv';
   el.innerHTML=`<canvas></canvas><div class="ldnews"><div class="ldbn">🔴 عاجل</div><div class="ldsub">خبر من قلب البطولة…</div><div class="ldtk"><span>${esc(tick.repeat(3))}</span></div></div><div class="ldfl"></div>
-    <div class="ldc"><div class="lde">${esc(emo)}</div><div class="ldl">${esc(line)}</div>${mems}<div class="ldb">الجرس جاي… وكل شي ممكن يتغيّر! 🔔</div></div>
+    <div class="ldc"><div class="lde">${esc(emo)}</div><div class="ldl">${esc(line)}</div>${mems}</div>
     <div class="ldpp"><div class="ldmh">جريدة لَمّة</div><div class="ldmeta"><span>${esc(dt)}</span><b>عدد خاص</b></div><div class="ldhd">${esc(hd)}</div><div class="ldhs">${esc(hs)}</div></div>
     <div class="ldbell">الجرس جاي… وكل شي ممكن يتغيّر! <i>🔔</i></div>`;document.body.appendChild(el);
   const snd=leadSound(),fx=leadFx(el.querySelector('canvas'));fx.rain=false;const T=[],at=(ms,f)=>T.push(setTimeout(()=>{if(el.isConnected)f()},ms)),add=c=>el.classList.add(c);
   const bird=()=>{const b=document.createElement('div');b.className='ldbird';b.textContent=parts[Math.floor(Math.random()*parts.length)].e;b.style.top=(10+Math.random()*25)+'%';el.appendChild(b);setTimeout(()=>b.remove(),4400)};
   at(9400,()=>add('s1'));
   at(9700,()=>{add('s2');fx.rain=true;fx.boom(5);S.leadOn={k:top.map(x=>x.key),w:parts.map(x=>x.w).join(' و')};emitState()});
-  at(11500,()=>add('s3'));at(14000,()=>add('s4'));at(17700,()=>fx.boom(3));
-  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<56000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<55000;t+=5500)at(t,bird);
-  at(55000,()=>{add('s6');fx.boom(5)});
+  at(11500,()=>add('s3'));at(17700,()=>fx.boom(3));
+  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<50000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<50000;t+=5500)at(t,bird);
+  at(50000,()=>{add('s6');fx.boom(5)});
   const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
   el._close=close;el.onclick=()=>close();at(60000,()=>close())}
 function leadPhone(L,my){const me=L.k.includes(my);return me?`<div class="myteam t0" style="background:linear-gradient(135deg,#f2c25a,#c4851a);color:#2a1d05;font-size:1.35rem;text-align:center"><b style="font-size:2.6rem">👑</b><b>أنتم المتصدرين!</b><span>الجرس جاي… حافظوا عليها 🔔</span></div>`:`<div class="myteam t0" style="background:var(--ink,#222);color:#fff;font-size:1.3rem;text-align:center"><b style="font-size:2.4rem">👀</b><b>${esc(clean(L.w,40))} بالصدارة…</b><span>الجرس جاي! 🔔</span></div>`}
