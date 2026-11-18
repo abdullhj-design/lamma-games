@@ -392,6 +392,12 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 #leadOv .ldbell{position:absolute;bottom:7vh;left:0;right:0;font-family:var(--display);font-size:clamp(2rem,6vw,4rem);color:#f2c25a;opacity:0;transform:scale(.6);transition:all .7s cubic-bezier(.2,1.5,.4,1)}#leadOv.s6 .ldbell{opacity:1;transform:none}
 #leadOv .ldbell i{display:inline-block;font-style:normal;animation:ldRing .5s ease-in-out infinite}
 #leadOv.out{opacity:0;transition:opacity .7s}
+#leadOv .ldgl{position:absolute;inset:-20px;pointer-events:none;opacity:0}
+#leadOv.gl1 .ldgl{opacity:1;background:repeating-linear-gradient(0deg,#fff0 0 9px,#ffffffd0 9px 12px,#fff0 12px 31px,#ffffff60 31px 33px);animation:ldJump .07s steps(1) infinite}
+#leadOv.gl2 .ldgl{opacity:1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .8 0 0 0 0 .8 0 0 0 1.6 -.3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");background-color:#222;animation:ldNoise .06s steps(1) infinite,ldShake .1s steps(2) infinite}
+@keyframes ldJump{0%{transform:translateY(0)}25%{transform:translateY(-14px)}50%{transform:translateY(9px)}75%{transform:translateY(-4px)}}
+@keyframes ldNoise{0%{background-position:0 0}20%{background-position:-60px 40px}40%{background-position:80px -30px}60%{background-position:-20px -90px}80%{background-position:110px 70px}}
+@keyframes ldShake{0%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
 #nxOv{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:#1a140c8c;cursor:pointer;animation:nxIn .4s ease both;perspective:1400px}
 #nxOv .nxk{position:relative;width:min(42vh,78vw);aspect-ratio:3/4;transform-style:preserve-3d;animation:nxFly .8s cubic-bezier(.2,.9,.3,1.1) both,nxFlip .9s cubic-bezier(.4,1.4,.5,1) .85s both}
 #nxOv .nxf,#nxOv .nxb{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 30px 80px #0008}
@@ -1990,7 +1996,7 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
 S.lead=Object.assign({played:[],shown:false},LS.get('lead',{}));const saveLead=()=>LS.set('lead',S.lead);
 function leadMark(){if(role!=='host'||S.wh.cur)return;const v=S.view;if(['home','pairs','admin','ranking','finale'].includes(v))return;const k=v==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:v;if(!S.lead.played.includes(k)){S.lead.played=S.lead.played.concat(k);saveLead()}}
 const LEAD_LINES={'الصقور':'يحلّقون عاليًا','الذيابة':'ينقضّون على الفريسة','الفرسان':'يمتطون صهوة المجد','النشامى':'يشمّرون عن سواعدهم','العباقرة':'يخططون بدهاء','البرق':'يضربون بسرعة البرق','الأساطير':'يكتبون التاريخ','الكواسر':'يزأرون بقوة','النجوم':'يتألقون بلا حدود','الإعصار':'يجتاحون الميدان'};
-function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&NX.leadDue&&!document.getElementById('leadOv')&&!S.wh.cur&&soloPlayers().some(x=>x.score>0)){NX.leadDue=false;S.lead.shown=true;saveLead();leadPend=true;setTimeout(()=>{leadPend=false;leadShow()},600)}}
+function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&NX.leadDue&&!document.getElementById('leadOv')&&!S.wh.cur&&soloPlayers().some(x=>x.score>0)){NX.leadDue=false;saveNx();S.lead.shown=true;saveLead();leadPend=true;setTimeout(()=>{leadPend=false;leadShow()},600)}}
 
 /* ---------- background music ---------- */
 S.bgOn=LS.get('bgOn',true)!==false;var BG={src:null,g:null,lvl:-1,loading:false,started:false};var MEDIA_ON=new Set();
@@ -2004,10 +2010,10 @@ try{document.addEventListener('pointerdown',()=>{BG.gest=true;if(role==='host')s
 
 /* ---------- tournament program / next card ---------- */
 const PROG=[{ev:'تحديات سعودية',n:'تحديات سعودية',e:'🇸🇦'},{ev:'خمنو',n:'خمنوااا',e:'🤔'},{v:'mcq',n:'تحدي المعلومات',e:'🧠'},{v:'lists',n:'30 ثانية',e:'⏱️'},{v:'letters',n:'حروف وثواني',e:'🔤'},{v:'pic',n:'اكشف الصورة',e:'🔍'},{v:'mines',n:'حقل الألغام',e:'💣'},{v:'who',n:'من أكون؟',e:'🎭'},{v:'bell',n:'فقرة الجرس',e:'🔔'}];
-const NX={prev:null,pend:null,on:null,at:0};var leadPend=false;
+const NX=Object.assign({prev:null,pend:null,on:null,at:0,leadDue:false},(()=>{const d=LS.get('nx',null);return d&&typeof d==='object'?{prev:Number.isInteger(d.prev)?d.prev:null,leadDue:!!d.leadDue}:{}})());const saveNx=()=>LS.set('nx',{prev:NX.prev,leadDue:NX.leadDue});var leadPend=false;
 const progEv=it=>(C.events||[]).findIndex(e=>it.ev==='خمنو'?String(e.title||'').startsWith('خمنو'):e.title===it.ev);
 function progIdx(){if(S.view==='event'&&S.ev&&C.events[S.ev.ei]){const t=C.events[S.ev.ei].title;return PROG.findIndex(it=>it.ev&&progEv(it)===S.ev.ei)}return PROG.findIndex(it=>it.v===S.view)}
-function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=3&&!S.lead.shown)NX.leadDue=true;if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null}
+function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=3&&!S.lead.shown)NX.leadDue=true;if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null;saveNx()}
 function nxTick(now){if(role!=='host')return;if(NX.on!=null){if(S.view!=='home'){nxClose();return}if(now-NX.at>=5000)nxGo();return}
   if(NX.pend==null||S.view!=='home'||leadPend||now-(NX.pAt||0)<400||(S.wh&&S.wh.cur)||document.getElementById('leadOv'))return;const j=NX.pend;NX.pend=null;NX.on=j;NX.at=now;const it=PROG[j];
   const el=document.createElement('div');el.id='nxOv';el.innerHTML=`<div class="nxk"><div class="nxb">سمول<br>ڤاميلي</div><div class="nxf"><div class="nxbr">سمول ڤاميلي</div><div class="nxmid"><div class="nxs">الفقرة التالية</div><div class="nxe">${it.e}</div><div class="nxn">${esc(it.n)}</div></div><div class="nxc2">الفقرة ${j+1} من ${PROG.length}</div></div></div>`;el.onclick=()=>nxClose();document.body.appendChild(el);emitState()}
@@ -2036,20 +2042,21 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
     tick=solo1?'مصادر مطّلعة تؤكد… فريق خطف الصدارة… والتفاصيل بعد قليل… ⬅ ':'مصادر مطّلعة تؤكد… فريقين يتقاسمون الصدارة… والتفاصيل بعد قليل… ⬅ ';
   let dt='';try{dt=new Date().toLocaleDateString('ar-SA-u-nu-latn-ca-gregory',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}catch(e){}
   const old=document.getElementById('leadOv');if(old){if(old._close)old._close(true);else old.remove()}const el=document.createElement('div');el.id='leadOv';
-  el.innerHTML=`<canvas></canvas><div class="ldnews"><div class="ldbn">🔴 عاجل</div><div class="ldsub">خبر من قلب البطولة…</div><div class="ldtk"><span>${esc(tick.repeat(3))}</span></div></div><div class="ldfl"></div>
+  el.innerHTML=`<canvas></canvas><div class="ldnews"><div class="ldbn">🔴 عاجل</div><div class="ldsub">خبر من قلب البطولة…</div><div class="ldtk"><span>${esc(tick.repeat(3))}</span></div></div><div class="ldfl"></div><div class="ldgl"></div>
     <div class="ldc"><div class="lde">${esc(emo)}</div><div class="ldl">${esc(line)}</div>${mems}</div>
     <div class="ldpp"><div class="ldmh">جريدة لَمّة</div><div class="ldmeta"><span>${esc(dt)}</span><b>عدد خاص</b></div><div class="ldhd">${esc(hd)}</div><div class="ldhs">${esc(hs)}</div></div>
     <div class="ldbell">الجرس جاي… وكل شي ممكن يتغيّر! <i>🔔</i></div>`;document.body.appendChild(el);
-  const DIM=5000;el.classList.add('dim');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('dark')));let snd={stop(){}};const fx=leadFx(el.querySelector('canvas'));fx.rain=false;const T=[],at=(ms,f)=>T.push(setTimeout(()=>{if(el.isConnected)f()},ms+DIM)),add=c=>el.classList.add(c);
+  const DIM=6000;el.classList.add('dim');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('dark')));let snd={stop(){}};const fx=leadFx(el.querySelector('canvas'));fx.rain=false;const T=[],at=(ms,f)=>T.push(setTimeout(()=>{if(el.isConnected)f()},ms+DIM)),add=c=>el.classList.add(c);
+  const gl=c=>T.push(setTimeout(()=>{if(el.isConnected){el.classList.remove('gl1','gl2');if(c)el.classList.add(c)}},{gl1:5000,gl2:5300,'':5800}[c]));gl('gl1');gl('gl2');gl('');
   T.push(setTimeout(()=>{if(!el.isConnected)return;el.classList.remove('dim');snd=leadSound()},DIM));
   const bird=()=>{const b=document.createElement('div');b.className='ldbird';b.textContent=parts[Math.floor(Math.random()*parts.length)].e;b.style.top=(10+Math.random()*25)+'%';el.appendChild(b);setTimeout(()=>b.remove(),4400)};
   at(9400,()=>add('s1'));
   at(9700,()=>{add('s2');fx.rain=true;fx.boom(5);S.leadOn={k:top.map(x=>x.key),w:parts.map(x=>x.w).join(' و')};emitState()});
   at(11500,()=>add('s3'));at(17700,()=>fx.boom(3));
-  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<50000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<50000;t+=5500)at(t,bird);
-  at(50000,()=>{add('s6');fx.boom(5)});
+  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<30000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<30000;t+=5500)at(t,bird);
+  at(30000,()=>{add('s6');fx.boom(5)});at(35000,bird);
   const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
-  el._close=close;el.onclick=()=>{if(!el.classList.contains('dim'))close()};at(60000,()=>close())}
+  el._close=close;el.onclick=()=>{if(!el.classList.contains('dim'))close()};at(40000,()=>close())}
 function leadPhone(L,my){const me=L.k.includes(my);return me?`<div class="myteam t0" style="background:linear-gradient(135deg,#f2c25a,#c4851a);color:#2a1d05;font-size:1.35rem;text-align:center"><b style="font-size:2.6rem">👑</b><b>أنتم المتصدرين!</b><span>الجرس جاي… حافظوا عليها 🔔</span></div>`:`<div class="myteam t0" style="background:var(--ink,#222);color:#fff;font-size:1.3rem;text-align:center"><b style="font-size:2.4rem">👀</b><b>${esc(clean(L.w,40))} بالصدارة…</b><span>الجرس جاي! 🔔</span></div>`}
 /* ---------- اكشف الصورة ---------- */
 const PIC_STEP=2000,PIC_BLUR=[42,30,20,12,6,0],PICS=[{"n": "الكعبة المشرفة 🕋", "img": "media/lm01.jpg"}, {"n": "برج المملكة 🏙️", "img": "media/lm02.jpg"}, {"n": "مدائن صالح (الحِجر) 🏜️", "img": "media/lm03.jpg"}, {"n": "مرايا العلا 🪞", "img": "media/lm04.jpg"}, {"n": "نافورة الملك فهد ⛲", "img": "media/lm05.jpg"}, {"n": "جسر الملك فهد 🌉", "img": "media/lm06.jpg"}, {"n": "الأهرامات 🇪🇬", "img": "media/lm07.jpg"}, {"n": "برج العرب 🇦🇪", "img": "media/lm08.jpg"}, {"n": "تمثال الحرية 🗽", "img": "media/lm09.jpg"}, {"n": "برج بيزا المائل 🇮🇹", "img": "media/lm10.jpg"}];
@@ -2467,7 +2474,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();S.mn=mnFresh();saveMn();S.pq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};savePq();S.lead={played:[],shown:false};saveLead();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();S.mn=mnFresh();saveMn();S.pq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};savePq();S.lead={played:[],shown:false};saveLead();if(typeof NX==='object'){NX.prev=null;NX.pend=null;NX.leadDue=false;saveNx()}S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,gs:(S.cheat.gs||0)+1,gk:'',strikes:{},banned:{},qban:{},gban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
