@@ -348,6 +348,13 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 .whocl li:before{content:counter(c,arabic-indic);font-family:var(--display);color:var(--ochre);font-size:1.3em}
 .whocl li.new{opacity:1;background:color-mix(in srgb,var(--ochre) 22%,transparent);animation:pop .5s ease}
 .whoans{font-family:var(--display);font-size:clamp(2.6rem,7vw,4.6rem);line-height:1.2;animation:pop .6s ease}
+.mngrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;width:100%;max-width:760px}
+.mnb{font-family:var(--display);font-size:clamp(2rem,5vw,3rem);min-height:clamp(80px,13vw,120px);border-radius:18px;background:color-mix(in srgb,var(--ochre) 18%,var(--paper,#fff));border:2px solid color-mix(in srgb,var(--ochre) 45%,transparent)}
+.mnb.safe{background:#dff3e2;border-color:#7fc28a}.mnb.bomb{background:#f8d7d3;border-color:var(--red)}.mnb:not(.opened).safe,.mnb:not(.opened).bomb{opacity:.55}
+.mnb.opened.bomb{animation:whShake .5s linear 2}
+.mnpot{font-family:var(--display);font-size:clamp(2.6rem,7vw,4.4rem);line-height:1}
+.mnrev{display:flex;flex-direction:column;gap:10px;width:100%;max-width:640px}.mnrev div{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-radius:16px;background:color-mix(in srgb,var(--ochre) 10%,transparent);font-size:clamp(1.3rem,3vw,1.9rem);opacity:.5}
+.mnrev div.on{opacity:1;animation:pop .5s ease}.mnrev div.win{background:color-mix(in srgb,var(--ochre) 35%,transparent);font-weight:800}.mnrev b{font-family:var(--display);font-weight:400}
 .homedate{text-align:center;margin:0 0 14px;font-size:1.05rem;color:var(--muted,#6b5f55)}
 /* ---------- حروف وثواني ---------- */
 .hlcat{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ochre)}
@@ -561,7 +568,7 @@ const MCQ_DEF=[{"q": "كم عدد سور القرآن الكريم؟", "o": ["11
 function normalize(j){
   const d=DEFAULTS,o={};j=j&&typeof j==='object'?j:{};
   o.title=clean(j.title,40)||d.title;
-  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts','letters','who'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
+  o.games={};for(const k of ['spy','charades','buzz','bell','lists','mcq','aunts','letters','who','mines'])o.games[k]=j.games&&typeof j.games[k]==='boolean'?j.games[k]:true;
   o.spyMin=[1,2,3,4,5,6,8,10].includes(+j.spyMin)?+j.spyMin:d.spyMin;
   o.chDur=[30,45,60,90,120].includes(+j.chDur)?+j.chDur:d.chDur;
   const cats=Array.isArray(j.cats)?j.cats.map(c=>({name:clean(c&&c.name,30),words:Array.isArray(c&&c.words)?c.words.map(w=>clean(w,40)).filter(Boolean):[]})).filter(c=>c.name&&c.words.length>=3):[];
@@ -723,6 +730,7 @@ function hostState(){
   if(S.anthemStop)st.anthemStop=S.anthemStop;
   {const w={},now=Date.now();for(const p of phonePlayers()){const t=warnT(p.key),q=S.warn.q[t],red=(S.warn.red[t]||0)-now;const nm=t.startsWith('g:')?pairName(+t.slice(2)):p.name;if(red>0)w[p.key]={l:3,left:red,id:'r'+S.warn.red[t],nm};else if(q&&q.qn===S.cheat.qn)w[p.key]={l:q.n,id:q.qn+':'+q.n,nm}}if(Object.keys(w).length)st.warn=w}
   if(pairsOn()){const pk={},pm={},pt={};S.pairs.groups.forEach((g,i)=>{if(i>=S.pairs.shown)return;g.forEach(k=>{pk[k]='g:'+i;pt[k]=pairName(i)!==pairMembers(i)?pairName(i):'';pm[k]=g.filter(x=>x!==k).map(x=>S.pairs.names[x]||'').join(' و ')})});st.pk=pk;st.pm=pm;st.pt=pt}
+  if(S.view==='mines'){const m=S.mn;st.mn={st:m.stage,turn:m.stage==='play'||m.stage==='turnEnd'?m.order[m.cur]:null,tn:m.order.length?mnName(m.order[m.cur]):'',pot:m.stage==='play'?m.pot:0,bust:m.stage==='turnEnd'&&m.res[m.order[m.cur]]==='bust',win:m.stage==='end'?m.winners.map(mnName):[]}}
   if(S.view==='letters'){const h=S.hl;st.hl={st:h.stage,cat:h.cat,turn:h.stage==='play'?h.order[h.cur]:null,who:h.stage==='play'?h.who:null,whoN:h.stage==='play'?h.whoN:'',tn:h.stage==='play'?hlName(h.order[h.cur]):'',out:h.out,win:h.stage==='end'?hlName(h.winner):'',rw:h.stage==='roundEnd'?h.rw.map(hlName):[]}}
   if(S.view==='mcq'){const m=S.mq,it=C.mcq[m.i];st.mq={i:m.i,n:C.mcq.length,phase:m.i>=C.mcq.length?'done':m.phase,qid:m.qid,q:it?it.q:'',opts:it?m.ord.map(o=>it.o[o]):[],ord:m.ord,locked:Object.fromEntries(Object.entries(m.subs).map(([k,v])=>[k,v.o])),res:m.phase==='reveal'?m.res:null,gold:isGold()}}
   if(S.view==='lists'){const g=S.lg;st.lg={r:g.r,stage:g.stage,q:g.qi>=0&&C.lists[g.qi]?C.lists[g.qi].q:'',left:g.stage==='play'?Math.max(0,g.end-Date.now()):0,res:g.stage==='result'?{}:null}}
@@ -1109,7 +1117,7 @@ function topBar(){
 function hostView(){
   if(S.view==='admin')return adminView();
   let body='';
-  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='letters')body=lettersView();else if(S.view==='who')body=whoView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
+  if(S.view==='home')body=homeView();else if(S.view==='spy')body=spyView();else if(S.view==='charades')body=chView();else if(S.view==='buzz')body=buzzView();else if(S.view==='bell')body=bellView();else if(S.view==='aunts')body=auntsView();else if(S.view==='event')body=evView();else if(S.view==='judging')body=judgingView();else if(S.view==='draw')body=drawView();else if(S.view==='ranking')body=rankingView();else if(S.view==='finale')body=finaleView();else if(S.view==='lists')body=lgView();else if(S.view==='mcq')body=mcqView();else if(S.view==='letters')body=lettersView();else if(S.view==='who')body=whoView();else if(S.view==='mines')body=minesView();else if(S.view==='lobby')body=lobbyView();else if(S.view==='pairs')body=pairsView();
   if(S.view==='judging')return '<div class="fullstage judgefull"><button class="fsx" data-act="jgBack" aria-label="رجوع">✕</button>'+body+'</div>';
   if(S.view==='finale')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
   if(S.view==='lobby')return '<div class="fullstage"><button class="fsx" data-act="go" data-v="home" aria-label="إغلاق">✕</button>'+body+'</div>';
@@ -1160,6 +1168,7 @@ function homeView(){
     g.mcq&&`<div class="game"><span class="tag">${cntQ(C.mcq.length)}</span><h2>تحدي المعلومات 🧠</h2><button class="btn-green btn-big" data-act="go" data-v="mcq">ابدأ</button></div>`,
     g.lists&&`<div class="game"><span class="tag">${cntQ(C.lists.length)}</span><h2>30 ثانية ⏱️</h2><button class="btn-green btn-big" data-act="go" data-v="lists">ابدأ</button></div>`,
     g.letters&&`<div class="game"><span class="tag">${AR(HL_ROUNDS)} جولات · ${(C.hlCats||[]).length} فئة</span><h2>حروف وثواني 🔤</h2><button class="btn-red btn-big" data-act="go" data-v="letters">ابدأ</button></div>`,
+    g.mines&&`<div class="game"><span class="tag">${MN_BOX} صناديق · قنبلتين</span><h2>حقل الألغام 💣</h2><button class="btn-red btn-big" data-act="go" data-v="mines">ابدأ</button></div>`,
     g.who&&`<div class="game"><span class="tag">${C.whoQs.length} شخصية</span><h2>من أكون؟ 🎭</h2><button class="btn-green btn-big" data-act="go" data-v="who">ابدأ</button></div>`,
   ].filter(Boolean);
   return `${T('homeDate')?`<p class="homedate">📅 ${esc(T('homeDate'))}</p>`:''}<div class="grid3">${tiles.join('')||`<div class="panel"><p style="margin:0">كل الألعاب مخفية. فعّلها من «إدارة الموقع».</p></div>`}</div>`;
@@ -1575,7 +1584,7 @@ function adminGames(n){
     <div class="panel"><h3>عام</h3>
       <div class="field"><label for="a_title">اسم الموقع</label><input id="a_title" data-d="title" value="${esc(D.title)}" maxlength="40"></div>
       <div class="lbl">الألعاب الظاهرة</div>
-      <div class="row">${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}${tg('who','من أكون؟ 🎭')}</div>
+      <div class="row">${tg('bell','فقرة الجرس 🔔')}${tg('lists','30 ثانية ⏱️')}${tg('mcq','تحدي المعلومات 🧠')}${tg('aunts','فقرة الخالات 👩')}${tg('letters','حروف وثواني 🔤')}${tg('who','من أكون؟ 🎭')}${tg('mines','حقل الألغام 💣')}</div>
       <div class="lbl">نظام الفرق</div>
       <label class="toggle" for="a_teams"><input type="checkbox" id="a_teams" data-d="teamsOn" ${D.teamsOn?'checked':''}><span>فعّل الفرق 👥</span></label>
       <p class="hint" style="margin:0">${D.teamsOn?'الفرق ظاهرة: القرعة، ونقاط الفرق، ومثّلها، وزر التبديل بين فرق وفردي.':'الفرق مخفية واللعب كله فردي 👤. القرعة ونقاط الفرق ومثّلها ما تطلع، وترجع متى ما فعّلتها.'}</p>
@@ -1803,6 +1812,10 @@ function playerView(){
         :`<button class="reveal-card" data-act="flip"><span class="big">دورك جاهز</span><span class="muted">اضغط وغطِّ الشاشة عن اللي جنبك</span></button>`);
       if(h.spy.reveal)body+=`<p style="margin:0">برا السالفة: <b>${esc(h.spy.reveal.spy)}</b> · السالفة: <b>${esc(h.spy.reveal.word)}</b></p>`;}}
   else if(mode==='buzz'&&h.buzz)body=buzzer();
+  else if(mode==='mines'){const M=h.mn||{},tm=!!(h.pk&&myBy&&h.pk[myBy]),tk=tm?h.pk[myBy]:myBy,mine=M.turn&&tk===M.turn;
+    body=M.st==='play'?(mine?`<div class="huge">💣</div><h2 class="big">${tm?'دوركم!':'دورك!'}</h2><p style="margin:0;font-size:1.4rem">🏦 ${AR(M.pot||0)}</p><p class="muted" style="margin:0">قولوا رقم الصندوق… ولا وقّفوا! 😬</p>`:`<div class="huge">💣</div><h2 class="big">الدور على ${esc(M.tn)}</h2><p class="muted" style="margin:0">تابعوا الشاشة 👀</p>`)
+      :M.st==='turnEnd'?`<div class="huge">${M.bust?'💥':'🤫'}</div><h2 class="big">${M.bust?esc(M.tn)+' انفجروا!':esc(M.tn)+' وقفوا'}</h2>`
+      :M.st==='end'?`<div class="huge">👑</div><h2 class="big">${M.win&&M.win.length?esc(M.win.join(' و ')):'كلهم انفجروا 😅'}</h2>`:`<div class="huge">💣</div><h2 class="big">حقل الألغام</h2><p class="muted" style="margin:0">تابعوا الشاشة 👀</p>`}
   else if(mode==='who')body=`<h2 class="big">من أكون؟ 🎭</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">تابع التلميحات على الشاشة 👀</p>'}`;
   else if(mode==='aunts')body=isGirl(P.name)?`<h2 class="big">👩 فقرة الخالات</h2>${h.buzz?buzzer():'<p class="muted" style="margin:0">استني السؤال…</p>'}`:`<div class="huge">🚫</div><h2 class="big">هالفقرة للخالات بس 😄</h2><p class="muted" style="margin:0">تابع الشاشة وشجّع ${h.pk&&myBy&&h.pk[myBy]?'خالتك اللي بفريقك':'الخالات'} 👏</p>`;
   else if(mode==='bell'){const tm=myBy&&h.pt&&h.pt[myBy],mm=myBy&&h.pm&&h.pm[myBy];body=`<p style="margin:0;font-size:1.1rem"><b data-lp="1">${esc(P.name)}</b>${tm?` · ${esc(clean(tm,30))}`:''}${mm?` · مع ${esc(clean(mm,60))}`:''}</p><h2 class="big">فقرة الجرس 🔔</h2>${h.bqn?`<p class="muted" style="margin:0">سؤال ${AR(h.bqn)}</p>`:''}${h.buzz?buzzer():'<p class="muted" style="margin:0">استنى المقدّم يفتح الجرس.</p>'}`}
@@ -1900,6 +1913,43 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
   ok.forEach(([tk],j)=>{const n=(j===0?2:1)*mul;pts[tk]=n;const gi=String(tk).startsWith('g:')?+String(tk).slice(2):-1;const nm=gi>=0?pairName(gi):((soloPlayers().find(x=>x.key===tk)||{}).name||'');soloAdd(tk,nm,n)});
   const fast=ok[0]?ok[0][0]:null,fg=fast&&String(fast).startsWith('g:')?pairName(+String(fast).slice(2)):fast?((soloPlayers().find(x=>x.key===fast)||{}).name||''):'';
   S.mq.res={cnt:ok.length,fast:fg,pts};S.mq.phase='reveal';if(ok.length)sfx('right');else sfx('wrong');emitState();render()}
+/* ---------- حقل الألغام ---------- */
+const MN_BOX=10,MN_BOMB=2;
+function mnFresh(){return {stage:'idle',order:[],cur:0,board:[],open:[],pot:0,banks:{},res:{},hist:[],winners:[],done:false,rv:0}}
+S.mn=Object.assign(mnFresh(),LS.get('mn',{}));
+const saveMn=()=>LS.set('mn',S.mn);
+const mnName=k=>{const t=soloPlayers().find(x=>x.key===k);return t?t.name:'—'};
+function mnBoard(){const b=Array(MN_BOX).fill(false);shuffle([...Array(MN_BOX).keys()]).slice(0,MN_BOMB).forEach(i=>b[i]=true);return b}
+function mnStart(){const t=soloPlayers();if(t.length<1){toast('ما فيه لاعبين');return}S.mn=mnFresh();S.mn.order=shuffle(t.map(x=>x.key));mnTurn();}
+function mnTurn(){const m=S.mn;m.board=mnBoard();m.open=[];m.pot=0;m.hist=[];m.stage='play';saveMn();emitState();render()}
+function mnSnap(){const m=S.mn;m.hist.push({open:m.open.slice(),pot:m.pot,stage:m.stage,banks:{...m.banks},res:{...m.res}})}
+function mnBox(i){const m=S.mn;if(m.stage!=='play'||m.open.includes(i))return;mnSnap();m.open=m.open.concat(i);const k=m.order[m.cur];
+  if(m.board[i]){m.pot=0;m.banks={...m.banks,[k]:0};m.res={...m.res,[k]:'bust'};m.stage='turnEnd'}
+  else{m.pot++;if(m.pot>=MN_BOX-MN_BOMB){m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'all'};m.stage='turnEnd'}}
+  saveMn();emitState();render()}
+function mnStop(){const m=S.mn;if(m.stage!=='play'||!m.pot)return;mnSnap();const k=m.order[m.cur];m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'stop'};m.stage='turnEnd';saveMn();emitState();render()}
+function mnUndo(){const m=S.mn;if(!m.hist.length)return;const s=m.hist.pop();Object.assign(m,s);saveMn();emitState();render()}
+function mnNext(){const m=S.mn;if(m.stage!=='turnEnd')return;if(m.cur<m.order.length-1){m.cur++;mnTurn();return}m.stage='reveal';m.rv=0;saveMn();emitState();render()}
+function mnReveal(){const m=S.mn;if(m.stage!=='reveal')return;if(m.rv<m.order.length){m.rv++;saveMn();emitState();render();return}
+  const mx=Math.max(0,...m.order.map(k=>m.banks[k]||0));m.winners=mx>0?m.order.filter(k=>(m.banks[k]||0)===mx):[];m.stage='end';
+  if(!m.done){m.done=true;m.winners.forEach(k=>soloAdd(k,mnName(k),3))}if(m.winners.length)fwStart();saveMn();emitState();render()}
+function minesView(){const m=S.mn,tl=k=>esc(mnName(k));
+  if(m.stage==='idle')return `<div class="stage"><span class="eyebrow">حقل الألغام</span><div class="huge">💣</div><h2 class="big">${MN_BOX} صناديق… فيها قنبلتين!</h2>
+    <p class="muted" style="margin:0">كل فريق ياخذ لوحة جديدة. كل صندوق آمن = +1 بالحصالة 🏦<br>وبعد كل صندوق: تكمّلون؟ ولا توقفون وتحفظون؟ القنبلة 💥 تصفّر الحصالة.<br>الحصالات سرية لين النهاية… وأعلى حصالة تاخذ <b>+3</b>.</p>
+    <button class="btn-red btn-big" data-act="mnStart">🎲 القرعة وابدأ</button></div>`;
+  const ord=`<div class="hlord">${m.order.map((k,i)=>`<span class="${i<m.cur||(i===m.cur&&m.stage!=='play')?'out':''}${i===m.cur&&m.stage==='play'?' cur':''}">${tl(k)}</span>`).join('<i>←</i>')}</div>`;
+  const grid=(rev)=>`<div class="mngrid">${m.board.map((bomb,i)=>{const o=m.open.includes(i),show=o||rev;return `<button class="mnb${show?(bomb?' bomb':' safe'):''}${o?' opened':''}" ${m.stage==='play'&&!o?`data-act="mnBox" data-i="${i}"`:'disabled'}>${show?(bomb?'💣':'✅'):AR(i+1)}</button>`}).join('')}</div>`;
+  if(m.stage==='play'){const k=m.order[m.cur],safeLeft=MN_BOX-MN_BOMB-m.pot,boxLeft=MN_BOX-m.open.length,risk=Math.round(MN_BOMB/boxLeft*100);
+    return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · ${AR(m.cur+1)} من ${AR(m.order.length)}</span><h2 class="big" style="margin:0">🎯 الدور على ${tl(k)}</h2>
+    <div class="mnpot">🏦 ${AR(m.pot)}</div><p class="muted" style="margin:0">فرصة القنبلة بالصندوق الجاي: <b>${AR(risk)}٪</b></p>${grid(false)}
+    <div class="row" style="justify-content:center;gap:14px">${m.pot?`<button class="btn-ink btn-big" data-act="mnStop">✋ وقّفوا واحفظوا</button>`:''}${m.hist.length?'<button class="link" data-act="mnUndo">↩️ تراجع</button>':''}</div>${ord}</div>`}
+  if(m.stage==='turnEnd'){const k=m.order[m.cur],r=m.res[k];return `<div class="stage"><span class="eyebrow">💣 حقل الألغام</span><div class="huge">${r==='bust'?'💥':'🤫'}</div>
+    <h2 class="big">${r==='bust'?tl(k)+' انفجروا!':tl(k)+' وقفوا… والحصالة سرية 🤫'}</h2>${grid(true)}
+    <div class="row" style="justify-content:center;gap:14px"><button class="btn-red btn-big" data-act="mnNext">${m.cur<m.order.length-1?'الفريق الجاي ▶':'🏦 اكشف الحصالات'}</button><button class="link" data-act="mnUndo">↩️ تراجع</button></div></div>`}
+  if(m.stage==='reveal'||m.stage==='end'){const shown=m.stage==='end'?m.order.length:m.rv;
+    return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · الحصالات</span><div class="mnrev">${m.order.map((k,i)=>`<div class="${i<shown?'on':''}${m.stage==='end'&&m.winners.includes(k)?' win':''}"><span>${tl(k)}</span><b>${i<shown?(m.res[k]==='bust'?'💥 ٠':'🏦 '+AR(m.banks[k]||0)):'❓'}</b></div>`).join('')}</div>
+    ${m.stage==='end'?`<h2 class="big">${m.winners.length?'👑 '+m.winners.map(tl).join(' و ')+' +٣':'كلهم انفجروا 😅 ما أحد ياخذ شي'}</h2><button class="link" data-act="mnReset">ابدأ من جديد</button>`:`<button class="btn-red btn-big" data-act="mnReveal">${shown<m.order.length?'اكشف الجاي 🏦':'👑 الفائز'}</button>`}</div>`}
+  return ''}
 /* ---------- من أكون؟ ---------- */
 const WHO_SECS=10;
 S.wq=(()=>{const d=LS.get('wq',null);return {i:d&&typeof d.i==='number'?d.i:-1,ord:d&&Array.isArray(d.ord)?d.ord:[],c:0,at:0,pz:0,showA:false}})();
@@ -2186,6 +2236,7 @@ $app.addEventListener('click',e=>{
     case 'rd':readerSend(b.dataset.a);break;
     case 'aqNext':{const adv=()=>{const n=C.auntQs.length;S.aq.i=Math.min(n,S.aq.i+1);S.aq.showA=false;saveAq();bumpQ();closeBuzz();if(S.aq.i<n)openBuzz();emitState();render()};if(S.aq.i+1<C.auntQs.length&&wheelGate(adv))break;adv();break}
     case 'aqShowA':S.aq.showA=true;render();break;
+    case 'mnStart':mnStart();break;case 'mnBox':mnBox(+b.dataset.i);break;case 'mnStop':mnStop();break;case 'mnUndo':mnUndo();break;case 'mnNext':mnNext();break;case 'mnReveal':mnReveal();break;case 'mnReset':S.mn=mnFresh();saveMn();emitState();render();break;
     case 'whoNext':whoNext();break;case 'whoClue':{const it=whoCur();if(it&&S.wq.c<it.c.length-1){S.wq.c++;S.wq.at=Date.now();S.wq.pz=0;emitState();render()}break}case 'whoShow':S.wq.showA=true;closeBuzz();emitState();render();break;case 'whoReset':S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();closeBuzz();emitState();render();break;
     case 'aqReset':S.aq={i:-1,showA:false};saveAq();closeBuzz();emitState();render();break;
     case 'mqNext':{if(S.mq.phase==='q')break;const adv=()=>mqStart();if(S.mq.i+1<C.mcq.length&&wheelGate(adv))break;adv();break}
@@ -2237,7 +2288,7 @@ $app.addEventListener('click',e=>{
     case 'iDel':D.events[S.edEv].rounds[+b.dataset.r].items.splice(+b.dataset.i,1);render();break;
     case 'mDel':{const p=b.dataset.p.split('.');const o=p.slice(0,-1).reduce((x,k)=>x[k],D);o[p[p.length-1]]=null;S.saveMsg='';render();break}
     case 'newOuting':{if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ كل النقاط والجولات بتتصفّر — اضغط مرة ثانية';break}
-      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
+      S.evDone={};LS.set('evDone',{});S.spam={st:{},ban:{},pr:{}};saveSpam();S.aq={i:-1,showA:false};saveAq();S.wq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};saveWq();S.mn=mnFresh();saveMn();S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();S.hl=hlFresh();saveHl();S.wh=whFresh();saveWh();S.gold={};LS.set('gold',{});S.warn={n:{},q:{},red:{}};saveWarn();S.lgDone={};LS.set('lgDone',{});S.pairs={on:false,groups:[],names:{},shown:0};savePairs();S.bq={i:-1};saveBq();if(S.ev)S.ev.done={};S.solo={scores:{}};saveSolo();S.teams.forEach(t=>t.score=0);saveTeams();
       S.cheat={qn:S.cheat.qn+1,gs:(S.cheat.gs||0)+1,gk:'',strikes:{},banned:{},qban:{},gban:{}};saveCheat();S.marks={};S.alerts=[];sirenSync();S.tmap={};LS.set('tmap',{});
       S.jg=null;LS.set('jg',null);S.draw={assign:{}};saveDraw();S.soloWin=null;S.fin=null;
       S.saveOk=true;S.saveMsg='بدأنا طلعة جديدة 🔄 كل شي تصفّر، والمحتوى باقي مثل ما هو.';emitState();render();break}
