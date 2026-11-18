@@ -1989,7 +1989,7 @@ function mqReveal(){if(S.mq.phase!=='q')return;const ok=Object.entries(S.mq.subs
 S.lead=Object.assign({played:[],shown:false},LS.get('lead',{}));const saveLead=()=>LS.set('lead',S.lead);
 function leadMark(){if(role!=='host'||S.wh.cur)return;const v=S.view;if(['home','pairs','admin','ranking','finale'].includes(v))return;const k=v==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:v;if(!S.lead.played.includes(k)){S.lead.played=S.lead.played.concat(k);saveLead()}}
 const LEAD_LINES={'الصقور':'يحلّقون عاليًا','الذيابة':'ينقضّون على الفريسة','الفرسان':'يمتطون صهوة المجد','النشامى':'يشمّرون عن سواعدهم','العباقرة':'يخططون بدهاء','البرق':'يضربون بسرعة البرق','الأساطير':'يكتبون التاريخ','الكواسر':'يزأرون بقوة','النجوم':'يتألقون بلا حدود','الإعصار':'يجتاحون الميدان'};
-function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&S.lead.played.length>=4&&!document.getElementById('leadOv')&&!S.wh.cur){S.lead.shown=true;saveLead();leadPend=true;setTimeout(()=>{leadPend=false;leadShow()},600)}}
+function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&NX.leadDue&&!document.getElementById('leadOv')&&!S.wh.cur&&soloPlayers().some(x=>x.score>0)){NX.leadDue=false;S.lead.shown=true;saveLead();leadPend=true;setTimeout(()=>{leadPend=false;leadShow()},600)}}
 
 /* ---------- background music ---------- */
 S.bgOn=LS.get('bgOn',true)!==false;var BG={src:null,g:null,lvl:-1,loading:false,started:false};var MEDIA_ON=new Set();
@@ -2006,7 +2006,7 @@ const PROG=[{ev:'تحديات سعودية',n:'تحديات سعودية',e:'�
 const NX={prev:null,pend:null,on:null,at:0};var leadPend=false;
 const progEv=it=>(C.events||[]).findIndex(e=>it.ev==='خمنو'?String(e.title||'').startsWith('خمنو'):e.title===it.ev);
 function progIdx(){if(S.view==='event'&&S.ev&&C.events[S.ev.ei]){const t=C.events[S.ev.ei].title;return PROG.findIndex(it=>it.ev&&progEv(it)===S.ev.ei)}return PROG.findIndex(it=>it.v===S.view)}
-function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null}
+function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=3&&!S.lead.shown)NX.leadDue=true;if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null}
 function nxTick(now){if(role!=='host')return;if(NX.on!=null){if(S.view!=='home'){nxClose();return}if(now-NX.at>=5000)nxGo();return}
   if(NX.pend==null||S.view!=='home'||leadPend||now-(NX.pAt||0)<400||(S.wh&&S.wh.cur)||document.getElementById('leadOv'))return;const j=NX.pend;NX.pend=null;NX.on=j;NX.at=now;const it=PROG[j];
   const el=document.createElement('div');el.id='nxOv';el.innerHTML=`<div class="nxk"><div class="nxb">سمول<br>ڤاميلي</div><div class="nxf"><div class="nxbr">سمول ڤاميلي</div><div class="nxmid"><div class="nxs">الفقرة التالية</div><div class="nxe">${it.e}</div><div class="nxn">${esc(it.n)}</div></div><div class="nxc2">الفقرة ${j+1} من ${PROG.length}</div></div></div>`;el.onclick=()=>nxClose();document.body.appendChild(el);emitState()}
