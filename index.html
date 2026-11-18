@@ -391,14 +391,21 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 #leadOv .ldbell{position:absolute;bottom:7vh;left:0;right:0;font-family:var(--display);font-size:clamp(2rem,6vw,4rem);color:#f2c25a;opacity:0;transform:scale(.6);transition:all .7s cubic-bezier(.2,1.5,.4,1)}#leadOv.s6 .ldbell{opacity:1;transform:none}
 #leadOv .ldbell i{display:inline-block;font-style:normal;animation:ldRing .5s ease-in-out infinite}
 #leadOv.out{opacity:0;transition:opacity .7s}
-#nxOv{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:#0b0a10e6;cursor:pointer;animation:nxIn .45s ease both}
-#nxOv .nxc{text-align:center;color:#fff;display:flex;flex-direction:column;align-items:center;gap:10px;animation:nxPop .6s cubic-bezier(.2,1.5,.4,1) both}
-#nxOv .nxs{font-size:clamp(1.4rem,4vw,2.4rem);font-weight:700;opacity:.8;letter-spacing:.02em}
-#nxOv .nxe{font-size:clamp(5rem,16vw,10rem);line-height:1.1}
-#nxOv .nxn{font-family:var(--display);font-size:clamp(3rem,10vw,6.5rem);color:#f2c25a;line-height:1.15}
-#nxOv .nxh{font-size:1rem;opacity:.45;margin-top:18px}
+#nxOv{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:#1a140c8c;cursor:pointer;animation:nxIn .4s ease both;perspective:1400px}
+#nxOv .nxk{position:relative;width:min(42vh,78vw);aspect-ratio:3/4;transform-style:preserve-3d;animation:nxFly .8s cubic-bezier(.2,.9,.3,1.1) both,nxFlip .9s cubic-bezier(.4,1.4,.5,1) .85s both}
+#nxOv .nxf,#nxOv .nxb{position:absolute;inset:0;border-radius:22px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 30px 80px #0008}
+#nxOv .nxb{background:#c4851a;border:10px solid #f4ecdc;transform:rotateY(180deg);color:#fff8e6;font-family:var(--display);font-size:clamp(2rem,5vh,3rem);text-align:center;line-height:1.2;background-image:repeating-linear-gradient(45deg,#ffffff14 0 12px,transparent 12px 24px)}
+#nxOv .nxf{background:#fffaf0;border:1px solid #e3d6bd;justify-content:space-between;padding:7% 6%;color:#2c2418}
+#nxOv .nxbr{font-family:var(--display);font-size:clamp(1.3rem,3.4vh,2rem);color:#c4851a;border-bottom:2px solid #f0e2c4;padding-bottom:6px;width:100%;text-align:center}
+#nxOv .nxmid{display:flex;flex-direction:column;align-items:center;gap:6px}
+#nxOv .nxs{font-size:clamp(1rem,2.4vh,1.4rem);color:#8a7a60;font-weight:700}
+#nxOv .nxe{font-size:clamp(4rem,11vh,7rem);line-height:1.1}
+#nxOv .nxn{font-family:var(--display);font-size:clamp(2.2rem,6vh,3.8rem);line-height:1.15;text-align:center}
+#nxOv .nxc2{font-size:clamp(.95rem,2.2vh,1.25rem);color:#8a7a60;font-weight:700;background:#f4ecdc;border-radius:99px;padding:4px 16px}
 #nxOv.out{opacity:0;transition:opacity .35s}
-@keyframes nxIn{from{opacity:0}}@keyframes nxPop{from{opacity:0;transform:scale(.6)}}
+@keyframes nxIn{from{opacity:0}}
+@keyframes nxFly{from{transform:translateY(80vh) rotateY(180deg) rotateZ(-14deg)}to{transform:translateY(0) rotateY(180deg) rotateZ(-3deg)}}
+@keyframes nxFlip{from{transform:rotateY(180deg) rotateZ(-3deg)}to{transform:rotateY(0) rotateZ(0)}}
 @keyframes ldBlink{50%{opacity:.35}}
 @keyframes ldBoom{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1)}}
 @keyframes ldTick{to{transform:translateX(100%)}}
@@ -2002,7 +2009,7 @@ function progIdx(){if(S.view==='event'&&S.ev&&C.events[S.ev.ei]){const t=C.event
 function nxWatch(){if(role!=='host')return;const cur=S.view==='home'?-2:progIdx();if(cur===-2&&NX.prev!=null&&NX.prev>=0){let j=NX.prev+1;while(j<PROG.length&&PROG[j].ev&&progEv(PROG[j])<0)j++;if(j<PROG.length){NX.pend=j;NX.pAt=Date.now()}}if(cur===-2)NX.prev=null;else if(cur>=0)NX.prev=cur;if(S.view!=='home'&&NX.on==null)NX.pend=null}
 function nxTick(now){if(role!=='host')return;if(NX.on!=null){if(S.view!=='home'){nxClose();return}if(now-NX.at>=5000)nxGo();return}
   if(NX.pend==null||S.view!=='home'||leadPend||now-(NX.pAt||0)<400||(S.wh&&S.wh.cur)||document.getElementById('leadOv'))return;const j=NX.pend;NX.pend=null;NX.on=j;NX.at=now;const it=PROG[j];
-  const el=document.createElement('div');el.id='nxOv';el.innerHTML=`<div class="nxc"><div class="nxs">الفقرة التالية</div><div class="nxe">${it.e}</div><div class="nxn">${esc(it.n)}</div><div class="nxh">اضغط للإلغاء</div></div>`;el.onclick=()=>nxClose();document.body.appendChild(el);emitState()}
+  const el=document.createElement('div');el.id='nxOv';el.innerHTML=`<div class="nxk"><div class="nxb">سمول<br>ڤاميلي</div><div class="nxf"><div class="nxbr">سمول ڤاميلي</div><div class="nxmid"><div class="nxs">الفقرة التالية</div><div class="nxe">${it.e}</div><div class="nxn">${esc(it.n)}</div></div><div class="nxc2">الفقرة ${j+1} من ${PROG.length}</div></div></div>`;el.onclick=()=>nxClose();document.body.appendChild(el);emitState()}
 function nxClose(){NX.on=null;const el=document.getElementById('nxOv');if(el){el.classList.add('out');setTimeout(()=>el.remove(),400)}emitState()}
 function nxGo(){const it=PROG[NX.on];nxClose();const t=document.createElement('button');t.hidden=true;if(it.ev){const i=progEv(it);if(i<0)return;t.dataset.act='evOpen';t.dataset.i=i}else{t.dataset.act='go';t.dataset.v=it.v}$app.appendChild(t);t.click();t.remove()}
 let leadAud=null;S.leadOn=null;
