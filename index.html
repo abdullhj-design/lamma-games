@@ -366,6 +366,7 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 .mnmsg{font-family:var(--display);font-size:clamp(3rem,9vw,6rem);line-height:1}.mnpot2{font-family:var(--display);font-size:clamp(2.4rem,6vw,4rem)}
 @keyframes mnIn{from{opacity:0}to{opacity:1}}
 #leadOv{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;padding:24px;overflow:hidden;cursor:pointer;background:#07070c}
+#leadOv.dim{background:#07070c00;transition:background-color 5s linear;cursor:default}#leadOv.dim.dark{background:#07070c}#leadOv.dim .ldnews{visibility:hidden}
 #leadOv canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #leadOv .ldnews{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .25s}
 #leadOv .ldbn{background:#c8102e;color:#fff;font-family:var(--display);font-size:clamp(3rem,11vw,7rem);padding:.1em .7em;border-radius:14px;box-shadow:0 0 60px #c8102e99;animation:ldBlink 1s steps(2,start) infinite}
@@ -1998,7 +1999,7 @@ function bgOther(){if(!MEDIA_ON)return false;for(const el of MEDIA_ON){if(el.pau
 function bgWant(){if(role!=='host'||!S.bgOn)return 0;if(document.getElementById('leadOv')||['lobby','finale'].includes(S.view)||(S.wh&&S.wh.cur)||bgOther())return 0;return ['home','ranking','pairs','admin','draw'].includes(S.view)?.16:.05}
 function bgStart(){if(BG.started||BG.loading||BG.fail||role!=='host'||!S.bgOn)return;BG.loading=true;try{const a=actx(),g=a.createGain();g.gain.value=0;g.connect(a.destination);BG.g=g;
   fetch('media/bg.m4a').then(r=>r.arrayBuffer()).then(b=>a.decodeAudioData(b)).then(buf=>{const src=a.createBufferSource();src.buffer=buf;src.loop=true;src.connect(g);src.start();BG.src=src;BG.started=true;BG.loading=false;BG.lvl=-1;bgSync()}).catch(()=>{BG.loading=false;BG.fail=true})}catch(e){BG.loading=false;BG.fail=true}}
-function bgSync(){if(!BG||!MEDIA_ON)return;if(!BG.started){if(BG.gest&&bgWant()>0)bgStart();return}const w=bgWant();if(w===BG.lvl)return;BG.lvl=w;try{const a=BG.g.context,t=a.currentTime;if(a.state==='suspended')a.resume();BG.g.gain.cancelScheduledValues(t);BG.g.gain.setValueAtTime(BG.g.gain.value,t);BG.g.gain.setTargetAtTime(w,t,w>BG.g.gain.value?1.2:.25)}catch(e){}}
+function bgSync(){if(!BG||!MEDIA_ON)return;if(!BG.started){if(BG.gest&&bgWant()>0)bgStart();return}const w=bgWant();if(w===BG.lvl)return;BG.lvl=w;try{const a=BG.g.context,t=a.currentTime;if(a.state==='suspended')a.resume();BG.g.gain.cancelScheduledValues(t);BG.g.gain.setValueAtTime(BG.g.gain.value,t);BG.g.gain.setTargetAtTime(w,t,w>BG.g.gain.value?1.2:(document.querySelector('#leadOv.dim')?1.3:.25))}catch(e){}}
 try{document.addEventListener('pointerdown',()=>{BG.gest=true;if(role==='host')setTimeout(bgSync,50)},true)}catch(e){}
 
 /* ---------- tournament program / next card ---------- */
@@ -2039,7 +2040,8 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
     <div class="ldc"><div class="lde">${esc(emo)}</div><div class="ldl">${esc(line)}</div>${mems}</div>
     <div class="ldpp"><div class="ldmh">جريدة لَمّة</div><div class="ldmeta"><span>${esc(dt)}</span><b>عدد خاص</b></div><div class="ldhd">${esc(hd)}</div><div class="ldhs">${esc(hs)}</div></div>
     <div class="ldbell">الجرس جاي… وكل شي ممكن يتغيّر! <i>🔔</i></div>`;document.body.appendChild(el);
-  const snd=leadSound(),fx=leadFx(el.querySelector('canvas'));fx.rain=false;const T=[],at=(ms,f)=>T.push(setTimeout(()=>{if(el.isConnected)f()},ms)),add=c=>el.classList.add(c);
+  const DIM=5000;el.classList.add('dim');requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('dark')));let snd={stop(){}};const fx=leadFx(el.querySelector('canvas'));fx.rain=false;const T=[],at=(ms,f)=>T.push(setTimeout(()=>{if(el.isConnected)f()},ms+DIM)),add=c=>el.classList.add(c);
+  T.push(setTimeout(()=>{if(!el.isConnected)return;el.classList.remove('dim');snd=leadSound()},DIM));
   const bird=()=>{const b=document.createElement('div');b.className='ldbird';b.textContent=parts[Math.floor(Math.random()*parts.length)].e;b.style.top=(10+Math.random()*25)+'%';el.appendChild(b);setTimeout(()=>b.remove(),4400)};
   at(9400,()=>add('s1'));
   at(9700,()=>{add('s2');fx.rain=true;fx.boom(5);S.leadOn={k:top.map(x=>x.key),w:parts.map(x=>x.w).join(' و')};emitState()});
@@ -2047,7 +2049,7 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
   at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<50000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<50000;t+=5500)at(t,bird);
   at(50000,()=>{add('s6');fx.boom(5)});
   const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
-  el._close=close;el.onclick=()=>close();at(60000,()=>close())}
+  el._close=close;el.onclick=()=>{if(!el.classList.contains('dim'))close()};at(60000,()=>close())}
 function leadPhone(L,my){const me=L.k.includes(my);return me?`<div class="myteam t0" style="background:linear-gradient(135deg,#f2c25a,#c4851a);color:#2a1d05;font-size:1.35rem;text-align:center"><b style="font-size:2.6rem">👑</b><b>أنتم المتصدرين!</b><span>الجرس جاي… حافظوا عليها 🔔</span></div>`:`<div class="myteam t0" style="background:var(--ink,#222);color:#fff;font-size:1.3rem;text-align:center"><b style="font-size:2.4rem">👀</b><b>${esc(clean(L.w,40))} بالصدارة…</b><span>الجرس جاي! 🔔</span></div>`}
 /* ---------- اكشف الصورة ---------- */
 const PIC_STEP=2000,PIC_BLUR=[42,30,20,12,6,0],PICS=[{"n": "الكعبة المشرفة 🕋", "img": "media/lm01.jpg"}, {"n": "برج المملكة 🏙️", "img": "media/lm02.jpg"}, {"n": "مدائن صالح (الحِجر) 🏜️", "img": "media/lm03.jpg"}, {"n": "مرايا العلا 🪞", "img": "media/lm04.jpg"}, {"n": "نافورة الملك فهد ⛲", "img": "media/lm05.jpg"}, {"n": "جسر الملك فهد 🌉", "img": "media/lm06.jpg"}, {"n": "الأهرامات 🇪🇬", "img": "media/lm07.jpg"}, {"n": "برج العرب 🇦🇪", "img": "media/lm08.jpg"}, {"n": "تمثال الحرية 🗽", "img": "media/lm09.jpg"}, {"n": "برج بيزا المائل 🇮🇹", "img": "media/lm10.jpg"}];
