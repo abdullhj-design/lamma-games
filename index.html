@@ -357,6 +357,14 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 .mnrev div.on{opacity:1;animation:pop .5s ease}.mnrev div.win{background:color-mix(in srgb,var(--ochre) 35%,transparent);font-weight:800}.mnrev b{font-family:var(--display);font-weight:400}
 .picbox{width:100%;max-width:860px;height:min(56vh,520px);border-radius:22px;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center}.picbox img{max-width:100%;max-height:100%;object-fit:contain;transition:filter 1.6s ease,transform 1.6s ease}
 .bzbar{position:fixed;left:14px;bottom:14px;display:flex;gap:8px;z-index:30}.bzbar button{font-size:.95rem;padding:8px 14px;border-radius:12px;box-shadow:0 4px 14px #0003}
+.mnfx{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#fff}
+.mnfx.sus{background:rgba(20,14,10,.78)}.mnfx.safe{background:rgba(31,122,72,.9);animation:mnIn .25s ease}.mnfx.bomb{background:rgba(170,30,25,.93);animation:whShake .45s linear 3}
+.mnbig{font-family:var(--display);font-size:clamp(7rem,22vw,13rem);line-height:1;background:#c4851a;border-radius:36px;padding:10px 60px;box-shadow:0 20px 60px #0008}
+.mnfx.safe .mnbig,.mnfx.bomb .mnbig{background:none;box-shadow:none;padding:0}
+.mnbig.shake{animation:mnShake .18s linear infinite}@keyframes mnShake{0%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.06)}100%{transform:rotate(-6deg) scale(1)}}
+.mnbig.pop,.mnpot2.pop{animation:pop .5s ease}.mnbig.boom{animation:mnBoom .6s ease-out}@keyframes mnBoom{0%{transform:scale(.3)}60%{transform:scale(1.4)}100%{transform:scale(1)}}
+.mnmsg{font-family:var(--display);font-size:clamp(3rem,9vw,6rem);line-height:1}.mnpot2{font-family:var(--display);font-size:clamp(2.4rem,6vw,4rem)}
+@keyframes mnIn{from{opacity:0}to{opacity:1}}
 .homedate{text-align:center;margin:0 0 14px;font-size:1.05rem;color:var(--muted,#6b5f55)}
 /* ---------- حروف وثواني ---------- */
 .hlcat{font-family:var(--display);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--ochre)}
@@ -1868,7 +1876,7 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   if(role==='host'&&S.loaded)syncGame();
-  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now)}
+  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now);mnTick(now)}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
   if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
@@ -1954,12 +1962,17 @@ function mnBoard(){const b=Array(MN_BOX).fill(false);shuffle([...Array(MN_BOX).k
 function mnStart(){const t=soloPlayers();if(t.length<1){toast('ما فيه لاعبين');return}S.mn=mnFresh();S.mn.order=shuffle(t.map(x=>x.key));mnTurn();}
 function mnTurn(){const m=S.mn;m.board=mnBoard();m.open=[];m.pot=0;m.hist=[];m.stage='play';saveMn();emitState();render()}
 function mnSnap(){const m=S.mn;m.hist.push({open:m.open.slice(),pot:m.pot,stage:m.stage,banks:{...m.banks},res:{...m.res}})}
-function mnBox(i){const m=S.mn;if(m.stage!=='play'||m.open.includes(i))return;mnSnap();m.open=m.open.concat(i);const k=m.order[m.cur];
-  if(m.board[i]){m.pot=0;m.banks={...m.banks,[k]:0};m.res={...m.res,[k]:'bust'};m.stage='turnEnd'}
-  else{m.pot++;if(m.pot>=MN_BOX-MN_BOMB){m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'all'};m.stage='turnEnd'}}
+const MN_SND={sus:'media/mn_sus.m4a',boom:'media/mn_boom.m4a',ok:'media/mn_ok.m4a'},mnAud={};
+function mnPlay(k){try{const a=mnAud[k]||(mnAud[k]=new Audio(MN_SND[k]));a.currentTime=0;const q=a.play();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
+function mnBox(i){const m=S.mn;if(m.stage!=='play'||m.fx||m.open.includes(i))return;mnSnap();m.fx={k:'sus',i,until:Date.now()+1900};mnPlay('sus');saveMn();emitState();render()}
+function mnTick(now){const m=S.mn;if(role!=='host'||S.view!=='mines'||!m.fx||now<m.fx.until)return;const f=m.fx,k=m.order[m.cur];
+  if(f.k==='sus'){m.open=m.open.concat(f.i);if(m.board[f.i]){m.pot=0;m.banks={...m.banks,[k]:0};m.res={...m.res,[k]:'bust'};m.fx={k:'bomb',i:f.i,until:now+2300};mnPlay('boom')}
+    else{m.pot++;m.fx={k:'safe',i:f.i,until:now+1600,all:m.pot>=MN_BOX-MN_BOMB};mnPlay('ok')}}
+  else if(f.k==='safe'){m.fx=null;if(f.all){m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'all'};m.stage='turnEnd'}}
+  else{m.fx=null;m.stage='turnEnd'}
   saveMn();emitState();render()}
-function mnStop(){const m=S.mn;if(m.stage!=='play'||!m.pot)return;mnSnap();const k=m.order[m.cur];m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'stop'};m.stage='turnEnd';saveMn();emitState();render()}
-function mnUndo(){const m=S.mn;if(!m.hist.length)return;const s=m.hist.pop();Object.assign(m,s);saveMn();emitState();render()}
+function mnStop(){const m=S.mn;if(m.stage!=='play'||m.fx||!m.pot)return;mnSnap();const k=m.order[m.cur];m.banks={...m.banks,[k]:m.pot};m.res={...m.res,[k]:'stop'};m.stage='turnEnd';saveMn();emitState();render()}
+function mnUndo(){const m=S.mn;if(!m.hist.length)return;const s=m.hist.pop();Object.assign(m,s);m.fx=null;saveMn();emitState();render()}
 function mnNext(){const m=S.mn;if(m.stage!=='turnEnd')return;if(m.cur<m.order.length-1){m.cur++;mnTurn();return}m.stage='reveal';m.rv=m.order.length;mnReveal()}
 function mnReveal(){const m=S.mn;if(m.stage!=='reveal')return;
   const mx=Math.max(0,...m.order.map(k=>m.banks[k]||0));m.winners=mx>0?m.order.filter(k=>(m.banks[k]||0)===mx):[];m.stage='end';
@@ -1971,9 +1984,10 @@ function minesView(){const m=S.mn,tl=k=>esc(mnName(k));
   const ord=`<div class="hlord">${m.order.map((k,i)=>`<span class="${i<m.cur||(i===m.cur&&m.stage!=='play')?'out':''}${i===m.cur&&m.stage==='play'?' cur':''}">${tl(k)}</span>`).join('<i>←</i>')}</div>`;
   const grid=(rev)=>`<div class="mngrid">${m.board.map((bomb,i)=>{const o=m.open.includes(i),show=o||rev;return `<button class="mnb${show?(bomb?' bomb':' safe'):''}${o?' opened':''}" ${m.stage==='play'&&!o?`data-act="mnBox" data-i="${i}"`:'disabled'}>${show?(bomb?'💣':'✅'):AR(i+1)}</button>`}).join('')}</div>`;
   if(m.stage==='play'){const k=m.order[m.cur],safeLeft=MN_BOX-MN_BOMB-m.pot;
-    return `<div class="stage"><span class="eyebrow">💣 حقل الألغام · ${AR(m.cur+1)} من ${AR(m.order.length)}</span><h2 class="big" style="margin:0">🎯 الدور على ${tl(k)}</h2>
+    const fx=m.fx?(m.fx.k==='sus'?`<div class="mnfx sus"><div class="mnbig shake">${AR(m.fx.i+1)}</div></div>`:m.fx.k==='safe'?`<div class="mnfx safe"><div class="mnbig pop">✅</div><div class="mnmsg">آمن! +1</div><div class="mnpot2 pop">🏦 ${AR(m.pot)}</div></div>`:`<div class="mnfx bomb"><div class="mnbig boom">💣</div><div class="mnmsg">بووووم!</div><div class="mnpot2">🏦💔 0</div></div>`):'';
+    return `${fx}<div class="stage"><span class="eyebrow">💣 حقل الألغام · ${AR(m.cur+1)} من ${AR(m.order.length)}</span><h2 class="big" style="margin:0">🎯 الدور على ${tl(k)}</h2>
     <div class="mnpot">🏦 ${AR(m.pot)}</div>${grid(false)}
-    <div class="row" style="justify-content:center;gap:14px">${m.pot?`<button class="btn-ink btn-big" data-act="mnStop">✋ وقّفوا واحفظوا</button>`:''}${m.hist.length?'<button class="link" data-act="mnUndo">↩️ تراجع</button>':''}</div>${ord}</div>`}
+    <div class="row" style="justify-content:center;gap:14px">${m.pot&&!m.fx?`<button class="btn-ink btn-big" data-act="mnStop">✋ وقّفوا واحفظوا</button>`:''}${m.hist.length?'<button class="link" data-act="mnUndo">↩️ تراجع</button>':''}</div>${ord}</div>`}
   if(m.stage==='turnEnd'){const k=m.order[m.cur],r=m.res[k];return `<div class="stage"><span class="eyebrow">💣 حقل الألغام</span><div class="huge">${r==='bust'?'💥':'🤫'}</div>
     <h2 class="big">${r==='bust'?tl(k)+' انفجروا!':tl(k)+' وقفوا… والحصالة سرية 🤫'}</h2>${grid(false)}
     <div class="row" style="justify-content:center;gap:14px"><button class="btn-red btn-big" data-act="mnNext">${m.cur<m.order.length-1?'الفريق الجاي ▶':'🏆 اكشف الترتيب'}</button><button class="link" data-act="mnUndo">↩️ تراجع</button></div></div>`}
