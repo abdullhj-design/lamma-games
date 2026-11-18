@@ -1102,7 +1102,7 @@ function render(){
   if(id){const e=document.getElementById(id);if(e){e.focus({preventScroll:true});try{if(sel!=null)e.setSelectionRange(sel,se)}catch(_){}if(sc)e.scrollTop=sc}}
   if(role==='host'&&lobbyMus&&S.view!=='lobby')lobbyMusicStop(800);
 
-  syncAlarm();syncWheel();tick();leadCheck();
+  syncAlarm();syncWheel();tick();leadCheck();bgSync();
 }
 function readerSend(a){if(!room)return;room.presence({role:'reader',cmd:{id:Date.now()+Math.random(),a}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}}
 function readerView(){if(C.hostPin&&!hostAllowed())return pinView();
@@ -1150,6 +1150,7 @@ function topBar(){
     ${C.teamsOn?`<button class="ditem" data-act="go" data-v="draw"><span>القرعة 🎲</span>${un?`<small>${un} بانتظار</small>`:''}</button>
     <button class="ditem" data-act="modeToggle"><span>نظام النقاط</span><small>${S.mode==='solo'?'👤 فردي':'👥 فرق'} ← بدّل</small></button>`:''}
     <button class="ditem" data-act="leadShow"><span>🔝 اعرض المتصدر</span></button>
+    <button class="ditem" data-act="bgTog"><span>${S.bgOn?'🔇 طفّ الموسيقى':'🎵 شغّل الموسيقى'}</span></button>
     ${S.mode==='solo'?'<button class="ditem" data-act="go" data-v="ranking"><span>الترتيب والنقاط</span></button><button class="ditem" data-act="finale"><span>إنهاء وإعلان الفائزين 🏁</span></button>'+(S.pairs.on&&S.pairs.groups.length?'<button class="ditem" data-act="pairsShow"><span>الفرق 👥</span></button><button class="ditem" data-act="pairsDraw"><span>أعد القرعة 🔁</span></button><button class="ditem" data-act="pairsOff"><span>رجّع اللعب فردي 👤</span></button>':'<button class="ditem" data-act="pairsDraw"><span>قسّمهم فرق 👥</span></button>'):''}
     ${jgShow?`<button class="ditem" data-act="jgOpen"><span>تقييم اللجان</span>${jgReady?'<small style="color:var(--red)">النتائج جاهزة ●</small>':''}</button>`:''}
     ${S.canEdit?'<button class="ditem" data-act="admin"><span>إدارة الموقع</span></button>':''}
@@ -1912,7 +1913,7 @@ function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+
 function tick(){
   const now=Date.now();
   if(role==='host'&&S.loaded)syncGame();
-  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now);mnTick(now)}
+  if(role==='host'){whTick(now);mqTick(now);hlTick(now);whoTick(now);picTick(now);mnTick(now);bgSync()}
   document.querySelectorAll('[data-end]').forEach(el=>{const left=+el.dataset.end-now;el.textContent=fmt(left);el.classList.toggle('low',left<10000)});
   if(role==='host'&&S.bz.curPeer&&!S.bz.awarded&&now>=S.bz.curEnd&&(['buzz','aunts','event'].includes(S.view)||(S.view==='bell'&&S.bz.timed)))turnTimeout();
   if(role==='host')document.querySelectorAll('.turncd[data-cd]').forEach(el=>{el.textContent=Math.max(0,Math.ceil((+el.dataset.cd-now)/1000))});
@@ -1974,6 +1975,16 @@ S.lead=Object.assign({played:[],shown:false},LS.get('lead',{}));const saveLead=(
 function leadMark(){if(role!=='host'||S.wh.cur)return;const v=S.view;if(['home','pairs','admin','ranking','finale'].includes(v))return;const k=v==='event'&&S.ev&&C.events[S.ev.ei]?'ev:'+C.events[S.ev.ei].title:v;if(!S.lead.played.includes(k)){S.lead.played=S.lead.played.concat(k);saveLead()}}
 const LEAD_LINES={'الصقور':'يحلّقون عاليًا','الذيابة':'ينقضّون على الفريسة','الفرسان':'يمتطون صهوة المجد','النشامى':'يشمّرون عن سواعدهم','العباقرة':'يخططون بدهاء','البرق':'يضربون بسرعة البرق','الأساطير':'يكتبون التاريخ','الكواسر':'يزأرون بقوة','النجوم':'يتألقون بلا حدود','الإعصار':'يجتاحون الميدان'};
 function leadCheck(){if(role==='host'&&S.view==='home'&&!S.lead.shown&&S.lead.played.length>=4&&!document.getElementById('leadOv')&&!S.wh.cur){S.lead.shown=true;saveLead();setTimeout(leadShow,600)}}
+
+/* ---------- background music ---------- */
+S.bgOn=LS.get('bgOn',true)!==false;var BG={src:null,g:null,lvl:-1,loading:false,started:false};var MEDIA_ON=new Set();
+(()=>{try{const P0=HTMLMediaElement.prototype,op=P0.play;P0.play=function(){MEDIA_ON.add(this);return op.apply(this,arguments)}}catch(e){}try{document.addEventListener('play',e=>{if(e.target instanceof HTMLMediaElement)MEDIA_ON.add(e.target)},true)}catch(e){}})();
+function bgOther(){if(!MEDIA_ON)return false;for(const el of MEDIA_ON){if(el.paused||el.ended){MEDIA_ON.delete(el);continue}if(el.muted||el.volume===0)continue;const sr=String(el.currentSrc||el.src||'');if(sr.includes('/mn_'))continue;if(el.duration&&el.duration<5)continue;return true}return false}
+function bgWant(){if(role!=='host'||!S.bgOn)return 0;if(document.getElementById('leadOv')||['lobby','finale'].includes(S.view)||(S.wh&&S.wh.cur)||bgOther())return 0;return ['home','ranking','pairs','admin','draw'].includes(S.view)?.16:.05}
+function bgStart(){if(BG.started||BG.loading||BG.fail||role!=='host'||!S.bgOn)return;BG.loading=true;try{const a=actx(),g=a.createGain();g.gain.value=0;g.connect(a.destination);BG.g=g;
+  fetch('media/bg.m4a').then(r=>r.arrayBuffer()).then(b=>a.decodeAudioData(b)).then(buf=>{const src=a.createBufferSource();src.buffer=buf;src.loop=true;src.connect(g);src.start();BG.src=src;BG.started=true;BG.loading=false;BG.lvl=-1;bgSync()}).catch(()=>{BG.loading=false;BG.fail=true})}catch(e){BG.loading=false;BG.fail=true}}
+function bgSync(){if(!BG||!MEDIA_ON)return;if(!BG.started){if(BG.gest&&bgWant()>0)bgStart();return}const w=bgWant();if(w===BG.lvl)return;BG.lvl=w;try{const a=BG.g.context,t=a.currentTime;if(a.state==='suspended')a.resume();BG.g.gain.cancelScheduledValues(t);BG.g.gain.setValueAtTime(BG.g.gain.value,t);BG.g.gain.setTargetAtTime(w,t,w>BG.g.gain.value?1.2:.25)}catch(e){}}
+try{document.addEventListener('pointerdown',()=>{BG.gest=true;if(role==='host')setTimeout(bgSync,50)},true)}catch(e){}
 let leadAud=null;S.leadOn=null;
 function leadSound(){const A={stop(){}};try{const a=actx(),g=a.createGain();g.gain.value=1;g.connect(a.destination);A.g=g;A.a=a;
   fetch('media/lead.m4a').then(r=>r.arrayBuffer()).then(buf=>a.decodeAudioData(buf)).then(b=>{if(A.dead)return;const src=a.createBufferSource();src.buffer=b;src.loop=true;src.loopStart=10.5;src.loopEnd=Math.min(b.duration,20.2);src.connect(g);src.start();A.src=src}).catch(()=>{});
@@ -2371,6 +2382,7 @@ $app.addEventListener('click',e=>{
     case 'rd':readerSend(b.dataset.a);break;
     case 'aqNext':{const adv=()=>{const n=C.auntQs.length;S.aq.i=Math.min(n,S.aq.i+1);S.aq.showA=false;saveAq();bumpQ();closeBuzz();if(S.aq.i<n)openBuzz();emitState();render()};if(S.aq.i+1<C.auntQs.length&&wheelGate(adv))break;adv();break}
     case 'aqShowA':S.aq.showA=true;render();break;
+    case 'bgTog':S.bgOn=!S.bgOn;LS.set('bgOn',S.bgOn);S.menu=false;render();bgSync();toast(S.bgOn?'🎵 الموسيقى شغالة':'🔇 الموسيقى طافية');break;
     case 'leadShow':render();leadShow();break;
     case 'picNext':picNext();break;case 'picShow':S.pq.showA=true;closeBuzz();emitState();render();break;case 'picReset':S.pq={i:-1,ord:[],c:0,at:0,pz:0,showA:false};savePq();closeBuzz();emitState();render();break;
     case 'bzLock':S.bzLock=!S.bzLock;emitState();render();break;case 'bzAll':{const b=S.bz;b.fail=[];b.order=b.order.filter(o=>b.curPeer===o.peer);b.r=(b.r||0)+1;b.open=true;S.bzLock=false;emitState();render();toast('🔁 الجرس مفتوح للكل');break}
