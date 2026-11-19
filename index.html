@@ -2053,8 +2053,8 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
   at(9400,()=>add('s1'));
   at(9700,()=>{add('s2');fx.rain=true;fx.boom(5);S.leadOn={k:top.map(x=>x.key),w:parts.map(x=>x.w).join(' و')};emitState()});
   at(11500,()=>add('s3'));at(17700,()=>fx.boom(3));
-  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<30000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<30000;t+=5500)at(t,bird);
-  at(30000,()=>{add('s6');fx.boom(5)});at(35000,bird);
+  at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<33000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<33000;t+=5500)at(t,bird);
+  at(33000,()=>{add('s6');fx.boom(5)});at(36000,bird);
   const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
   el._close=close;el.onclick=()=>{if(!el.classList.contains('dim'))close()};at(40000,()=>close())}
 function leadPhone(L,my){const me=L.k.includes(my);return me?`<div class="myteam t0" style="background:linear-gradient(135deg,#f2c25a,#c4851a);color:#2a1d05;font-size:1.35rem;text-align:center"><b style="font-size:2.6rem">👑</b><b>أنتم المتصدرين!</b><span>الجرس جاي… حافظوا عليها 🔔</span></div>`:`<div class="myteam t0" style="background:var(--ink,#222);color:#fff;font-size:1.3rem;text-align:center"><b style="font-size:2.4rem">👀</b><b>${esc(clean(L.w,40))} بالصدارة…</b><span>الجرس جاي! 🔔</span></div>`}
