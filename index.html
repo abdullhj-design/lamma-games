@@ -1370,8 +1370,8 @@ function drumroll(sec){try{const a=actx(),buf=noiseBuf(a,.05),t0=a.currentTime+.
 function boom(){try{const a=actx(),t=a.currentTime+.01,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(40,t+.5);g.gain.setValueAtTime(.7,t);g.gain.exponentialRampToValueAtTime(.001,t+.9);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+1);
   const src=a.createBufferSource(),g2=a.createGain();src.buffer=noiseBuf(a,.3);g2.gain.setValueAtTime(.35,t);g2.gain.exponentialRampToValueAtTime(.001,t+.3);src.connect(g2);g2.connect(a.destination);src.start(t)}catch(e){}}
 function finSound(k){
-  if(k==='d1r'){try{if(!susAudio)susAudio=new Audio('media/suspense6.m4a');susAudio.muted=false;susAudio.currentTime=0;const p=susAudio.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}return}
-  if(k==='d2'||k==='who'||k==='beat'||k==='intro'||k==='podium')return;
+  if(k==='intro'||k==='d1r'){try{if(susAudio&&!susAudio.paused&&susAudio.currentTime>0)return;if(!susAudio)susAudio=new Audio('media/suspense6.m4a');susAudio.loop=true;susAudio.muted=false;susAudio.currentTime=0;const p=susAudio.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}return}
+  if(k==='d2'||k==='who'||k==='beat'||k==='podium')return;
   if(k==='trans'){fwStop();return}
   if(k==='champ'&&!S.fin.won){S.fin.won=true;try{if(susAudio){susAudio.pause();susAudio=null}}catch(e){}try{if(!champAudio)champAudio=new Audio('media/champ2.m4a');champAudio.muted=false;champAudio.currentTime=0;const p=champAudio.play();if(p&&p.catch)p.catch(()=>fanfare())}catch(e){fanfare()}}}
 /* fireworks on a canvas that lives outside the page, so re-renders don't restart it */
@@ -2199,7 +2199,7 @@ function leadShow(){S.menu=false;const sp=soloPlayers();if(!sp.length){toast('م
   at(11500,()=>add('s3'));at(17700,()=>fx.boom(3));
   at(20000,()=>{add('s5');fx.boom(4)});for(let t=24000;t<33000;t+=8000)at(t,()=>fx.boom(3));for(let t=22500;t<33000;t+=5500)at(t,bird);
   at(33000,()=>{add('s6');fx.boom(5)});at(36000,bird);
-  const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
+  const close=quick=>{if(el._done)return;el._done=true;T.forEach(clearTimeout);snd.stop();S.leadOn=null;if(S.view!=='home'){S.view='home';render()}emitState();el.classList.add('out');setTimeout(()=>{fx.stop&&fx.stop();el.remove()},quick?0:750)};
   el._close=close;el.onclick=()=>{if(!el.classList.contains('dim'))close()};at(40000,()=>close())}
 function leadPhone(L,my){const me=L.k.includes(my);return me?`<div class="myteam t0" style="background:linear-gradient(135deg,#f2c25a,#c4851a);color:#2a1d05;font-size:1.35rem;text-align:center"><b style="font-size:2.6rem">👑</b><b>أنتم المتصدرين!</b><span>الجرس جاي… حافظوا عليها 🔔</span></div>`:`<div class="myteam t0" style="background:var(--ink,#222);color:#fff;font-size:1.3rem;text-align:center"><b style="font-size:2.4rem">👀</b><b>${esc(clean(L.w,40))} بالصدارة…</b><span>الجرس جاي! 🔔</span></div>`}
 /* ---------- اكشف الصورة ---------- */
