@@ -58,7 +58,7 @@ let qr='',prev=null;
 function form(d){d=d||{};qr=d.qr||'';
   if(d.name&&d.t){done();return}
   m.innerHTML=`<h1>لَمّة سمول ڤاميلي 🤍</h1>
-  <p class="lead">عشان جائزتك توصلك بدون إحراج 🏆</p>
+  <p class="lead">عشان جائزتك توصلك 🏆</p>
   <form class="card" id="f" novalidate>
     <div><label for="name">الاسم</label><input id="name" maxlength="40" autocomplete="name" value="${esc(d.name)}"><div class="err" id="e_name" hidden></div></div>
     <div><label for="iban">الآيبان</label><input id="iban" class="ltr" inputmode="text" autocapitalize="characters" autocomplete="off" value="${esc(d.iban)}" placeholder="SA0000000000000000000000"><div class="err" id="e_iban" hidden></div></div>
