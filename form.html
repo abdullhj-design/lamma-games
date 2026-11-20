@@ -54,6 +54,8 @@ const m=document.getElementById('m');
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toLat=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
 const ibanClean=s=>toLat(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
+function ibanPick(v){const t=toLat(v).toUpperCase();let from=0;while(true){const i=t.indexOf('SA',from);if(i<0)return null;let d='';for(let k=i+2;k<t.length&&d.length<22;k++){const c=t[k];if(c>='0'&&c<='9')d+=c;else if(/[A-Z؀-ۿ]/.test(c))break}if(d.length===22)return 'SA'+d;from=i+2}}
+const ibanFmt=x=>x.replace(/(.{4})/g,'$1 ').trim();
 let qr='',prev=null;
 function form(d){d=d||{};qr=d.qr||'';
   if(d.name&&d.t){done();return}
@@ -72,6 +74,7 @@ function form(d){d=d||{};qr=d.qr||'';
   document.getElementById('qrf').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)shrink(f)};
   document.getElementById('f').onsubmit=e=>{e.preventDefault();send()};
   ['name','iban','bank'].forEach(k=>document.getElementById(k).oninput=()=>showErr('e_'+k,''));
+  const ib=document.getElementById('iban');ib.addEventListener('input',()=>{const x=ibanPick(ib.value);if(x){const f=ibanFmt(x);if(ib.value!==f)ib.value=f}});
 }
 function done(){m.innerHTML=`<div class="done"><div class="big">🤍</div><h2>وصلت</h2></div>`}
 function drawQr(){const b=document.getElementById('qrbox');
@@ -84,7 +87,7 @@ function shrink(file){const r=new FileReader();r.onload=()=>{const im=new Image(
   let q=.9,u=c.toDataURL('image/jpeg',q);while(u.length>380000&&q>.4){q-=.1;u=c.toDataURL('image/jpeg',q)}
   if(u.length>380000){alert('الصورة كبيرة، جرّب سكرين شوت أصغر');return}qr=u;drawQr()};im.onerror=()=>alert('ما قدرت أفتح الصورة، جرّب صورة ثانية');im.src=r.result};r.readAsDataURL(file)}
 function showErr(id,t){const e=document.getElementById(id);e.textContent=t||'';e.hidden=!t}
-async function send(){const name=document.getElementById('name').value.trim().replace(/\s+/g,' '),iban=ibanClean(document.getElementById('iban').value),bank=document.getElementById('bank').value.trim();
+async function send(){const name=document.getElementById('name').value.trim().replace(/\s+/g,' '),iban=ibanPick(document.getElementById('iban').value)||ibanClean(document.getElementById('iban').value),bank=document.getElementById('bank').value.trim();
   const okI=/^SA[0-9]{22}$/.test(iban);
   showErr('e_name',name?'':'اكتب اسمك');showErr('e_iban',!iban?'اكتب الآيبان':okI?'':'الآيبان يبدأ بـ SA وبعده 22 رقم');showErr('e_bank',bank?'':'اكتب اسم البنك');showErr('e_all','');
   if(!name||!okI||!bank)return;
