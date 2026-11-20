@@ -28,6 +28,35 @@
           ".write": "auth != null && (root.child('hosts/' + auth.uid).exists() || !root.child('secrets/hostPin').exists() || (auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'))"
         }
       }
+    },
+    "forms": {
+      ".read": "auth != null && auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'",
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && (auth.uid == $uid || (auth != null && auth.token.email_verified == true && auth.token.email == 'abdullh.ail.1234454@gmail.com'))",
+        ".validate": "!newData.exists() || (newData.hasChildren(['name', 't']) && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length <= 40)",
+        "name": {
+          ".validate": "newData.isString()"
+        },
+        "t": {
+          ".validate": "newData.isNumber()"
+        },
+        "iban": {
+          ".validate": "newData.isString() && newData.val().matches(/^SA[0-9]{22}$/)"
+        },
+        "bank": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "idea": {
+          ".validate": "newData.isString() && newData.val().length <= 600"
+        },
+        "qr": {
+          ".validate": "newData.isString() && newData.val().length <= 400000 && newData.val().beginsWith('data:image/')"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
     }
   }
 }

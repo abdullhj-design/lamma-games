@@ -164,6 +164,10 @@
 
   /* ---------------- extras the page calls directly ---------------- */
   window.lamma = Object.freeze({
+    async myForm() { await ready; try { const s = await db.ref('forms/' + uid()).once('value'); return s.val(); } catch (e) { return null; } },
+    async sendForm(d) { await ready; if (!uid()) throw err('no_auth'); try { await db.ref('forms/' + uid()).set(Object.assign({}, d, { t: Date.now() })); } catch (e) { throw mapErr(e); } },
+    async watchForms(cb) { await ready; if (!isAdmin()) throw err('not_writer'); const ref = db.ref('forms'); const h = ref.on('value', (s) => cb(s.val() || {}), (e) => cb(null, mapErr(e))); return () => ref.off('value', h); },
+    async delForm(id) { await ready; if (!isAdmin()) throw err('not_writer'); try { await db.ref('forms/' + id).remove(); } catch (e) { throw mapErr(e); } },
     async watchContent(cb) {
       await ready;
       let first = true;
