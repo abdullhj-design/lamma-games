@@ -121,9 +121,10 @@ textarea{width:100%;min-height:150px;resize:vertical;line-height:1.7}
 .evstage button:not(.btn-red):not(.btn-green){background:transparent;color:var(--on-nat);border-color:color-mix(in srgb,var(--on-nat) 45%,transparent)}
 .evstage .btn-ink{background:var(--on-nat)!important;color:var(--nat)!important;border-color:var(--on-nat)!important}
 .evstage .link{color:var(--on-nat);border:0!important}
-.media{max-width:100%;max-height:55vh;border-radius:16px;background:#000;display:block}
+.media{max-width:100%;max-height:max(220px,min(44vh,calc(100vh - 450px)));border-radius:16px;background:#000;display:block}
 img.media{background:transparent}
-.bzon .media{max-height:26vh;transition:max-height .3s}
+.evsplit{display:flex;align-items:center;justify-content:center;gap:clamp(16px,3vw,36px);width:100%}.evsplit>.media{flex:0 1 auto;min-width:0;max-width:58%}.evsplit>.answerer{flex:0 1 440px;margin-top:0!important}
+@media (max-width:760px){.evsplit{flex-direction:column}.evsplit>.media{max-width:100%;max-height:30vh}}
 .bzon{gap:12px}
 .bzon .answerer{margin-top:-4px}
 .teambadge{display:inline-flex;align-items:center;gap:8px;padding:4px 14px;border-radius:99px;font-weight:600;background:color-mix(in srgb,var(--on-nat) 14%,transparent)}
@@ -1516,6 +1517,7 @@ function rankBoard(e,v){
   return `<span class="eyebrow">بعد ${r?esc(r.title):'الجولة'}</span><div class="huge" style="font-size:clamp(2.4rem,7vw,4.2rem)">الترتيب</div>
     <div class="ranklist">${rows.map(x=>`<div class="rankrow"><span class="rk">${x.rk<=3?medal[x.rk-1]:x.rk}</span>${arrow(x)}<span style="flex:1">${x.name}</span><span class="sc">${x.score}</span></div>`).join('')||'<p class="muted" style="margin:0">ما فيه نقاط بعد.</p>'}</div>
     <div class="row" style="justify-content:center"><button class="btn-ink btn-big" data-act="evGo" data-p="menu">الجولات</button></div>`}
+function evSplit(m,o){return m&&o?`<div class="evsplit">${m}${o}</div>`:m+o}
 function evView(){
   const v=S.ev,e=C.events[v.ei];
   const wrap=(inner)=>`<div class="stage evstage${S.bz.order&&S.bz.order.length&&(v.phase==='q'||v.phase==='a')?' bzon':''}${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}${inner}</div>`;
@@ -1544,10 +1546,10 @@ function evView(){
   const award=S.mode==='solo'?soloAwardRow(v.awardedKeys||[],S.bz.order[0]):`<div class="row" style="justify-content:center">${S.teams.map((t,i)=>`<button class="btn-${i?'green':'red'} btn-big" data-act="evAward" data-t="${i}" ${v.awarded?'disabled':''}>+1 ${esc(t.name)}</button>`).join('')}</div>`;
   const head=`<button class="link" data-act="evGo" data-p="menu" style="align-self:flex-start;text-decoration:none">→ الجولات</button><span class="eyebrow">${esc(r.title)} · ${v.ii+1} من ${r.items.length}</span>${badge}`;
   const link=it.link?`<a class="extlink" href="${esc(it.link)}" target="_blank" rel="noopener">افتح المقطع ↗</a>`:'';
-  if(v.phase==='q')return wrap(`${head}${it.q?`<div class="${it.q.length>40?'mid':'big'}">${esc(it.q)}</div>`:''}${evMedia(it.qm,'q'+v.ri+'_'+v.ii)}${link}${timer}${order}
+  if(v.phase==='q')return wrap(`${head}${it.q?`<div class="${it.q.length>40?'mid':'big'}">${esc(it.q)}</div>`:''}${evSplit(evMedia(it.qm,'q'+v.ri+'_'+v.ii),order)}${link}${timer}
     <div class="row" style="justify-content:center">${bz}${hasA?`<button class="btn-ink btn-big" data-act="evReveal">اكشف الإجابة</button>`:''}</div>
     ${hasA?'':award+`<div class="row" style="justify-content:center">${next}</div>`}${prog}`);
-  return wrap(`${head}<span class="eyebrow">الإجابة</span>${it.a?`<div class="big">${esc(it.a)}</div>`:''}${evMedia(it.am,'a'+v.ri+'_'+v.ii)}${order}${award}<div class="row" style="justify-content:center"><button data-act="evBack">رجوع للسؤال</button>${next}</div>${prog}`);
+  return wrap(`${head}<span class="eyebrow">الإجابة</span>${it.a?`<div class="big">${esc(it.a)}</div>`:''}${evSplit(evMedia(it.am,'a'+v.ri+'_'+v.ii),order)}${award}<div class="row" style="justify-content:center"><button data-act="evBack">رجوع للسؤال</button>${next}</div>${prog}`);
 }
 /* ---- spy ---- */
 function allPlayers(){return[...S.locals.map((n,i)=>({key:'l'+i,name:n})),...phonePlayers().map(p=>({key:'p:'+p.peer,name:p.name,peer:p.peer}))]}
