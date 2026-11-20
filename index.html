@@ -392,6 +392,12 @@ html,body,button,a,input,select,textarea,label,[data-act]{touch-action:manipulat
 #leadOv .ldbell{position:absolute;bottom:7vh;left:0;right:0;font-family:var(--display);font-size:clamp(2rem,6vw,4rem);color:#f2c25a;opacity:0;transform:scale(.6);transition:all .7s cubic-bezier(.2,1.5,.4,1)}#leadOv.s6 .ldbell{opacity:1;transform:none}
 #leadOv .ldbell i{display:inline-block;font-style:normal;animation:ldRing .5s ease-in-out infinite}
 #leadOv.out{opacity:0;transition:opacity .7s}
+.heattag{background:#E5594C;color:#fff;font-weight:800;border-radius:99px;padding:6px 20px;font-size:clamp(1rem,2.4vw,1.4rem)}
+#heatOv{position:fixed;inset:0;z-index:58;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#1a0a06f5;color:#fff;cursor:pointer;animation:nxIn .3s ease both}
+#heatOv .hti{font-size:clamp(5rem,16vw,10rem);line-height:1.1;animation:htPulse .7s ease-in-out infinite alternate}
+#heatOv .htt{font-family:var(--display);font-size:clamp(2.6rem,8vw,5.5rem);color:#ffb347;text-align:center;animation:nxPop .6s cubic-bezier(.2,1.5,.4,1) both}
+#heatOv.out{opacity:0;transition:opacity .45s}
+@keyframes htPulse{to{transform:scale(1.15)}}
 #leadOv .ldgl{position:absolute;inset:-20px;pointer-events:none;opacity:0}
 #leadOv.gl1 .ldgl{opacity:1;background:repeating-linear-gradient(0deg,#fff0 0 9px,#ffffffd0 9px 12px,#fff0 12px 31px,#ffffff60 31px 33px);animation:ldJump .07s steps(1) infinite}
 #leadOv.gl2 .ldgl{opacity:1;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .8 0 0 0 0 .8 0 0 0 0 .8 0 0 0 1.6 -.3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");background-color:#222;animation:ldNoise .06s steps(1) infinite,ldShake .1s steps(2) infinite}
@@ -783,7 +789,7 @@ function bumpQ(){for(const k of Object.keys(S.spam.st))if(!S.spam.pr[k])delete S
 const teamOfKey=k=>{const t=S.draw.assign[k];return t===0||t===1?t:null};
 function phonePlayers(){if(!room)return[];return room.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.role==='player'&&clean(p.presence.name)&&!isBanned(pKey(p))).map(p=>{const key=pKey(p),name=clean(p.presence.name);if(role==='host')titleFor(key,name);return{peer:p.peer,key,name,team:teamOfKey(key)}})}
 function hostState(){
-  const st={bqn:S.view==='bell'&&S.bq&&S.bq.i>=0?S.bq.i+1:0,mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,lead:S.leadOn||null,nx:NX.on!=null?PROG[NX.on].n+' '+PROG[NX.on].e:null,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
+  const st={bqn:S.view==='bell'&&S.bq&&S.bq.i>=0?S.bq.i+1:0,mode:S.view==='admin'?'home':S.view,title:C.title,teams:S.teams.map(t=>({name:clean(t.name),score:t.score})),assign:C.teamsOn?S.draw.assign:{},mode2:S.mode,lead:S.leadOn||null,heat:S.heat&&Date.now()-S.heat.at<4000?S.heat.t:0,nx:NX.on!=null?PROG[NX.on].n+' '+PROG[NX.on].e:null,solo:S.mode==='solo'?soloPlayers().slice(0,40).map(x=>({k:x.key,n:x.name,s:x.score})):null};
   if(S.view==='spy'&&S.spy){st.spy={r:S.spy.r,cat:S.spy.cat,assign:S.spy.assign,reveal:S.spy.stage==='result'?{word:S.spy.word,spy:S.spy.spyName}:null}}
   if(S.view==='buzz'||S.view==='bell'||S.view==='aunts'||S.view==='who'||S.view==='pic'||(S.view==='event'&&S.ev&&(S.ev.phase==='q'||S.ev.phase==='a')&&S.bz.r>0&&S.bz.used)){const b=S.bz,fail=b.fail||[];st.buzz={r:b.r,open:b.open,q:b.awarded?[]:b.order.filter(o=>!fail.includes(o.peer)).map(o=>o.key),out:b.order.filter(o=>fail.includes(o.peer)).map(o=>o.key),win:b.awarded?b.win:null,left:b.curPeer?Math.max(0,b.curEnd-Date.now()):0,noT:(S.view==='bell'&&!b.timed)||S.view==='who'||S.view==='pic',lock:!!S.bzLock}}
   if(S.view==='bell'){const b=S.bz,fail=b.fail||[],cur=b.awarded?null:b.order.find(o=>!fail.includes(o.peer)),lab=o=>{const t=titleOfKey(o.key);return o.name+(t&&pairIdx(o.key)<0?' «'+t+'»':'')+(pairIdx(o.key)>=0?' ('+pairName(pairIdx(o.key))+')':'')};
@@ -1551,15 +1557,15 @@ function auntsView(){const b=S.bz,first=b.order[0],n=C.auntQs.length,i=S.aq.i,go
     ${S.aq.showA&&it.a?`<div class="rda" style="font-size:clamp(1.3rem,3vw,2rem)">✅ ${esc(it.a)}</div>`:''}
     <div class="row" style="justify-content:center">${it.a&&!S.aq.showA?'<button data-act="aqShowA">اكشف الجواب 👀</button>':''}<button class="btn-ink btn-big" data-act="aqNext">${i>=n-1?'إنهاء 🏁':'السؤال الجاي ▶'}</button></div></div>`}
 function bellView(){
-  const b=S.bz,ph=phonePlayers(),first=b.order[0],n=C.bellQs.length,i=S.bq.i;
+  const b=S.bz,ph=phonePlayers(),first=b.order[0],n=C.bellQs.length,i=S.bq.i,tr=bellTier(i,n),htag=tr>1?`<span class="heattag">${'🔥'.repeat(tr)} السؤال ${tr===2?'بنقطتين':'بـ 3 نقاط'}</span>`:'';
   const net=room&&roomOk?`<p class="muted" style="margin:0">${ph.length} لاعب متصل · الأسئلة تطلع لك في جوالك من «📋 لوحة المقدّم»</p>`:'<p class="muted" style="margin:0">الجرس يشتغل من الجوالات بعد مشاركة الرابط.</p>';
   if(i<0)return `<div class="stage"><span class="eyebrow">فقرة الجرس</span><div class="huge">🔔</div><h2 class="big">${n} سؤال جاهز</h2>${net}
     <button class="btn-red btn-big" data-act="bellNext">ابدأ السؤال الأول 🔔</button></div>`;
   if(i>=n)return `<div class="stage"><span class="eyebrow">فقرة الجرس</span><div class="huge">🎉</div><h2 class="big">خلصت الأسئلة</h2>
     <div class="row" style="justify-content:center"><button data-act="bellReset">ابدأ الأسئلة من جديد</button><button class="btn-ink" data-act="go" data-v="home">→ الرئيسية</button></div></div>`;
   const nx=`<div class="row" style="justify-content:center">${!b.awarded?'<button data-act="bellReopen">افتح الجرس 🔔</button>':''}<button class="btn-ink btn-big" data-act="bellNext">${i>=n-1?'إنهاء الأسئلة 🏁':'السؤال الجاي ▶'}</button></div>`;
-  if(!first)return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}<span class="eyebrow">سؤال ${i+1} من ${n}</span><div class="huge">🔔</div><h2 class="big">${b.open?'اسمعوا السؤال… واللي يعرف يضغط الجرس!':'الجرس مقفل'}</h2>${nx}</div>`;
-  return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}<span class="eyebrow">سؤال ${i+1} من ${n}</span>${answerer(b)}${nx}</div>`;
+  if(!first)return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}${htag}<span class="eyebrow">سؤال ${i+1} من ${n}</span><div class="huge">🔔</div><h2 class="big">${b.open?'اسمعوا السؤال… واللي يعرف يضغط الجرس!':'الجرس مقفل'}</h2>${nx}</div>`;
+  return `<div class="stage${isGold()?' goldq':''}">${isGold()?'<span class="goldtag">⭐ سؤال ذهبي · النقاط ×2</span>':''}${htag}<span class="eyebrow">سؤال ${i+1} من ${n}</span>${answerer(b)}${nx}</div>`;
 }
 function buzzView(){const b=S.bz,q=b.qi>=0?C.quiz[b.qs[b.qi%b.qs.length]]:null,ph=phonePlayers();
   if(!q)return `<div class="stage"><span class="eyebrow">الأسرع</span><h2 class="big">جاهزين؟</h2>
@@ -1925,7 +1931,7 @@ function playerView(){
     else body=`<h2 class="big">30 ثانية ⏱️</h2><p class="muted" style="margin:0">استعد… المقدّم يختار السؤال.</p>`}
   else if(mode==='charades'&&h.ch)body=`<h2 class="big">مثّلها</h2><p style="margin:0">الدور على ${tn(h.ch.team)} — تابعوا الشاشة الكبيرة.</p>`;
   else body=h.pm&&myBy&&h.pm[myBy]!=null?`<div class="myteam t0" style="background:var(--ochre)">${esc(P.name)}، ${isGirl(P.name)?'أنتِ':'أنت'} مع<b>${esc(clean(h.pm[myBy],60))} 🤝</b>${h.pt&&h.pt[myBy]?`<span>في فريق <strong>${esc(clean(h.pt[myBy],30))}</strong></span>`:''}</div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:h.mode2==='solo'?`<h2 class="big">انضميت ✓</h2><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`:P.team===null?`<h2 class="big">انضميت ✓</h2><p style="margin:0;font-size:1.15rem">انتظر القرعة 🎲</p>`:`<div class="myteam t${P.team}">أنت في<b>${tn(P.team)}</b></div><p class="muted" style="margin:0">بانتظار عبود يختار اللعبة.</p>`;
-  const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy;if(h.lead&&Array.isArray(h.lead.k))body=leadPhone(h.lead,myS);else if(h.nx&&mode==='home')body=`<div class="myteam t0" style="background:var(--ochre);text-align:center;font-size:1.3rem"><span>الفقرة التالية</span><b style="font-size:1.9rem">${esc(clean(h.nx,40))}</b><span>استعدوا 👀</span></div>`;const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
+  const myS=h.pk&&myBy&&h.pk[myBy]?h.pk[myBy]:myBy;if(h.lead&&Array.isArray(h.lead.k))body=leadPhone(h.lead,myS);else if(h.heat===2||h.heat===3)body=`<div class="myteam t0" style="background:linear-gradient(135deg,#E5594C,#c4851a);color:#fff;text-align:center;font-size:1.3rem"><b style="font-size:2.6rem">${'🔥'.repeat(h.heat)}</b><b>الأسئلة صارت ${h.heat===2?'بنقطتين':'بـ 3 نقاط'}!</b><span>جهّزوا أصابعكم 🔔</span></div>`;else if(h.nx&&mode==='home')body=`<div class="myteam t0" style="background:var(--ochre);text-align:center;font-size:1.3rem"><span>الفقرة التالية</span><b style="font-size:1.9rem">${esc(clean(h.nx,40))}</b><span>استعدوا 👀</span></div>`;const mine=h.solo&&myBy?h.solo.findIndex(x=>x.k===myS):-1;
   const sc=true?'':h.mode2==='solo'?(mine>=0?`<div class="myrank"><span>${myS!==myBy?'نقاط فريقكم':'نقاطك'}</span><b>${Number(h.solo[mine].s)||0}</b><span>${myS!==myBy?'ترتيبكم':'ترتيبك'} ${1+h.solo.filter(x=>x.s>h.solo[mine].s).length} من ${h.solo.length}</span></div>`:''):h.teams?`<div class="teampick">${h.teams.map((t,i)=>`<div class="team t${i}" style="justify-content:space-between"><span>${esc(t.name)}</span><span class="ts" style="font-size:1.8rem">${Number(t.score)||0}</span></div>`).join('')}</div>`:'';
   return head+`<div class="phone stage"><span class="eyebrow">${P.team===null||h.mode2==='solo'?'':`<span class="dot t${P.team}"></span> `}${esc(P.name)}${P.team===null||h.mode2==='solo'?'':' · '+tn(P.team)}</span>${body}${sc}</div>`;
 }
@@ -1976,6 +1982,8 @@ function goldFor(ei){const e=C.events[ei];if(!e)return null;const all=[];e.round
   let g=S.gold[e.title];if(!g||!all.includes(g)){g=pick(all);S.gold[e.title]=g;LS.set('gold',S.gold)}return g}
 const isGold=()=>(S.view==='event'&&S.ev&&S.ev.ri>=0&&(S.ev.phase==='q'||S.ev.phase==='a')&&goldFor(S.ev.ei)===S.ev.ri+':'+S.ev.ii)||wheelGold();
 const ptsMul=()=>isGold()?2:1;
+const bellTier=(i,n)=>n<=0||i<0?1:i<Math.floor(n/3)?1:i<Math.floor(2*n/3)?2:3;S.heat=null;
+function heatShow(t){S.heat={t,at:Date.now()};const old=document.getElementById('heatOv');if(old)old.remove();const el=document.createElement('div');el.id='heatOv';el.innerHTML=`<div class="hti">${'🔥'.repeat(t)}</div><div class="htt">الأسئلة صارت ${t===2?'بنقطتين':'بـ 3 نقاط'}!</div>`;el.onclick=()=>el.remove();document.body.appendChild(el);setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),500)},3500);setTimeout(()=>{S.heat=null;emitState()},4000)}
 /* ---------- تحدي المعلومات (خيارات بالجوال) ---------- */
 S.mq=(()=>{const d=LS.get('mq',null);return {i:d&&typeof d.i==='number'?d.i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null}})();
 const saveMq=()=>LS.set('mq',{i:S.mq.i});
@@ -2411,7 +2419,7 @@ $app.addEventListener('click',e=>{
     case 'drawRedo':if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='متأكد؟ الفرق الحالية بتنمسح';break}S.draw.assign={};saveDraw();emitState();render();break;
     case 'drawSwap':{const k=b.dataset.k,t=teamOfKey(k);if(t===null)break;S.draw.assign[k]=1-t;S.drawLast=k;saveDraw();emitState();render();break}
     case 'ansRight':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur||b.awarded)break;
-      spamOk(cur);const mul=ptsMul()*((S.view==='who'&&S.wq.c===0)||(S.view==='pic'&&S.pq.c<3)?2:1);b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
+      spamOk(cur);const mul=ptsMul()*((S.view==='who'&&S.wq.c===0)||(S.view==='pic'&&S.pq.c<3)?2:1)*(S.view==='bell'?bellTier(S.bq.i,C.bellQs.length):1);b.mul=mul;if(S.mode==='solo'){addPoints(cur.key||cur.peer,cur.name,mul);if(S.view==='event'&&S.ev){S.ev.awardedKeys=S.ev.awardedKeys||[];S.ev.awardedKeys.push(cur.key||cur.peer)}}
       else{S.teams[cur.team].score+=mul;saveTeams();if(S.view==='event'&&S.ev)S.ev.awarded=true}
       b.awarded=true;b.awardedName=bzLabel(cur);b.win=cur.key||cur.peer;b.curPeer=null;b.open=false;if(S.view==='who')S.wq.showA=true;if(S.view==='pic')S.pq.showA=true;if(S.view==='event'&&S.ev&&S.ev.phase==='q'){const it=((C.events[S.ev.ei]||{}).rounds||[])[S.ev.ri];const x=it&&it.items[S.ev.ii];if(x&&(x.a||x.am))S.ev.phase='a'}sfx('right');emitState();toast('نقطة لـ '+(S.mode==='solo'?(pairIdx(cur.key)>=0?pairName(pairIdx(cur.key)):cur.name):S.teams[cur.team].name));render();break}
     case 'ansWrong':{const b=S.bz,cur=b.order.find(o=>!(b.fail||[]).includes(o.peer));if(!cur)break;b.fail=b.fail||[];b.fail.push(cur.peer);spamFail(cur);b.open=true;sfx('wrong');b.curPeer=null;syncTurn();emitState();render();break}
@@ -2431,7 +2439,7 @@ $app.addEventListener('click',e=>{
     case 'mqReset':S.mq={i:-1,phase:'idle',qid:0,at:0,ord:[0,1,2],subs:{},res:null};saveMq();emitState();render();break;
     case 'mqPick':{const q=+b.dataset.q,o=+b.dataset.o;P.mqLock={qid:q,o};if(room)room.presence({mq:{qid:q,o}}).catch(()=>{});try{navigator.vibrate&&navigator.vibrate(40)}catch(_){}render();break}
     case 'bellOpen':bumpQ();openBuzz();emitState();render();break;
-    case 'bellNext':{const adv=()=>{const n=C.bellQs.length;S.bq.i=Math.min(n,S.bq.i+1);saveBq();bumpQ();closeBuzz();if(S.bq.i<n)openBuzz();emitState();render()};if(S.bq.i+1<C.bellQs.length&&wheelGate(adv))break;adv();break}
+    case 'bellNext':{const adv=()=>{const n=C.bellQs.length;S.bq.i=Math.min(n,S.bq.i+1);saveBq();bumpQ();closeBuzz();if(S.bq.i<n)openBuzz();const t=bellTier(S.bq.i,n);if(S.bq.i>0&&S.bq.i<n&&t>bellTier(S.bq.i-1,n))heatShow(t);emitState();render()};if(S.bq.i+1<C.bellQs.length&&wheelGate(adv))break;adv();break}
     case 'bellT5':{const b=S.bz;if(S.view!=='bell'||!b.curPeer||b.awarded)break;b.timed=true;b.curDur=5000;b.curEnd=Date.now()+5000;beep(700,.15);emitState();render();break}
     case 'bellReopen':if(S.view!=='bell'||S.bz.awarded||S.bq.i<0||S.bq.i>=C.bellQs.length)break;closeBuzz();openBuzz();sfx&&beep(880,.2);toast('🔔 انفتح الجرس للكل');emitState();render();break;
     case 'bellReset':S.bq.i=-1;saveBq();closeBuzz();emitState();render();break;
