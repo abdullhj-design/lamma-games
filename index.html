@@ -2077,7 +2077,7 @@ S.forms=null;S.formsErr='';let formsOff=null;
 const formLink=()=>{try{return new URL('form.html',location.href.split('?')[0].split('#')[0]).href}catch(e){return 'form.html'}};
 function formsWatch(){if(formsOff||!window.lamma||!lamma.watchForms)return;formsOff=true;lamma.watchForms((v,e)=>{if(e){S.formsErr='ما قدرت أقرأ البيانات. تأكد إنك داخل بحساب الإدارة وإن قواعد Firebase محدّثة.';S.forms={}}else{S.formsErr='';S.forms=v||{}}if(S.view==='admin')render()}).then(off=>{formsOff=off}).catch(()=>{formsOff=null;S.formsErr='لازم تدخل بحساب الإدارة (Google) عشان تشوف البيانات.';if(S.view==='admin')render()})}
 function formsPanel(){formsWatch();const link=formLink();
-  const top=`<p class="muted small" style="margin:0">رابط ترسله للمشاركين، يكتبون فيه اسمهم والآيبان أو QR وأفكارهم. البيانات تطلع هنا بس.</p>
+  const top=`<p class="muted small" style="margin:0">رابط ترسله للمشاركين، يكتبون فيه اسمهم والآيبان والبنك، والـ QR اختياري. البيانات تطلع هنا بس.</p>
   <div class="row"><input readonly value="${esc(link)}" dir="ltr" style="flex:1;min-width:200px" aria-label="رابط البيانات"><button data-act="fmCopy" data-v="${esc(link)}">📋 نسخ الرابط</button></div>`;
   if(S.formsErr)return top+`<p class="msg err" style="margin:0">${esc(S.formsErr)}</p>`;
   if(!S.forms)return top+'<p class="muted" style="margin:0">جاري التحميل…</p>';

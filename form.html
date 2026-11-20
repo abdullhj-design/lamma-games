@@ -39,7 +39,6 @@ textarea{min-height:96px;resize:vertical}
 .done{text-align:center;padding:30px 10px}
 .done .big{font-size:4rem;line-height:1.1}
 .done h2{font-family:var(--display);font-weight:400;font-size:2rem;margin:8px 0}
-.lock{font-size:.85rem;color:var(--muted);text-align:center;margin:14px 0 0}
 </style>
 </head>
 <body>
@@ -54,27 +53,27 @@ textarea{min-height:96px;resize:vertical}
 const m=document.getElementById('m');
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const toLat=s=>String(s||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
-const ibanClean=s=>toLat(s).toUpperCase().replace(/[\s-]/g,'');
+const ibanClean=s=>toLat(s).toUpperCase().replace(/[^A-Z0-9]/g,'');
 let qr='',prev=null;
 function form(d){d=d||{};qr=d.qr||'';
+  if(d.name&&d.t){done();return}
   m.innerHTML=`<h1>لَمّة سمول ڤاميلي 🤍</h1>
-  <p class="lead">عشان لو فزت بجائزة بالبطولة توصلك <b>على طول وبدون إحراج</b> 👇<br>وإذا عندك فكرة للطلعة الجاية، يسعدنا نسمعها 💡</p>
-  ${d.name?'<p class="lead" style="color:var(--green)">✅ بياناتك وصلتنا قبل، تقدر تعدّلها وترسلها من جديد.</p>':''}
+  <p class="lead">عشان جائزتك توصلك بدون إحراج 🏆</p>
   <form class="card" id="f" novalidate>
-    <div><label for="name">الاسم</label><input id="name" maxlength="40" autocomplete="name" value="${esc(d.name)}" placeholder="اسمك"><div class="err" id="e_name" hidden></div></div>
-    <div><label for="iban">رقم الآيبان <span class="hint">— اختياري · يبدأ بـ SA وبعده 22 رقم</span></label><input id="iban" class="ltr" inputmode="text" autocapitalize="characters" maxlength="34" value="${esc(d.iban)}" placeholder="SA0000000000000000000000"><div class="err" id="e_iban" hidden></div></div>
-    <div><label for="bank">اسم البنك <span class="hint">— اختياري</span></label><input id="bank" maxlength="40" value="${esc(d.bank)}" placeholder="مثلاً: الراجحي"></div>
-    <div><label>QR الآيبان <span class="hint">— اختياري · صورة من تطبيق البنك</span></label>
+    <div><label for="name">الاسم</label><input id="name" maxlength="40" autocomplete="name" value="${esc(d.name)}"><div class="err" id="e_name" hidden></div></div>
+    <div><label for="iban">الآيبان</label><input id="iban" class="ltr" inputmode="text" autocapitalize="characters" autocomplete="off" value="${esc(d.iban)}" placeholder="SA0000000000000000000000"><div class="err" id="e_iban" hidden></div></div>
+    <div><label for="bank">البنك</label><input id="bank" maxlength="40" value="${esc(d.bank)}"><div class="err" id="e_bank" hidden></div></div>
+    <div><label>📷 QR <span class="hint">(اختياري)</span></label>
       <div class="qr" id="qrbox"></div><input type="file" id="qrf" accept="image/*" hidden></div>
-    <div><label for="idea">عندك فكرة أو اقتراح للطلعة الجاية؟ 💡 <span class="hint">— اختياري</span></label><textarea id="idea" maxlength="600" placeholder="اكتب فكرتك هنا…">${esc(d.idea)}</textarea></div>
     <div class="err" id="e_all" hidden></div>
     <button class="btn btn-main" id="send" type="submit">إرسال 🤍</button>
-  </form><p class="lock">🔒 بياناتك يشوفها المنظّم بس</p>`;
+  </form>`;
   drawQr();
   document.getElementById('qrf').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)shrink(f)};
   document.getElementById('f').onsubmit=e=>{e.preventDefault();send()};
-  document.getElementById('name').oninput=()=>showErr('e_name','');document.getElementById('iban').oninput=()=>showErr('e_iban','');
+  ['name','iban','bank'].forEach(k=>document.getElementById(k).oninput=()=>showErr('e_'+k,''));
 }
+function done(){m.innerHTML=`<div class="done"><div class="big">🤍</div><h2>وصلت</h2></div>`}
 function drawQr(){const b=document.getElementById('qrbox');
   b.innerHTML=qr?`<img src="${qr}" alt="QR"><button type="button" class="btn btn-soft" id="qrc">غيّر الصورة</button><button type="button" class="btn btn-link" id="qrd">شيلها</button>`
     :`<button type="button" class="btn btn-soft" id="qrc">📷 أرفق QR</button>`;
@@ -85,15 +84,14 @@ function shrink(file){const r=new FileReader();r.onload=()=>{const im=new Image(
   let q=.9,u=c.toDataURL('image/jpeg',q);while(u.length>380000&&q>.4){q-=.1;u=c.toDataURL('image/jpeg',q)}
   if(u.length>380000){alert('الصورة كبيرة، جرّب سكرين شوت أصغر');return}qr=u;drawQr()};im.onerror=()=>alert('ما قدرت أفتح الصورة، جرّب صورة ثانية');im.src=r.result};r.readAsDataURL(file)}
 function showErr(id,t){const e=document.getElementById(id);e.textContent=t||'';e.hidden=!t}
-async function send(){const name=document.getElementById('name').value.trim().replace(/\s+/g,' '),iban=ibanClean(document.getElementById('iban').value),bank=document.getElementById('bank').value.trim(),idea=document.getElementById('idea').value.trim();
-  showErr('e_name',name?'':'اكتب اسمك 🙏');showErr('e_iban',!iban||/^SA[0-9]{22}$/.test(iban)?'':'تأكد إنه يبدأ بـ SA وبعده 22 رقم 🙏');showErr('e_all','');
-  if(!name||(iban&&!/^SA[0-9]{22}$/.test(iban)))return;
-  const d={name};if(iban)d.iban=iban;if(bank)d.bank=bank.slice(0,40);if(idea)d.idea=idea.slice(0,600);if(qr)d.qr=qr;
+async function send(){const name=document.getElementById('name').value.trim().replace(/\s+/g,' '),iban=ibanClean(document.getElementById('iban').value),bank=document.getElementById('bank').value.trim();
+  const okI=/^SA[0-9]{22}$/.test(iban);
+  showErr('e_name',name?'':'اكتب اسمك');showErr('e_iban',!iban?'اكتب الآيبان':okI?'':'الآيبان يبدأ بـ SA وبعده 22 رقم');showErr('e_bank',bank?'':'اكتب اسم البنك');showErr('e_all','');
+  if(!name||!okI||!bank)return;
+  const d={name,iban,bank:bank.slice(0,40)};if(qr)d.qr=qr;
   const b=document.getElementById('send');b.disabled=true;b.textContent='جاري الإرسال…';
-  try{if(!window.lamma||!lamma.sendForm)throw new Error('offline');await lamma.sendForm(d);
-    m.innerHTML=`<div class="done"><div class="big">🤍</div><h2>وصلت… شكرًا لك!</h2><p class="lead">ونشوفك بالبطولة 🏆</p><button class="btn btn-soft" id="again">تعديل بياناتي</button></div>`;
-    document.getElementById('again').onclick=()=>form(Object.assign({},d));
-  }catch(e){b.disabled=false;b.textContent='إرسال 🤍';showErr('e_all','ما وصلت 😕 تأكد من النت وجرّب مرة ثانية')}}
+  try{if(!window.lamma||!lamma.sendForm)throw new Error('offline');await lamma.sendForm(d);done()}
+  catch(e){b.disabled=false;b.textContent='إرسال 🤍';showErr('e_all','ما وصلت 😕 تأكد من النت وجرّب مرة ثانية')}}
 (async()=>{let d=null;try{if(window.lamma&&lamma.myForm)d=await lamma.myForm()}catch(e){}form(d)})();
 </script>
 </body>
