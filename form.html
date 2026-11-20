@@ -43,12 +43,7 @@ textarea{min-height:96px;resize:vertical}
 </head>
 <body>
 <div class="sadu"></div>
-<main id="m"><p class="lead">جاري التحميل…</p></main>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="config.js"></script>
-<script src="lamma-firebase.js"></script>
+<main id="m"></main>
 <script>
 const m=document.getElementById('m');
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -93,9 +88,16 @@ async function send(){const name=document.getElementById('name').value.trim().re
   if(!name||!okI||!bank)return;
   const d={name,iban,bank:bank.slice(0,40)};if(qr)d.qr=qr;
   const b=document.getElementById('send');b.disabled=true;b.textContent='جاري الإرسال…';
-  try{if(!window.lamma||!lamma.sendForm)throw new Error('offline');await lamma.sendForm(d);done()}
+  try{await fbReady;if(!window.lamma||!lamma.sendForm)throw new Error('offline');await lamma.sendForm(d);done()}
   catch(e){b.disabled=false;b.textContent='إرسال';showErr('e_all','ما وصلت 😕 تأكد من النت وجرّب مرة ثانية')}}
-(async()=>{let d=null;try{if(window.lamma&&lamma.myForm)d=await lamma.myForm()}catch(e){}form(d)})();
+form(null);
+const fbReady=new Promise(r=>document.addEventListener('DOMContentLoaded',()=>r()));
+fbReady.then(async()=>{try{if(window.lamma&&lamma.myForm){const d=await lamma.myForm();if(d&&d.name&&d.t)done()}}catch(e){}});
 </script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js" defer></script>
+<script src="config.js" defer></script>
+<script src="lamma-firebase.js" defer></script>
 </body>
 </html>
