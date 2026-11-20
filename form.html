@@ -68,7 +68,7 @@ function form(d){d=d||{};qr=d.qr||'';
     <div><label>📷 QR <span class="hint">(اختياري)</span></label>
       <div class="qr" id="qrbox"></div><input type="file" id="qrf" accept="image/*" hidden></div>
     <div class="err" id="e_all" hidden></div>
-    <button class="btn btn-main" id="send" type="submit">إرسال 🤍</button>
+    <button class="btn btn-main" id="send" type="submit">إرسال</button>
   </form>`;
   drawQr();
   document.getElementById('qrf').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)shrink(f)};
@@ -94,7 +94,7 @@ async function send(){const name=document.getElementById('name').value.trim().re
   const d={name,iban,bank:bank.slice(0,40)};if(qr)d.qr=qr;
   const b=document.getElementById('send');b.disabled=true;b.textContent='جاري الإرسال…';
   try{if(!window.lamma||!lamma.sendForm)throw new Error('offline');await lamma.sendForm(d);done()}
-  catch(e){b.disabled=false;b.textContent='إرسال 🤍';showErr('e_all','ما وصلت 😕 تأكد من النت وجرّب مرة ثانية')}}
+  catch(e){b.disabled=false;b.textContent='إرسال';showErr('e_all','ما وصلت 😕 تأكد من النت وجرّب مرة ثانية')}}
 (async()=>{let d=null;try{if(window.lamma&&lamma.myForm)d=await lamma.myForm()}catch(e){}form(d)})();
 </script>
 </body>
